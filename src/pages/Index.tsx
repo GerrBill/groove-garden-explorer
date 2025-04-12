@@ -124,6 +124,7 @@ const Index = () => {
                     image={album.image_url}
                     title={album.title}
                     artist={album.artist}
+                    size="md"
                   />
                 );
               })}

@@ -37,7 +37,11 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         </AspectRatio>
         <button 
           className="absolute bottom-2 right-2 w-10 h-10 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
-          onClick={(e) => e.stopPropagation()} // Prevent click from bubbling to parent Link
+          onClick={(e) => {
+            e.preventDefault(); // Prevent navigation when clicking the play button
+            e.stopPropagation(); // Prevent click from bubbling up
+            console.log('Play button clicked');
+          }}
         >
           <Play size={20} className="text-white ml-0.5" fill="white" />
         </button>
@@ -51,8 +55,9 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     return (
       <Link 
         to={`/album/${id}`} 
-        className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
+        className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
         aria-label={`View album ${title}`}
+        onClick={() => console.log(`Navigating to album/${id}`)}
       >
         {content}
       </Link>
