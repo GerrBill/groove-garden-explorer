@@ -35,7 +35,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   // Content to display in the card
   const content = (
     <>
-      <div className="relative mb-4">
+      <div className="relative mb-3">
         <AspectRatio ratio={1/1} className="overflow-hidden rounded shadow-md">
           <img 
             src={image} 
@@ -67,7 +67,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     return (
       <Link 
         to={`/album/${id}`} 
-        className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
+        className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
         aria-label={`View album ${title}`}
         onClick={handleCardClick}
         data-testid={`album-card-${id}`}
@@ -78,7 +78,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}>
+    <div className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}>
       {content}
     </div>
   );

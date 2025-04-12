@@ -50,7 +50,7 @@ const Index = () => {
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       
       <div className="px-6 py-4 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="w-full">
             <CategoryCard 
               image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
@@ -58,7 +58,7 @@ const Index = () => {
               size="lg"
             />
           </div>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-3">
             <CategoryCard 
               image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
               title="Jack Pearson"
@@ -104,17 +104,17 @@ const Index = () => {
         
         <HomeSection title="Available Albums" showAllLink>
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-full p-4 rounded-md">
-                  <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-4"></div>
+                <div key={i} className="w-full p-3 rounded-md">
+                  <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-3"></div>
                   <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
                   <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {albums.map((album) => {
                 console.log("Rendering album:", album.id, album.title); // Debug: Check each album
                 return (
@@ -133,7 +133,7 @@ const Index = () => {
         </HomeSection>
         
         <HomeSection title="Recently played" showAllLink>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {albums.slice(0, 7).map((album) => (
               <AlbumCard 
                 key={album.id}
