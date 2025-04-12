@@ -6,6 +6,8 @@ interface AlbumNotFoundProps {
 }
 
 const AlbumNotFound: React.FC<AlbumNotFoundProps> = ({ onGoBack }) => {
+  console.log("Rendering AlbumNotFound component");
+  
   return (
     <div className="flex flex-col items-center justify-center h-64">
       <p className="text-xl text-spotify-text-secondary">Album not found</p>

@@ -25,6 +25,14 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     lg: 'w-full',
   };
   
+  // Separate handler for the play button to prevent navigation
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Play button clicked for album:', id);
+  };
+  
+  // Content to display in the card
   const content = (
     <>
       <div className="relative mb-4">
@@ -37,11 +45,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         </AspectRatio>
         <button 
           className="absolute bottom-2 right-2 w-10 h-10 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
-          onClick={(e) => {
-            e.preventDefault(); // Prevent navigation when clicking the play button
-            e.stopPropagation(); // Prevent click from bubbling up
-            console.log('Play button clicked');
-          }}
+          onClick={handlePlayClick}
+          aria-label="Play album"
         >
           <Play size={20} className="text-white ml-0.5" fill="white" />
         </button>
@@ -51,13 +56,21 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     </>
   );
   
+  // Handle navigation when the card is clicked
+  const handleCardClick = () => {
+    if (id) {
+      console.log(`Navigating to album/${id}`);
+    }
+  };
+  
   if (id) {
     return (
       <Link 
         to={`/album/${id}`} 
         className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
         aria-label={`View album ${title}`}
-        onClick={() => console.log(`Navigating to album/${id}`)}
+        onClick={handleCardClick}
+        data-testid={`album-card-${id}`}
       >
         {content}
       </Link>
