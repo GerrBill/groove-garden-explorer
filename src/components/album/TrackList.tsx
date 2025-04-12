@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Clock, MoreHorizontal } from 'lucide-react';
+import { Clock, MoreHorizontal, Heart } from 'lucide-react';
 
 interface Track {
   id: number;
