@@ -49,11 +49,13 @@ const Index = () => {
       
       <div className="px-6 py-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <CategoryCard 
-            image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-            title="Focus Radio"
-            size="lg"
-          />
+          <div className="w-[120%] transform scale-120"> {/* Making Focus Radio 20% bigger */}
+            <CategoryCard 
+              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
+              title="Focus Radio"
+              size="lg"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-6">
             <CategoryCard 
               image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
