@@ -41,12 +41,14 @@ const Index = () => {
     fetchAlbums();
   }, [toast]);
 
+  const featuredAlbum = albums.length > 0 ? albums[0] : null;
+
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       
       <div className="px-6 py-4">
-        <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <CategoryCard 
             image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
             title="Focus Radio"
@@ -77,19 +79,30 @@ const Index = () => {
         </div>
         
         <HomeSection title="Picked for you">
-          <FeaturedCard 
-            image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-            title="Dark Academia Jazz"
-            description="In a dim, dusty library, reading your novel, and thinking of that special someone..."
-            type="Playlist"
-          />
+          {featuredAlbum && (
+            <FeaturedCard 
+              image={featuredAlbum.image_url}
+              title={featuredAlbum.title || "Dark Academia Jazz"}
+              description={featuredAlbum.description || "In a dim, dusty library, reading your novel, and thinking of that special someone..."}
+              type="Album"
+              id={featuredAlbum.id}
+            />
+          )}
+          {!featuredAlbum && (
+            <FeaturedCard 
+              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
+              title="Dark Academia Jazz"
+              description="In a dim, dusty library, reading your novel, and thinking of that special someone..."
+              type="Playlist"
+            />
+          )}
         </HomeSection>
         
         <HomeSection title="Available Albums" showAllLink>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-44 p-4 rounded-md">
+                <div key={i} className="w-full sm:w-44 p-4 rounded-md">
                   <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-4"></div>
                   <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
                   <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
@@ -97,7 +110,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
               {albums.map((album) => (
                 <AlbumCard 
                   key={album.id}
@@ -112,7 +125,7 @@ const Index = () => {
         </HomeSection>
         
         <HomeSection title="Recently played" showAllLink>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5">
             {albums.slice(0, 7).map((album) => (
               <AlbumCard 
                 key={album.id}
