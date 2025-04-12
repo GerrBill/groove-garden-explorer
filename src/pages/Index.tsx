@@ -83,7 +83,7 @@ const Index = () => {
             <FeaturedCard 
               image={featuredAlbum.image_url}
               title={featuredAlbum.title || "Dark Academia Jazz"}
-              description={featuredAlbum.description || "In a dim, dusty library, reading your novel, and thinking of that special someone..."}
+              description={featuredAlbum.artist || "By " + featuredAlbum.artist}
               type="Album"
               id={featuredAlbum.id}
             />

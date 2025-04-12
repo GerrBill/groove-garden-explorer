@@ -19,7 +19,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
   type,
   id,
 }) => {
-  const content = (
+  const renderContent = () => (
     <div className="flex flex-col md:flex-row items-stretch bg-gradient-to-r from-zinc-800/70 to-zinc-900/30 rounded-lg overflow-hidden relative cursor-pointer group">
       <div className="w-full md:w-2/3 p-6 flex flex-col justify-between z-10">
         <div>
@@ -40,7 +40,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
         </div>
       </div>
       
-      <div className="w-full md:w-2/5 h-48 md:h-auto">
+      <div className="w-full md:w-2/5 h-48 md:h-auto relative">
         <AspectRatio ratio={1/1} className="h-full">
           <img 
             src={image} 
@@ -54,15 +54,16 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
     </div>
   );
 
+  // If we have an ID, wrap the content in a Link
   if (id) {
     return (
       <Link to={`/album/${id}`} className="block">
-        {content}
+        {renderContent()}
       </Link>
     );
   }
 
-  return content;
+  return renderContent();
 };
 
 export default FeaturedCard;
