@@ -9,8 +9,8 @@ interface HomeSectionProps {
 
 const HomeSection: React.FC<HomeSectionProps> = ({ title, children, showAllLink = false }) => {
   return (
-    <section className="mb-8">
-      <div className="flex justify-between items-center mb-4">
+    <section className="mb-6">
+      <div className="flex justify-between items-center mb-3">
         <h2 className="text-2xl font-bold">{title}</h2>
         {showAllLink && (
           <button className="text-sm font-bold text-spotify-text-secondary hover:text-white">
