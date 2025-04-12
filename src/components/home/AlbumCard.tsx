@@ -20,9 +20,9 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   id
 }) => {
   const sizeClasses = {
-    sm: 'w-36 xs:w-32',
-    md: 'w-44 sm:w-40 xs:w-36',
-    lg: 'w-52 sm:w-48 xs:w-40',
+    sm: 'w-full',
+    md: 'w-full',
+    lg: 'w-full',
   };
   
   const content = (
