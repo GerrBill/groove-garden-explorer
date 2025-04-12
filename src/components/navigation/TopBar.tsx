@@ -7,7 +7,7 @@ const TopBar: React.FC = () => {
   return (
     <div className="h-[30px] w-full bg-black border-b border-zinc-800 flex items-center justify-between px-4">
       <div className="flex items-center">
-        <div className="h-[26px] flex items-center">
+        <div className="h-[22px] flex items-center">
           <img 
             src="/lovable-uploads/8b5edd18-788f-4777-a313-70ccc56e19cf.png" 
             alt="Gerrbill Media" 
