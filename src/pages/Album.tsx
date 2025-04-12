@@ -8,6 +8,7 @@ import TrackList from '@/components/album/TrackList';
 import { Play, Heart, MoreHorizontal, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const Album = () => {
   const { id } = useParams();
@@ -171,13 +172,13 @@ const Album = () => {
             <div className="grid grid-cols-2 gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex flex-col gap-2">
-                  <div className="aspect-square bg-zinc-800 rounded-md overflow-hidden">
+                  <AspectRatio ratio={1/1} className="overflow-hidden rounded-md">
                     <img 
                       src={album.image_url} 
                       alt={`${album.artist} album ${i}`}
                       className="w-full h-full object-cover"
                     />
-                  </div>
+                  </AspectRatio>
                   <div className="truncate text-sm font-medium">Related Album {i}</div>
                   <div className="text-xs text-spotify-text-secondary">{album.year}</div>
                 </div>

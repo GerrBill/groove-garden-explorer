@@ -2,6 +2,7 @@
 import React from 'react';
 import { Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface AlbumCardProps {
   image: string;
@@ -27,11 +28,13 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   const content = (
     <>
       <div className="relative mb-4">
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full aspect-square object-cover rounded shadow-md" 
-        />
+        <AspectRatio ratio={1/1} className="overflow-hidden rounded shadow-md">
+          <img 
+            src={image} 
+            alt={title} 
+            className="w-full h-full object-cover" 
+          />
+        </AspectRatio>
         <button className="absolute bottom-2 right-2 w-10 h-10 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg">
           <Play size={20} className="text-white ml-0.5" fill="white" />
         </button>
