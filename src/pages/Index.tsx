@@ -47,8 +47,8 @@ const Index = () => {
     <div className="flex-1 overflow-y-auto pb-24">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       
-      <div className="px-6 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="px-6 py-4 space-y-8"> {/* Added space-y-8 for vertical spacing between sections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="w-[120%] transform scale-120"> {/* Making Focus Radio 20% bigger */}
             <CategoryCard 
               image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
@@ -112,7 +112,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {albums.map((album) => (
                 <AlbumCard 
                   key={album.id}
@@ -127,7 +127,7 @@ const Index = () => {
         </HomeSection>
         
         <HomeSection title="Recently played" showAllLink>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6">
             {albums.slice(0, 7).map((album) => (
               <AlbumCard 
                 key={album.id}
