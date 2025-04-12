@@ -5,7 +5,6 @@ import { Album as AlbumType } from '@/types/supabase';
 import TopNav from '@/components/navigation/TopNav';
 import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
-import CategoryCard from '@/components/home/CategoryCard';
 import FeaturedCard from '@/components/home/FeaturedCard';
 import { useToast } from "@/components/ui/use-toast";
 
@@ -49,40 +48,9 @@ const Index = () => {
     <div className="flex-1 overflow-y-auto pb-24">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       
-      <div className="px-6 py-4 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-          <div className="w-full">
-            <CategoryCard 
-              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-              title="Focus Radio"
-              size="lg"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-1">
-            <CategoryCard 
-              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-              title="Jack Pearson"
-              size="md"
-            />
-            <CategoryCard 
-              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-              title="Tore Down House"
-              size="md"
-            />
-            <CategoryCard 
-              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-              title="Live At North Sea Jazz Festival"
-              size="md"
-            />
-            <CategoryCard 
-              image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-              title="Crimes Of Passion"
-              size="md"
-            />
-          </div>
-        </div>
-        
-        <HomeSection title="Picked for you">
+      <div className="px-6 py-4 space-y-6 max-w-5xl mx-auto">
+        {/* Featured Album Section */}
+        <HomeSection title="Featured Album">
           {featuredAlbum && (
             <FeaturedCard 
               image={featuredAlbum.image_url}
@@ -102,10 +70,11 @@ const Index = () => {
           )}
         </HomeSection>
         
+        {/* Available Albums Grid */}
         <HomeSection title="Available Albums" showAllLink>
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1">
-              {[...Array(5)].map((_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[...Array(10)].map((_, i) => (
                 <div key={i} className="w-full p-1 rounded-md">
                   <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
                   <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
@@ -114,7 +83,7 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {albums.map((album) => {
                 console.log("Rendering album:", album.id, album.title); // Debug: Check each album
                 return (
@@ -132,9 +101,10 @@ const Index = () => {
           )}
         </HomeSection>
         
+        {/* Recently Played Albums */}
         <HomeSection title="Recently played" showAllLink>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-1">
-            {albums.slice(0, 7).map((album) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {albums.slice(0, 6).map((album) => (
               <AlbumCard 
                 key={album.id}
                 id={album.id}
