@@ -1,11 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, Maximize2, ListMusic } from 'lucide-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Player = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isCompact, setIsCompact] = useState(false);
   const duration = 213; // Song duration in seconds (3:33)
   
   const formatTime = (time: number) => {
@@ -14,11 +15,8 @@ const Player = () => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
   
-  // Use a custom breakpoint for the player
-  const [isCompact, setIsCompact] = useState(false);
-  
   // Check if screen is under 700px
-  useState(() => {
+  useEffect(() => {
     const checkWidth = () => {
       setIsCompact(window.innerWidth < 700);
     };
