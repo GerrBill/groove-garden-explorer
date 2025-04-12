@@ -35,7 +35,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   // Content to display in the card
   const content = (
     <>
-      <div className="relative mb-2">
+      <div className="relative mb-1">
         <AspectRatio ratio={1/1} className="overflow-hidden rounded shadow-md">
           <img 
             src={image} 
@@ -44,15 +44,15 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
           />
         </AspectRatio>
         <button 
-          className="absolute bottom-2 right-2 w-10 h-10 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
+          className="absolute bottom-1 right-1 w-8 h-8 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
           onClick={handlePlayClick}
           aria-label="Play album"
         >
-          <Play size={20} className="text-white ml-0.5" fill="white" />
+          <Play size={16} className="text-white ml-0.5" fill="white" />
         </button>
       </div>
-      <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
-      <p className="text-xs text-spotify-text-secondary mt-1 line-clamp-2">{artist}</p>
+      <h3 className="font-medium text-xs line-clamp-1">{title}</h3>
+      <p className="text-xs text-spotify-text-secondary mt-0.5 line-clamp-2">{artist}</p>
     </>
   );
   
@@ -67,7 +67,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     return (
       <Link 
         to={`/album/${id}`} 
-        className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
+        className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
         aria-label={`View album ${title}`}
         onClick={handleCardClick}
         data-testid={`album-card-${id}`}
@@ -78,7 +78,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   }
   
   return (
-    <div className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}>
+    <div className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}>
       {content}
     </div>
   );
