@@ -43,6 +43,8 @@ const Index = () => {
 
   const featuredAlbum = albums.length > 0 ? albums[0] : null;
 
+  console.log("Albums data:", albums); // Debug: Check album data structure
+
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
@@ -113,15 +115,18 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {albums.map((album) => (
-                <AlbumCard 
-                  key={album.id}
-                  id={album.id}
-                  image={album.image_url}
-                  title={album.title}
-                  artist={album.artist}
-                />
-              ))}
+              {albums.map((album) => {
+                console.log("Rendering album:", album.id, album.title); // Debug: Check each album
+                return (
+                  <AlbumCard 
+                    key={album.id}
+                    id={album.id}
+                    image={album.image_url}
+                    title={album.title}
+                    artist={album.artist}
+                  />
+                );
+              })}
             </div>
           )}
         </HomeSection>

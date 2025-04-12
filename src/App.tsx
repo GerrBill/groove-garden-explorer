@@ -22,6 +22,8 @@ const App = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  console.log("App rendered, routes should be active"); // Debug: Check if App component renders
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
