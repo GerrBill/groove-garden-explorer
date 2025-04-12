@@ -37,7 +37,7 @@ const App = () => {
               <div className="flex flex-col flex-grow w-full">
                 <button 
                   onClick={toggleSidebar}
-                  className="md:hidden fixed top-8 left-4 z-30 bg-zinc-900 rounded-full p-2 shadow-lg"
+                  className="md:hidden fixed top-10 left-4 z-30 bg-zinc-900 rounded-full p-2 shadow-lg"
                 >
                   <Menu size={24} className="text-orange-700" />
                 </button>
