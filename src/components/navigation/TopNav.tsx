@@ -7,7 +7,7 @@ interface TopNavProps {
 }
 
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
-  const tabs = ['All', 'Music', 'Podcasts', 'Audiobooks'];
+  const tabs = ['All', 'Music', 'Blogs'];
   
   return (
     <div className="sticky top-0 z-10 backdrop-blur-md bg-spotify-background/80 pt-4 pb-2">
@@ -35,7 +35,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
             key={tab}
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               selectedTab === tab 
-                ? 'bg-white text-black' 
+                ? 'bg-orange-700 text-white' 
                 : 'bg-zinc-800 text-white hover:bg-zinc-700'
             }`}
             onClick={() => setSelectedTab(tab)}
