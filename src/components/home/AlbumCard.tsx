@@ -1,19 +1,21 @@
-
 import React from 'react';
 import { Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface AlbumCardProps {
   image: string;
   title: string;
   artist: string;
   size?: 'sm' | 'md' | 'lg';
+  id?: string;
 }
 
 const AlbumCard: React.FC<AlbumCardProps> = ({ 
   image, 
   title, 
   artist,
-  size = 'md'
+  size = 'md',
+  id
 }) => {
   const sizeClasses = {
     sm: 'w-36',
@@ -21,8 +23,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     lg: 'w-52',
   };
   
-  return (
-    <div className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}>
+  const content = (
+    <>
       <div className="relative mb-4">
         <img 
           src={image} 
@@ -35,6 +37,23 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
       </div>
       <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
       <p className="text-xs text-spotify-text-secondary mt-1 line-clamp-2">{artist}</p>
+    </>
+  );
+  
+  if (id) {
+    return (
+      <Link 
+        to={`/album/${id}`} 
+        className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
+      >
+        {content}
+      </Link>
+    );
+  }
+  
+  return (
+    <div className={`${sizeClasses[size]} bg-spotify-card bg-opacity-40 p-4 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}>
+      {content}
     </div>
   );
 };

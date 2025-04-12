@@ -9,7 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      albums: {
+        Row: {
+          artist: string
+          created_at: string
+          duration: string | null
+          id: string
+          image_url: string
+          title: string
+          track_count: string | null
+          year: string | null
+        }
+        Insert: {
+          artist: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          image_url: string
+          title: string
+          track_count?: string | null
+          year?: string | null
+        }
+        Update: {
+          artist?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          image_url?: string
+          title?: string
+          track_count?: string | null
+          year?: string | null
+        }
+        Relationships: []
+      }
+      tracks: {
+        Row: {
+          album_id: string
+          artist: string
+          created_at: string
+          duration: string
+          id: string
+          is_liked: boolean | null
+          plays: number | null
+          title: string
+          track_number: number
+        }
+        Insert: {
+          album_id: string
+          artist: string
+          created_at?: string
+          duration: string
+          id?: string
+          is_liked?: boolean | null
+          plays?: number | null
+          title: string
+          track_number: number
+        }
+        Update: {
+          album_id?: string
+          artist?: string
+          created_at?: string
+          duration?: string
+          id?: string
+          is_liked?: boolean | null
+          plays?: number | null
+          title?: string
+          track_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracks_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

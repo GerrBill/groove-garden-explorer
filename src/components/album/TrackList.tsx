@@ -9,13 +9,16 @@ interface Track {
   plays: string;
   duration: string;
   isPlaying?: boolean;
+  isLiked?: boolean;
+  trackId: string;
 }
 
 interface TrackListProps {
   tracks: Track[];
+  onToggleLike?: (trackId: string) => void;
 }
 
-const TrackList: React.FC<TrackListProps> = ({ tracks }) => {
+const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike }) => {
   return (
     <div className="px-6 py-4">
       <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-spotify-text-secondary text-sm">
@@ -51,8 +54,11 @@ const TrackList: React.FC<TrackListProps> = ({ tracks }) => {
           </div>
           
           <div className="flex items-center justify-end">
-            <button className="text-spotify-text-secondary opacity-0 group-hover:opacity-100 hover:text-white">
-              <Heart size={16} />
+            <button 
+              className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
+              onClick={() => onToggleLike && track.trackId && onToggleLike(track.trackId)}
+            >
+              <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
             </button>
           </div>
           
