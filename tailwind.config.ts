@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Music app specific colors
+				spotify: {
+					background: '#121212',
+					card: '#282828',
+					text: {
+						primary: '#FFFFFF',
+						secondary: '#B3B3B3',
+					},
+					accent: '#1DB954',
 				}
 			},
 			borderRadius: {
