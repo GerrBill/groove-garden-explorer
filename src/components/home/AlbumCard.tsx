@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -18,9 +19,9 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   id
 }) => {
   const sizeClasses = {
-    sm: 'w-36',
-    md: 'w-44',
-    lg: 'w-52',
+    sm: 'w-36 xs:w-32',
+    md: 'w-44 sm:w-40 xs:w-36',
+    lg: 'w-52 sm:w-48 xs:w-40',
   };
   
   const content = (
@@ -31,8 +32,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
           alt={title} 
           className="w-full aspect-square object-cover rounded shadow-md" 
         />
-        <button className="absolute bottom-2 right-2 w-10 h-10 bg-spotify-accent rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg">
-          <Play size={20} className="text-black ml-0.5" fill="black" />
+        <button className="absolute bottom-2 right-2 w-10 h-10 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg">
+          <Play size={20} className="text-white ml-0.5" fill="white" />
         </button>
       </div>
       <h3 className="font-medium text-sm line-clamp-1">{title}</h3>

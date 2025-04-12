@@ -1,12 +1,12 @@
 
-import { Search, PlusSquare, ExternalLink, Library, Heart } from "lucide-react";
+import { Search, PlusSquare, ExternalLink, Library, Heart, Book } from "lucide-react";
 import { Link } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 h-screen bg-black flex flex-col border-r border-zinc-800 flex-shrink-0">
+    <div className="w-64 h-screen bg-black flex flex-col border-r border-zinc-800 flex-shrink-0 transition-all duration-300 md:translate-x-0 sm:w-56 xs:w-48 absolute md:relative z-20 transform -translate-x-full md:translate-x-0">
       <div className="p-6 flex flex-col gap-6">
         <div className="flex items-center gap-1">
           <div className="w-8 h-8">
@@ -32,7 +32,7 @@ const Sidebar = () => {
           </div>
         </div>
         
-        <div className="space-x-2 flex">
+        <div className="space-x-2 flex flex-wrap gap-2">
           <button className="px-3 py-1.5 bg-zinc-900 text-white text-sm font-medium rounded-full hover:bg-zinc-800">
             Playlists
           </button>
@@ -41,6 +41,9 @@ const Sidebar = () => {
           </button>
           <button className="px-3 py-1.5 bg-zinc-900 text-white text-sm font-medium rounded-full hover:bg-zinc-800">
             Albums
+          </button>
+          <button className="px-3 py-1.5 bg-zinc-900 text-white text-sm font-medium rounded-full hover:bg-zinc-800">
+            Blogs
           </button>
         </div>
         
@@ -58,10 +61,16 @@ const Sidebar = () => {
       <div className="overflow-y-auto flex-grow px-2">
         <SidebarPlaylist 
           name="Liked Songs" 
-          icon={<Heart className="text-spotify-accent" size={18} />} 
+          icon={<Heart className="text-orange-700" size={18} />} 
           type="Playlist" 
           count="592 songs" 
           isLiked={true} 
+        />
+        
+        <SidebarPlaylist 
+          name="Music Blogs" 
+          icon={<Book className="text-orange-700" size={18} />} 
+          type="Blog" 
         />
         
         <SidebarPlaylist 

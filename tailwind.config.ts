@@ -19,6 +19,9 @@ export default {
 			}
 		},
 		extend: {
+			screens: {
+				'xs': '480px',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -72,7 +75,11 @@ export default {
 						secondary: '#B3B3B3',
 					},
 					accent: '#1DB954',
-				}
+				},
+				orange: {
+					700: '#c2410c', // Subtle dark orange
+					800: '#9a3412', // Darker version for hover states
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
