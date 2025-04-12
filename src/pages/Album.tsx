@@ -7,6 +7,7 @@ import AlbumHeader from '@/components/album/AlbumHeader';
 import TrackList from '@/components/album/TrackList';
 import { Play, Heart, MoreHorizontal, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Album = () => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ const Album = () => {
   const [album, setAlbum] = useState<AlbumType | null>(null);
   const [tracks, setTracks] = useState<TrackType[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     async function fetchAlbumData() {
@@ -132,35 +134,57 @@ const Album = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-accent"></div>
         </div>
       ) : album ? (
-        <>
-          <AlbumHeader 
-            image={album.image_url}
-            title={album.title}
-            artist={album.artist}
-            year={album.year || ""}
-            trackCount={album.track_count || `${tracks.length} songs`}
-            duration={album.duration || ""}
-          />
-          
-          <div className="px-6 py-4 flex items-center gap-8">
-            <button className="w-14 h-14 flex items-center justify-center bg-spotify-accent rounded-full hover:scale-105 transition shadow-lg">
-              <Play size={28} className="text-black ml-1" fill="black" />
-            </button>
+        <div className={`flex ${isMobile ? 'flex-col' : 'md:flex-row'} gap-6`}>
+          <div className="flex-1">
+            <AlbumHeader 
+              image={album.image_url}
+              title={album.title}
+              artist={album.artist}
+              year={album.year || ""}
+              trackCount={album.track_count || `${tracks.length} songs`}
+              duration={album.duration || ""}
+            />
             
-            <button className="w-10 h-10 flex items-center justify-center border border-zinc-700 rounded-full hover:border-white hover:scale-105 transition">
-              <Heart size={20} />
-            </button>
+            <div className="px-6 py-4 flex items-center gap-8">
+              <button className="w-14 h-14 flex items-center justify-center bg-spotify-accent rounded-full hover:scale-105 transition shadow-lg">
+                <Play size={28} className="text-black ml-1" fill="black" />
+              </button>
+              
+              <button className="w-10 h-10 flex items-center justify-center border border-zinc-700 rounded-full hover:border-white hover:scale-105 transition">
+                <Heart size={20} />
+              </button>
+              
+              <button className="w-10 h-10 flex items-center justify-center hover:text-white">
+                <MoreHorizontal size={20} />
+              </button>
+            </div>
             
-            <button className="w-10 h-10 flex items-center justify-center hover:text-white">
-              <MoreHorizontal size={20} />
-            </button>
+            <TrackList 
+              tracks={formattedTracks} 
+              onToggleLike={handleToggleLike}
+            />
           </div>
           
-          <TrackList 
-            tracks={formattedTracks} 
-            onToggleLike={handleToggleLike}
-          />
-        </>
+          {/* Related albums section - Will be displayed below on mobile */}
+          <div className={`${isMobile ? 'w-full mt-8 px-6' : 'w-80'} shrink-0`}>
+            <h3 className="text-xl font-bold mb-4">More by {album.artist}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex flex-col gap-2">
+                  <div className="aspect-square bg-zinc-800 rounded-md overflow-hidden">
+                    <img 
+                      src={album.image_url} 
+                      alt={`${album.artist} album ${i}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="truncate text-sm font-medium">Related Album {i}</div>
+                  <div className="text-xs text-spotify-text-secondary">{album.year}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-64">
           <p className="text-xl text-spotify-text-secondary">Album not found</p>
