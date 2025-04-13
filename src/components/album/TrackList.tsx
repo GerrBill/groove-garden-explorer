@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Clock, MoreHorizontal, Heart } from 'lucide-react';
+import { Clock, MoreHorizontal, Heart, Play } from 'lucide-react';
 
 interface Track {
   id: number;
@@ -16,9 +16,10 @@ interface Track {
 interface TrackListProps {
   tracks: Track[];
   onToggleLike?: (trackId: string) => void;
+  onPlayTrack?: (trackId: string) => void;
 }
 
-const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike }) => {
+const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack }) => {
   return (
     <div className="px-6 py-4">
       <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-spotify-text-secondary text-sm">
@@ -39,7 +40,13 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike }) => {
           }`}
         >
           <div className="flex items-center">
-            <span>{track.id}</span>
+            <span className="group-hover:hidden">{track.id}</span>
+            <button 
+              className="hidden group-hover:flex items-center justify-center"
+              onClick={() => onPlayTrack && track.trackId && onPlayTrack(track.trackId)}
+            >
+              <Play size={14} />
+            </button>
           </div>
           
           <div className="flex items-center gap-3 overflow-hidden">

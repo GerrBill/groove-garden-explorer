@@ -15,6 +15,7 @@ import { TrackFormValues } from './schemas/trackFormSchema';
 import TrackForm from './components/TrackForm';
 import { supabase } from '@/integrations/supabase/client';
 import { Track } from '@/types/supabase';
+import { fileToBase64, getApproximateDuration, generateFilePath } from '@/utils/fileUpload';
 
 interface AddTrackDialogProps {
   children?: React.ReactNode;
@@ -87,28 +88,14 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
     setIsSubmitting(true);
 
     try {
-      // Upload the audio file to Supabase Storage
-      const fileExt = audioFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${audioFile.name}`;
-      const filePath = `${albumId}/${fileName}`;
+      // Generate a file path for the audio file
+      const filePath = generateFilePath(albumId, audioFile.name);
       
-      // Upload the file to the media bucket
-      const { data: fileData, error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, audioFile, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // In a real production app, we would upload the file to a server here
+      // For this demo, we'll store the audio data in the database
+      // Note: In production, you would use a proper file storage system
+      const audioBase64 = await fileToBase64(audioFile);
       
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get the public URL for the file
-      const { data: publicUrlData } = supabase.storage
-        .from('media')
-        .getPublicUrl(filePath);
-
       // Calculate next track number
       const { data: existingTracks, error: fetchError } = await supabase
         .from('tracks')
@@ -120,10 +107,13 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       
       const nextTrackNumber = existingTracks.length > 0 ? 
         existingTracks[0].track_number + 1 : 1;
-
-      // Calculate an approximate duration for placeholder
-      // In a real app, this would be derived from the actual audio file metadata
-      const approximateDuration = '3:30';
+      
+      // Calculate an approximate duration
+      const approximateDuration = getApproximateDuration();
+      
+      // Save the audio data to localStorage for demo purposes
+      // In a real app, you would upload this to a server or cloud storage
+      localStorage.setItem(`audio_${filePath}`, audioBase64);
       
       // Insert the track data into Supabase
       const { data: trackData, error } = await supabase

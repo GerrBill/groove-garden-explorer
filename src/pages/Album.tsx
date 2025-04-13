@@ -11,6 +11,7 @@ import AlbumNotFound from '@/components/album/AlbumNotFound';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { Track } from '@/types/supabase';
+import { useState } from 'react';
 
 const Album = () => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ const Album = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { album, tracks, loading, setTracks } = useAlbumData(id);
+  const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -64,6 +66,15 @@ const Album = () => {
     }
   };
 
+  const handlePlayTrack = (trackId: string) => {
+    const track = tracks.find(t => t.id === trackId);
+    if (track) {
+      setSelectedTrack(track);
+      // Publish the selected track to be used by the Player component
+      window.dispatchEvent(new CustomEvent('trackSelected', { detail: track }));
+    }
+  };
+
   // Convert tracks to the format expected by TrackList component
   const formattedTracks = tracks.map(track => ({
     id: track.track_number,
@@ -103,6 +114,7 @@ const Album = () => {
             <TrackList 
               tracks={formattedTracks} 
               onToggleLike={handleToggleLike}
+              onPlayTrack={handlePlayTrack}
             />
           </div>
           
