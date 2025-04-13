@@ -20,6 +20,9 @@ interface TrackListProps {
 }
 
 const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack }) => {
+  // Debug output to check tracks data
+  console.log('TrackList rendering with tracks:', tracks);
+  
   return (
     <div className="w-full">
       <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-spotify-text-secondary text-sm">

@@ -91,6 +91,11 @@ const Album = () => {
   };
 
   // Convert tracks to the format expected by TrackList component
+  // Add better debugging to trace any issues
+  useEffect(() => {
+    console.log('Raw tracks data:', tracks);
+  }, [tracks]);
+
   const formattedTracks = tracks.map(track => ({
     id: track.id,
     title: track.title,
@@ -105,8 +110,9 @@ const Album = () => {
   useEffect(() => {
     if (tracks.length > 0) {
       console.log('Tracks available:', tracks);
+      console.log('Formatted tracks:', formattedTracks);
     }
-  }, [tracks]);
+  }, [tracks, formattedTracks]);
 
   return (
     <div className="flex-1 overflow-y-auto pb-40">
