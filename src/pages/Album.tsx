@@ -117,39 +117,40 @@ const Album = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-accent"></div>
         </div>
       ) : album ? (
-        <div className={`flex ${isMobile ? 'flex-col' : 'md:flex-row'} gap-6`}>
-          <div className="flex-1">
-            <div className="flex items-end justify-between pr-6">
-              <AlbumHeader 
-                image={album.image_url}
-                title={album.title}
-                artist={album.artist}
-                year={album.year || ""}
-                trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
-                duration={album.duration || ""}
+        <div className="flex flex-col">
+          <div className="flex items-end justify-between pr-6">
+            <AlbumHeader 
+              image={album.image_url}
+              title={album.title}
+              artist={album.artist}
+              year={album.year || ""}
+              trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
+              duration={album.duration || ""}
+            />
+            <div className="mb-4">
+              <UpdateAlbumArtDialog 
+                albumId={id || ''} 
+                currentImage={album.image_url}
+                onImageUpdated={handleAlbumArtUpdated}
               />
-              <div className="mb-4">
-                <UpdateAlbumArtDialog 
-                  albumId={id || ''} 
-                  currentImage={album.image_url}
-                  onImageUpdated={handleAlbumArtUpdated}
-                />
-              </div>
             </div>
-            
-            <AlbumActions 
-              albumId={id} 
-              onTrackAdded={handleTrackAdded}
-            />
-            
-            <TrackList 
-              tracks={formattedTracks} 
-              onToggleLike={handleToggleLike}
-              onPlayTrack={handlePlayTrack}
-            />
           </div>
           
-          <RelatedAlbums album={album} isMobile={isMobile} />
+          <AlbumActions 
+            albumId={id} 
+            onTrackAdded={handleTrackAdded}
+          />
+          
+          <TrackList 
+            tracks={formattedTracks} 
+            onToggleLike={handleToggleLike}
+            onPlayTrack={handlePlayTrack}
+          />
+          
+          {/* RelatedAlbums moved here, below the track list */}
+          <div className="mt-8 mb-16 px-6">
+            <RelatedAlbums album={album} isMobile={isMobile} />
+          </div>
         </div>
       ) : (
         <AlbumNotFound onGoBack={handleGoBack} />
