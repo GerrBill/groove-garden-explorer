@@ -7,12 +7,14 @@ import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState('All');
   const [albums, setAlbums] = useState<AlbumType[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
 
   const fetchAlbums = async () => {
     setLoading(true);
@@ -53,6 +55,11 @@ const Index = () => {
     });
   };
 
+  // Determine the grid columns based on screen size
+  const gridClass = isMobileView 
+    ? "grid-cols-1" // 1 column on mobile
+    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; // Default grid for larger screens
+
   return (
     <div className="flex-1 overflow-hidden w-full pb-24">
       <TopNav 
@@ -63,14 +70,11 @@ const Index = () => {
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
-          {/* Featured Album section removed as requested */}
-          
           <HomeSection 
             title="Available Albums"
-            // showAllLink prop removed
           >
             {loading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
+              <div className={`grid ${gridClass} gap-1`}>
                 {[...Array(10)].map((_, i) => (
                   <div key={i} className="w-full p-1 rounded-md">
                     <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
@@ -80,7 +84,7 @@ const Index = () => {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
+              <div className={`grid ${gridClass} gap-1`}>
                 {albums.length > 0 ? (
                   albums.map((album) => (
                     <AlbumCard 
@@ -100,8 +104,6 @@ const Index = () => {
               </div>
             )}
           </HomeSection>
-          
-          {/* Removed the "Recently played" section as requested */}
         </div>
       </ScrollArea>
     </div>

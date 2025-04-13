@@ -11,19 +11,37 @@ import Sidebar from "./components/sidebar/Sidebar";
 import Player from "./components/player/Player";
 import TopBar from "./components/navigation/TopBar";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "./hooks/use-mobile";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
 
   useEffect(() => {
+    // Load sidebar state from localStorage when component mounts
     const storedSidebarState = localStorage.getItem('sidebar_visible');
     if (storedSidebarState !== null) {
       setSidebarOpen(storedSidebarState === 'true');
     }
   }, []);
+
+  // Hide sidebar on mobile automatically
+  useEffect(() => {
+    if (isMobileView) {
+      setSidebarOpen(false);
+    } else {
+      // On desktop, restore from localStorage or default to open
+      const storedSidebarState = localStorage.getItem('sidebar_visible');
+      if (storedSidebarState !== null) {
+        setSidebarOpen(storedSidebarState === 'true');
+      } else {
+        setSidebarOpen(true);
+      }
+    }
+  }, [isMobileView]);
 
   useEffect(() => {
     const existingUserId = localStorage.getItem('anonymous_user_id');
@@ -54,13 +72,16 @@ const App = () => {
       }
 
       if (data) {
-        setSidebarOpen(data.sidebar_visible);
-        localStorage.setItem('sidebar_visible', data.sidebar_visible.toString());
+        // Only apply user preferences if not on mobile
+        if (!isMobileView) {
+          setSidebarOpen(data.sidebar_visible);
+          localStorage.setItem('sidebar_visible', data.sidebar_visible.toString());
+        }
       }
     };
 
     loadUserPreferences();
-  }, [userId]);
+  }, [userId, isMobileView]);
 
   const toggleSidebar = async () => {
     const newState = !sidebarOpen;
