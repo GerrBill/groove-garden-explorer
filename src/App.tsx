@@ -1,11 +1,9 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Index from "./pages/Index";
 import Album from "./pages/Album";
 import NotFound from "./pages/NotFound";
@@ -20,7 +18,6 @@ const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Initialize sidebar visibility from local storage first (for immediate UI feedback)
   useEffect(() => {
     const storedSidebarState = localStorage.getItem('sidebar_visible');
     if (storedSidebarState !== null) {
@@ -28,9 +25,7 @@ const App = () => {
     }
   }, []);
 
-  // Generate a unique ID for anonymous users to save preferences
   useEffect(() => {
-    // Use existing ID from local storage or create a new one
     const existingUserId = localStorage.getItem('anonymous_user_id');
     if (existingUserId) {
       setUserId(existingUserId);
@@ -41,7 +36,6 @@ const App = () => {
     }
   }, []);
 
-  // Load user preferences from database
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (!userId) return;
@@ -53,7 +47,7 @@ const App = () => {
         .single();
 
       if (error) {
-        if (error.code !== 'PGRST116') { // Not found error
+        if (error.code !== 'PGRST116') {
           console.error('Error loading preferences:', error);
         }
         return;
@@ -72,10 +66,8 @@ const App = () => {
     const newState = !sidebarOpen;
     setSidebarOpen(newState);
     
-    // Store in local storage for immediate persistence across page reloads
     localStorage.setItem('sidebar_visible', newState.toString());
     
-    // Store in database for persistence across devices
     if (userId) {
       const { data, error } = await supabase
         .from('user_preferences')
@@ -89,13 +81,11 @@ const App = () => {
       }
       
       if (data) {
-        // Update existing record
         await supabase
           .from('user_preferences')
           .update({ sidebar_visible: newState, updated_at: new Date().toISOString() })
           .eq('user_id', userId);
       } else {
-        // Insert new record
         await supabase
           .from('user_preferences')
           .insert({
@@ -106,7 +96,7 @@ const App = () => {
     }
   };
 
-  console.log("App rendered, routes should be active"); // Debug: Check if App component renders
+  console.log("App rendered, routes should be active");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -115,27 +105,13 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
-            <TopBar />
+            <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
             <div className="flex flex-grow relative">
-              {/* Sidebar Toggle Button - positioned absolutely */}
-              <button 
-                onClick={toggleSidebar}
-                className="absolute left-5 top-5 z-10 text-orange-700 hover:text-white transition-colors focus:outline-none"
-                aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
-              >
-                {sidebarOpen ? 
-                  <ChevronLeft size={20} /> : 
-                  <ChevronRight size={20} />
-                }
-              </button>
-              
-              {/* Updated sidebar container to be completely removed when closed */}
               {sidebarOpen && (
                 <div className="transition-all duration-300">
                   <Sidebar />
                 </div>
               )}
-              {/* Main content now takes full width when sidebar is closed */}
               <div className="flex flex-col flex-grow w-full">
                 <div className="flex-grow overflow-y-auto">
                   <Routes>
