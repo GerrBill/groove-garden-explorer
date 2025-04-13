@@ -29,9 +29,9 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link to="/blogs" className="text-orange-700 hover:text-white transition-colors">
+            <span className="text-orange-700 hover:text-white transition-colors cursor-not-allowed">
               <BookOpen size={18} />
-            </Link>
+            </span>
           </TooltipTrigger>
           <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
             <p>FFS give me a chance...</p>
@@ -53,9 +53,9 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link to="/settings" className="text-orange-700 hover:text-white transition-colors">
+            <span className="text-orange-700 hover:text-white transition-colors cursor-not-allowed">
               <Settings size={18} />
-            </Link>
+            </span>
           </TooltipTrigger>
           <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
             <p>FFS give me a chance...</p>
