@@ -28,7 +28,19 @@ const Index = () => {
       if (error) throw error;
       
       console.log("Albums fetched:", data);
-      setAlbums(data || []);
+      
+      // Update the artist name for Frankie Sings the Blues album to Bill Parker
+      const updatedData = data?.map(album => {
+        if (album.title === "Frankie Sings the Blues") {
+          return { ...album, artist: "Bill Parker" };
+          
+          // Update in database
+          updateAlbumArtist(album.id, "Bill Parker");
+        }
+        return album;
+      });
+      
+      setAlbums(updatedData || []);
     } catch (error) {
       console.error('Error fetching albums:', error);
       toast({
@@ -38,6 +50,30 @@ const Index = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Function to update album artist in the database
+  const updateAlbumArtist = async (albumId: string, newArtist: string) => {
+    try {
+      const { error } = await supabase
+        .from('albums')
+        .update({ artist: newArtist })
+        .eq('id', albumId);
+        
+      if (error) throw error;
+      
+      // Also update the artist in tracks table for this album
+      const { error: tracksError } = await supabase
+        .from('tracks')
+        .update({ artist: newArtist })
+        .eq('album_id', albumId);
+        
+      if (tracksError) throw tracksError;
+      
+      console.log(`Updated artist for album ${albumId} to ${newArtist}`);
+    } catch (error) {
+      console.error('Error updating album artist:', error);
     }
   };
 
