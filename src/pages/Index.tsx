@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
@@ -7,7 +6,7 @@ import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
 import FeaturedCard from '@/components/home/FeaturedCard';
 import AddAlbumDialog from '@/components/album/AddAlbumDialog';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -42,13 +41,11 @@ const Index = () => {
 
   useEffect(() => {
     fetchAlbums();
-  }, [toast]);
+  }, []);
 
-  // Most recently uploaded album will be the featured one
   const featuredAlbum = albums.length > 0 ? albums[0] : null;
 
   const handleAlbumAdded = () => {
-    // Refetch albums after a new one is added
     fetchAlbums();
     toast({
       title: "Success",
@@ -63,7 +60,6 @@ const Index = () => {
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
-          {/* Featured Album Section */}
           <HomeSection title="Featured Album">
             {featuredAlbum && (
               <FeaturedCard 
@@ -84,7 +80,6 @@ const Index = () => {
             )}
           </HomeSection>
           
-          {/* Available Albums Grid */}
           <HomeSection 
             title="Available Albums" 
             showAllLink
@@ -123,7 +118,6 @@ const Index = () => {
             )}
           </HomeSection>
           
-          {/* Recently Played Albums */}
           <HomeSection title="Recently played" showAllLink>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
               {albums.slice(0, 6).map((album) => (
