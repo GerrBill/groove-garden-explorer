@@ -116,9 +116,13 @@ const App = () => {
           <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
             <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
             <div className="flex flex-grow">
-              <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300`}>
-                <Sidebar />
-              </div>
+              {/* Updated sidebar container to be completely removed when closed */}
+              {sidebarOpen && (
+                <div className="transition-all duration-300">
+                  <Sidebar />
+                </div>
+              )}
+              {/* Main content now takes full width when sidebar is closed */}
               <div className="flex flex-col flex-grow w-full">
                 <div className="flex-grow overflow-y-auto">
                   <Routes>

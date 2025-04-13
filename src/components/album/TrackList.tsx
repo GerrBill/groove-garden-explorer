@@ -32,7 +32,7 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
         </div>
       </div>
       
-      {tracks.length > 0 ? (
+      {tracks && tracks.length > 0 ? (
         <div className="space-y-1 mb-8">
           {tracks.map((track, index) => (
             <div 

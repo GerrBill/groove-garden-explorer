@@ -95,13 +95,13 @@ const Album = () => {
     id: track.id,
     title: track.title,
     artist: track.artist,
-    plays: track.plays,
+    plays: track.plays || 0,
     duration: track.duration,
     isLiked: track.is_liked,
     trackId: track.id
   }));
 
-  // Debug logs to help trace the issue
+  // Debug logs to help trace any issues
   useEffect(() => {
     if (tracks.length > 0) {
       console.log('Tracks available:', tracks);
