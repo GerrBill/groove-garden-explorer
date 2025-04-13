@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -92,17 +92,20 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
     setIsUploading(true);
 
     try {
-      // Generate a unique filename
+      // Generate a unique filename while preserving the extension
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `album_covers/${fileName}`;
+      const filePath = `images/${fileName}`;
 
       // Upload image to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('albums')
         .upload(filePath, imageFile);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
 
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
@@ -132,6 +135,12 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
       if (onAlbumAdded) {
         onAlbumAdded();
       }
+      
+      toast({
+        title: "Success",
+        description: "Album added successfully!",
+        variant: "default",
+      });
     } catch (error) {
       console.error("Error adding album:", error);
       toast({
