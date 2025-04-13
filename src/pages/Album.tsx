@@ -13,6 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { Track } from '@/types/supabase';
 import { useState, useEffect } from 'react';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Album = () => {
   const { id } = useParams();
@@ -115,55 +116,57 @@ const Album = () => {
   }, [tracks, formattedTracks]);
 
   return (
-    <div className="flex-1 overflow-y-auto pb-40">
-      <AlbumNavigation onGoBack={handleGoBack} />
-      
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-accent"></div>
-        </div>
-      ) : album ? (
-        <div className="flex flex-col">
-          <AlbumHeader 
-            image={album.image_url}
-            title={album.title}
-            artist={album.artist}
-            year={album.year || ""}
-            trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
-            duration={album.duration || ""}
-          />
-          
-          <AlbumActions 
-            albumId={id} 
-            onTrackAdded={handleTrackAdded}
-            updateAlbumArtDialog={
-              <UpdateAlbumArtDialog 
-                albumId={id || ''} 
-                currentImage={album.image_url}
-                onImageUpdated={handleAlbumArtUpdated}
-              />
-            }
-          />
-          
-          {/* Make sure TrackList is displayed with proper spacing */}
-          <div className="px-6 py-4 flex-grow">
-            <TrackList 
-              tracks={formattedTracks} 
-              onToggleLike={handleToggleLike}
-              onPlayTrack={handlePlayTrack}
+    <ScrollArea className="flex-1 h-[calc(100vh-140px)]">
+      <div className="pb-40">
+        <AlbumNavigation onGoBack={handleGoBack} />
+        
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-accent"></div>
+          </div>
+        ) : album ? (
+          <div className="flex flex-col">
+            <AlbumHeader 
+              image={album.image_url}
+              title={album.title}
+              artist={album.artist}
+              year={album.year || ""}
+              trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
+              duration={album.duration || ""}
             />
+            
+            <AlbumActions 
+              albumId={id} 
+              onTrackAdded={handleTrackAdded}
+              updateAlbumArtDialog={
+                <UpdateAlbumArtDialog 
+                  albumId={id || ''} 
+                  currentImage={album.image_url}
+                  onImageUpdated={handleAlbumArtUpdated}
+                />
+              }
+            />
+            
+            {/* Make sure TrackList is displayed with proper spacing */}
+            <div className="px-6 py-4 flex-grow">
+              <TrackList 
+                tracks={formattedTracks} 
+                onToggleLike={handleToggleLike}
+                onPlayTrack={handlePlayTrack}
+              />
+            </div>
+            
+            {/* RelatedAlbums with more space at bottom */}
+            <div className="mt-8 mb-24 px-6">
+              <RelatedAlbums album={album} isMobile={isMobile} />
+            </div>
+            <div className="h-24"></div> {/* Extra spacing at the bottom */}
           </div>
-          
-          {/* RelatedAlbums with more space at bottom */}
-          <div className="mt-8 mb-24 px-6">
-            <RelatedAlbums album={album} isMobile={isMobile} />
-          </div>
-          <div className="h-24"></div> {/* Extra spacing at the bottom (at least 100px) */}
-        </div>
-      ) : (
-        <AlbumNotFound onGoBack={handleGoBack} />
-      )}
-    </div>
+        ) : (
+          <AlbumNotFound onGoBack={handleGoBack} />
+        )}
+      </div>
+    </ScrollArea>
   );
 };
 
