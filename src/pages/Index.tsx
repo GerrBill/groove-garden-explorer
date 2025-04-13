@@ -6,6 +6,7 @@ import TopNav from '@/components/navigation/TopNav';
 import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
 import FeaturedCard from '@/components/home/FeaturedCard';
+import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -43,8 +44,6 @@ const Index = () => {
 
   const featuredAlbum = albums.length > 0 ? albums[0] : null;
 
-  console.log("Albums data:", albums); // Debug: Check album data structure
-
   return (
     <div className="flex-1 overflow-y-auto pb-24 w-full">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
@@ -73,7 +72,11 @@ const Index = () => {
           </HomeSection>
           
           {/* Available Albums Grid */}
-          <HomeSection title="Available Albums" showAllLink>
+          <HomeSection 
+            title="Available Albums" 
+            showAllLink
+            actionButton={<AddAlbumDialog />}
+          >
             {loading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
                 {[...Array(10)].map((_, i) => (
@@ -86,19 +89,16 @@ const Index = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
-                {albums.map((album) => {
-                  console.log("Rendering album:", album.id, album.title); // Debug: Check each album
-                  return (
-                    <AlbumCard 
-                      key={album.id}
-                      id={album.id}
-                      image={album.image_url}
-                      title={album.title}
-                      artist={album.artist}
-                      size="md"
-                    />
-                  );
-                })}
+                {albums.map((album) => (
+                  <AlbumCard 
+                    key={album.id}
+                    id={album.id}
+                    image={album.image_url}
+                    title={album.title}
+                    artist={album.artist}
+                    size="md"
+                  />
+                ))}
               </div>
             )}
           </HomeSection>
