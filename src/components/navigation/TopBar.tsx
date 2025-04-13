@@ -10,9 +10,9 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
   return (
-    <div className="h-[35px] w-full bg-black border-b border-zinc-800 flex items-center justify-between px-4">
+    <div className="h-[45px] w-full bg-black border-b border-zinc-800 flex items-center justify-between px-4">
       <div className="flex items-center">
-        <div className="h-[14px] flex items-center">
+        <div className="h-[18px] flex items-center">
           <img 
             src="/lovable-uploads/8b5edd18-788f-4777-a313-70ccc56e19cf.png" 
             alt="Gerrbill Media" 
@@ -21,12 +21,12 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         </div>
       </div>
       
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <Link to="/" className="text-orange-700 hover:text-white transition-colors">
-          <Music size={14} />
+          <Music size={18} />
         </Link>
         <Link to="/blogs" className="text-orange-700 hover:text-white transition-colors">
-          <BookOpen size={14} />
+          <BookOpen size={18} />
         </Link>
         {toggleSidebar && (
           <button 
@@ -35,13 +35,13 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
             aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
           >
             {sidebarOpen ? 
-              <ChevronLeft size={14} /> : 
-              <ChevronRight size={14} />
+              <ChevronLeft size={18} /> : 
+              <ChevronRight size={18} />
             }
           </button>
         )}
         <Link to="/settings" className="text-orange-700 hover:text-white transition-colors">
-          <Settings size={14} />
+          <Settings size={18} />
         </Link>
       </div>
     </div>
