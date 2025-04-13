@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Index from "./pages/Index";
 import Album from "./pages/Album";
 import NotFound from "./pages/NotFound";
@@ -114,8 +115,20 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
-            <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-            <div className="flex flex-grow">
+            <TopBar />
+            <div className="flex flex-grow relative">
+              {/* Sidebar Toggle Button - positioned absolutely */}
+              <button 
+                onClick={toggleSidebar}
+                className="absolute left-5 top-5 z-10 text-orange-700 hover:text-white transition-colors focus:outline-none"
+                aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+              >
+                {sidebarOpen ? 
+                  <ChevronLeft size={20} /> : 
+                  <ChevronRight size={20} />
+                }
+              </button>
+              
               {/* Updated sidebar container to be completely removed when closed */}
               {sidebarOpen && (
                 <div className="transition-all duration-300">
