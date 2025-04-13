@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useForm, FormProvider } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 import ImageUpload from './components/ImageUpload';
 
 interface UpdateAlbumArtDialogProps {
   albumId: string;
-  currentImage?: string;
+  currentImage: string;
   onImageUpdated: (newImageUrl: string) => void;
 }
 
@@ -28,8 +29,11 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(currentImage);
   const { toast } = useToast();
+  
+  // Add form context with useForm hook
+  const form = useForm();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -42,7 +46,7 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
     }
   };
 
-  const handleUpdateImage = async () => {
+  const handleSubmit = async () => {
     if (!imageFile) {
       toast({
         title: "Error",
@@ -55,37 +59,37 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
     setIsUploading(true);
 
     try {
-      // Generate a unique filename for the image
+      // Generate a unique filename for storage
       const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${albumId}/${Date.now()}-album-cover.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      // Upload the image to Supabase Storage
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `albums/${albumId}/${fileName}`;
+      
+      // Upload the image file to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('audio')
+        .from('images')
         .upload(filePath, imageFile);
-
+      
       if (uploadError) throw uploadError;
-
+      
       // Get the public URL for the uploaded image
-      const { data: { publicUrl } } = supabase.storage
-        .from('audio')
+      const { data } = supabase.storage
+        .from('images')
         .getPublicUrl(filePath);
-
-      // Update the album's image_url in the database
+      
+      const publicUrl = data.publicUrl;
+      
+      // Update the album with the new image URL
       const { error: updateError } = await supabase
         .from('albums')
         .update({ image_url: publicUrl })
         .eq('id', albumId);
-
+      
       if (updateError) throw updateError;
       
-      // Call the callback with the new image URL
+      // Call the callback to update the UI
       onImageUpdated(publicUrl);
       
-      // Reset the state and close the dialog
       setOpen(false);
-      
       toast({
         title: "Success",
         description: "Album art updated successfully!",
@@ -105,41 +109,48 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 gap-1">
+        <Button variant="outline" size="sm" className="flex items-center gap-1">
           <ImageIcon size={14} />
-          <span className="text-xs">Update Cover</span>
+          <span>Update Cover</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Update Album Art</DialogTitle>
           <DialogDescription>
-            Upload a new image for this album cover.
+            Upload a new image for this album.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
-          <ImageUpload
-            imagePreview={imagePreview}
-            handleFileChange={handleFileChange}
-          />
-          
-          <div className="flex justify-end gap-3 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isUploading}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleUpdateImage}
-              disabled={isUploading || !imageFile}
-            >
-              {isUploading ? "Updating..." : "Update Album Art"}
-            </Button>
-          </div>
-        </div>
+        {/* Wrap form components with FormProvider */}
+        <FormProvider {...form}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }} className="space-y-4">
+            <ImageUpload 
+              imagePreview={imagePreview} 
+              handleFileChange={handleFileChange} 
+            />
+            
+            <div className="flex justify-end gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setOpen(false)}
+                disabled={isUploading}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isUploading || !imageFile}
+              >
+                {isUploading ? "Uploading..." : "Update Image"}
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );
