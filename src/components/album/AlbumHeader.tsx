@@ -23,13 +23,13 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
   const isMobile = useIsMobile(768); // Use the useIsMobile hook with a breakpoint of 768px
 
   return (
-    <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6">
-      <div className={`flex ${isMobile ? 'flex-col items-center w-full' : 'items-end gap-6'}`}>
+    <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6 w-full">
+      <div className={`${isMobile ? 'flex flex-col items-center' : 'flex items-end gap-6'} w-full`}>
         {isMobile && (
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center">{title}</h1>
         )}
         
-        <div className={`${isMobile ? 'flex justify-center w-full' : ''}`}>
+        <div className={`${isMobile ? 'w-full flex justify-center' : ''}`}>
           <img 
             src={image} 
             alt={title} 
@@ -37,7 +37,7 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
           />
         </div>
         
-        <div className={`flex flex-col ${isMobile ? 'mt-4 items-center' : ''} gap-2 md:gap-4`}>
+        <div className={`flex flex-col ${isMobile ? 'mt-4 items-center w-full' : ''} gap-2 md:gap-4`}>
           {!isMobile && (
             <>
               <span className="text-xs font-medium">Album</span>
