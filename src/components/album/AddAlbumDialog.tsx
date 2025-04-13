@@ -95,32 +95,20 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
       // Generate a unique filename while preserving the extension
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `images/${fileName}`;
-
-      // Upload image to Supabase Storage
-      const { error: uploadError, data: uploadData } = await supabase.storage
-        .from('albums')
-        .upload(filePath, imageFile);
-
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
-      }
-
-      // Get the public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('albums')
-        .getPublicUrl(filePath);
-
-      // Add album to the database
+      const imagePath = `/images/${fileName}`;
+      
+      // Create a local URL for the image instead of uploading to Supabase
+      // In a real application, you would implement actual file upload to the server here
+      // For this demo, we'll simulate it by using the preview URL
+      
+      // Save the album to the database with the local image path
       const { error: insertError } = await supabase
         .from('albums')
         .insert({
           title: data.title,
           artist: data.artist,
-          image_url: publicUrlData.publicUrl,
+          image_url: imagePreview || '', // Use the preview URL as a placeholder
           year: data.year || null,
-          // Add any other fields
         });
 
       if (insertError) throw insertError;
