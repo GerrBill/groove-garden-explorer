@@ -25,7 +25,13 @@ const Album = () => {
 
   const handleTrackAdded = (newTrack: Track) => {
     // Add the new track to the tracks list
-    setTracks([...tracks, newTrack]);
+    setTracks(prevTracks => [...prevTracks, newTrack]);
+    
+    toast({
+      title: "Success",
+      description: "Track added successfully!",
+      duration: 3000
+    });
   };
 
   const handleToggleLike = async (trackId: string) => {

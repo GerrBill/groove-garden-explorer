@@ -112,7 +112,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
             track_number: nextTrackNumber,
             is_liked: false,
             genre: data.genre || null,
-            comment: data.comment || null,
+            // Removed comment field since it doesn't exist in the database schema
             file_name: audioFile.name, // Store the filename
           }
         ])

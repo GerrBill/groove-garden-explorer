@@ -1,17 +1,15 @@
 
 import React from 'react';
-import { Play, Heart, MoreHorizontal, Music } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
+import { Play, Heart, MoreHorizontal } from 'lucide-react';
 import AddTrackDialog from './AddTrackDialog';
+import { Track } from '@/types/supabase';
 
 interface AlbumActionsProps {
   albumId?: string;
+  onTrackAdded?: (track: Track) => void;
 }
 
-const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId }) => {
-  const navigate = useNavigate();
-  
+const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded }) => {
   return (
     <div className="px-6 py-4 flex items-center gap-8">
       <button 
@@ -29,7 +27,10 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId }) => {
       </button>
       
       {albumId && (
-        <AddTrackDialog albumId={albumId} />
+        <AddTrackDialog 
+          albumId={albumId} 
+          onTrackAdded={onTrackAdded}
+        />
       )}
       
       <button 
