@@ -24,18 +24,18 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
 
   return (
     <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6">
-      <div className={`flex ${isMobile ? 'flex-col' : 'items-end gap-6'}`}>
+      <div className={`flex ${isMobile ? 'flex-col items-center' : 'items-end gap-6'}`}>
         {isMobile && (
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{title}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center">{title}</h1>
         )}
         
         <img 
           src={image} 
           alt={title} 
-          className={`${isMobile ? 'w-full max-w-[300px]' : 'w-48 md:w-56'} h-auto shadow-xl object-cover mx-auto md:mx-0`} 
+          className={`${isMobile ? 'w-full max-w-[300px]' : 'w-48 md:w-56'} h-auto shadow-xl object-cover`} 
         />
         
-        <div className={`flex flex-col ${isMobile ? 'mt-4' : ''} gap-2 md:gap-4`}>
+        <div className={`flex flex-col ${isMobile ? 'mt-4 items-center' : ''} gap-2 md:gap-4`}>
           {!isMobile && (
             <>
               <span className="text-xs font-medium">Album</span>
@@ -43,7 +43,7 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
             </>
           )}
           
-          <div className="flex items-center gap-1 text-xs sm:text-sm mt-1">
+          <div className={`flex items-center gap-1 text-xs sm:text-sm mt-1 ${isMobile ? 'justify-center' : ''}`}>
             <img 
               src={image} 
               alt={artist} 
