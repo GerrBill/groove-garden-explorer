@@ -1,20 +1,19 @@
 
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Upload, Image as ImageIcon, X } from "lucide-react";
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -24,11 +23,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Upload, ImageIcon } from 'lucide-react';
 
-// Form schema with Zod validation
+// Form validation schema
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   artist: z.string().min(1, "Artist is required"),
@@ -40,17 +46,17 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface AddAlbumDialogProps {
-  children?: React.ReactNode; // Add children prop
+  children?: React.ReactNode;
+  onAlbumAdded?: () => void;
 }
 
-const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children }) => {
+const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded }) => {
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,79 +68,48 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children }) => {
     },
   });
 
-  // Handle file selection
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    
-    if (!file) return;
-    
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an image file",
-        variant: "destructive",
-      });
-      return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      
+      // Create a preview URL for the image
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
-    
-    // Check file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Image must be less than 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setImageFile(file);
-    
-    // Create a preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
-  // Clear the selected image
-  const clearImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-  };
-  
-  // Submit the form
   const onSubmit = async (data: FormValues) => {
     if (!imageFile) {
       toast({
-        title: "Image required",
+        title: "Error",
         description: "Please upload an album cover image",
         variant: "destructive",
       });
       return;
     }
-    
+
     setIsUploading(true);
-    
+
     try {
-      // 1. Upload the image to storage
+      // Generate a unique filename
       const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `album-covers/${fileName}`;
-      
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `album_covers/${fileName}`;
+
+      // Upload image to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('albums')
         .upload(filePath, imageFile);
-      
+
       if (uploadError) throw uploadError;
-      
-      // 2. Get the public URL
+
+      // Get the public URL
       const { data: publicUrlData } = supabase.storage
         .from('albums')
         .getPublicUrl(filePath);
-      
-      // 3. Insert the album record
+
+      // Add album to the database
       const { error: insertError } = await supabase
         .from('albums')
         .insert({
@@ -142,23 +117,21 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children }) => {
           artist: data.artist,
           image_url: publicUrlData.publicUrl,
           year: data.year || null,
-          // Store additional info in existing fields
-          track_count: data.genre || null,  // Using track_count to store genre
-          duration: data.comments || null,  // Using duration to store comments
+          // Add any other fields
         });
-      
+
       if (insertError) throw insertError;
-      
-      toast({
-        title: "Album added",
-        description: "Your album has been successfully added",
-      });
-      
-      // Reset form and close dialog
+
+      // Reset the form
       form.reset();
-      clearImage();
+      setImageFile(null);
+      setImagePreview(null);
       setOpen(false);
       
+      // Notify the parent component that an album was added
+      if (onAlbumAdded) {
+        onAlbumAdded();
+      }
     } catch (error) {
       console.error("Error adding album:", error);
       toast({
@@ -183,178 +156,165 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md md:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">Add New Album</DialogTitle>
+          <DialogTitle>Add New Album</DialogTitle>
           <DialogDescription>
-            Upload album cover art and provide album details
+            Upload an album cover and fill in the details below.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-            {/* Image Upload Section */}
-            <div className="w-full sm:w-1/2 space-y-2">
-              <label className="text-sm font-medium leading-none">
-                Album Cover
-              </label>
-              <div className="border-2 border-dashed border-zinc-700 rounded-md p-4 hover:border-orange-700 transition-colors">
-                <input
-                  type="file"
-                  id="album-cover"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  disabled={isUploading}
-                />
-                
-                <label 
-                  htmlFor="album-cover" 
-                  className="flex flex-col items-center gap-2 cursor-pointer text-center p-4"
-                >
-                  <ImageIcon className="h-10 w-10 text-orange-700" />
-                  <span className="text-sm font-medium">
-                    {imageFile ? 'Change Image' : 'Upload Cover Art'}
-                  </span>
-                  <span className="text-xs text-spotify-text-secondary">
-                    JPG, PNG or GIF (max 5MB)
-                  </span>
-                </label>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-full md:w-1/2">
+                <FormLabel>Album Cover</FormLabel>
+                <div className="mt-2 flex items-center justify-center border-2 border-dashed border-gray-600 rounded-md p-4 h-36">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="album-cover"
+                  />
+                  <label
+                    htmlFor="album-cover"
+                    className="flex flex-col items-center justify-center cursor-pointer w-full h-full"
+                  >
+                    <Upload className="w-8 h-8 text-gray-500" />
+                    <span className="mt-2 text-sm text-gray-500">Click to browse</span>
+                  </label>
+                </div>
               </div>
-            </div>
-            
-            {/* Image Preview */}
-            <div className="w-full sm:w-1/2">
-              <div className="rounded-md overflow-hidden bg-zinc-800 h-full">
+              
+              <div className="w-full md:w-1/2 flex items-center justify-center">
                 {imagePreview ? (
-                  <div className="relative h-full">
-                    <AspectRatio ratio={1/1}>
-                      <img
-                        src={imagePreview}
-                        alt="Album preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </AspectRatio>
-                    <button
-                      type="button"
-                      onClick={clearImage}
-                      className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-full p-1 hover:bg-opacity-70 transition-all"
-                      disabled={isUploading}
-                    >
-                      <X size={16} className="text-white" />
-                    </button>
+                  <div className="relative w-36 h-36 overflow-hidden rounded-md">
+                    <img
+                      src={imagePreview}
+                      alt="Album preview"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full p-8">
-                    <p className="text-xs text-spotify-text-secondary">
-                      Preview will appear here
-                    </p>
+                  <div className="flex flex-col items-center justify-center w-36 h-36 bg-gray-800 rounded-md">
+                    <ImageIcon className="w-10 h-10 text-gray-400" />
+                    <span className="mt-2 text-xs text-gray-400">No image selected</span>
                   </div>
                 )}
               </div>
             </div>
-          </div>
-          
-          {/* Album Details Form */}
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Title Field */}
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Album title" {...field} disabled={isUploading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Artist Field */}
-                <FormField
-                  control={form.control}
-                  name="artist"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Artist</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Artist name" {...field} disabled={isUploading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Genre Field */}
-                <FormField
-                  control={form.control}
-                  name="genre"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Genre</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Genre" {...field} disabled={isUploading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Year Field */}
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Release year" {...field} disabled={isUploading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              {/* Comments Field */}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="comments"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Comments</FormLabel>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Additional notes about this album" 
-                        {...field} 
-                        className="resize-none" 
-                        rows={3}
-                        disabled={isUploading}
-                      />
+                      <Input placeholder="Album title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               
-              {/* Form Actions */}
-              <div className="flex justify-end gap-2">
-                <DialogClose asChild>
-                  <Button type="button" variant="outline" disabled={isUploading}>
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button type="submit" disabled={isUploading}>
-                  {isUploading ? "Saving..." : "Save Album"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
+              <FormField
+                control={form.control}
+                name="artist"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Artist</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Artist name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="genre"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Genre</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select genre" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="rock">Rock</SelectItem>
+                        <SelectItem value="pop">Pop</SelectItem>
+                        <SelectItem value="jazz">Jazz</SelectItem>
+                        <SelectItem value="classical">Classical</SelectItem>
+                        <SelectItem value="hip-hop">Hip Hop</SelectItem>
+                        <SelectItem value="electronic">Electronic</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Release year" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <FormField
+              control={form.control}
+              name="comments"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Comments</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Additional notes about this album"
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={isUploading}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isUploading}
+              >
+                {isUploading ? "Uploading..." : "Add Album"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

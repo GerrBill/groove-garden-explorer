@@ -18,33 +18,44 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    async function fetchAlbums() {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('albums')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        setAlbums(data || []);
-      } catch (error) {
-        console.error('Error fetching albums:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load albums. Please try again later.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
+  const fetchAlbums = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('albums')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setAlbums(data || []);
+    } catch (error) {
+      console.error('Error fetching albums:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load albums. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchAlbums();
   }, [toast]);
 
+  // Most recently uploaded album will be the featured one
   const featuredAlbum = albums.length > 0 ? albums[0] : null;
+
+  const handleAlbumAdded = () => {
+    // Refetch albums after a new one is added
+    fetchAlbums();
+    toast({
+      title: "Success",
+      description: "Album added successfully!",
+      variant: "default"
+    });
+  };
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24">
@@ -58,7 +69,7 @@ const Index = () => {
               <FeaturedCard 
                 image={featuredAlbum.image_url}
                 title={featuredAlbum.title || "Dark Academia Jazz"}
-                description={featuredAlbum.artist || "By " + featuredAlbum.artist}
+                description={featuredAlbum.artist ? `By ${featuredAlbum.artist}` : "In a dim, dusty library, reading your novel..."}
                 type="Album"
                 id={featuredAlbum.id}
               />
@@ -78,7 +89,7 @@ const Index = () => {
             title="Available Albums" 
             showAllLink
             actionButton={
-              <AddAlbumDialog>
+              <AddAlbumDialog onAlbumAdded={handleAlbumAdded}>
                 <Button size="sm" className="flex items-center gap-1">
                   <Plus size={16} />
                   Add Album
