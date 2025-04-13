@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 interface TopNavProps {
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
+  onAlbumAdded?: () => void;  // Add this prop
 }
 
-const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
+const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, onAlbumAdded }) => {
   const tabs = ['All', 'Music', 'Blogs'];
   
   return (
@@ -48,7 +49,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
         
         {/* Add spacing between tab buttons and Add Album button */}
         <div className="ml-3">
-          <AddAlbumDialog>
+          <AddAlbumDialog onAlbumAdded={onAlbumAdded}>
             <Button size="sm" className="flex items-center gap-1 rounded-full">
               <Plus size={16} />
               Add Album

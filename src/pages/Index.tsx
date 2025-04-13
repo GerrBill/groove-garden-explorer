@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
@@ -58,7 +57,11 @@ const Index = () => {
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24">
-      <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+      <TopNav 
+        selectedTab={selectedTab} 
+        setSelectedTab={setSelectedTab}
+        onAlbumAdded={handleAlbumAdded}
+      />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
