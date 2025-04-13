@@ -38,12 +38,24 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
             className="w-6 h-6 rounded-full object-cover" 
           />
           <span className="font-medium hover:underline cursor-pointer">{artist}</span>
-          <span className="text-spotify-text-secondary mx-1">•</span>
-          <span className="text-spotify-text-secondary">{year}</span>
-          <span className="text-spotify-text-secondary mx-1">•</span>
-          <span className="text-spotify-text-secondary">{trackCount}</span>
-          <span className="text-spotify-text-secondary mx-1">•</span>
-          <span className="text-spotify-text-secondary">{duration}</span>
+          {year && (
+            <>
+              <span className="text-spotify-text-secondary mx-1">•</span>
+              <span className="text-spotify-text-secondary">{year}</span>
+            </>
+          )}
+          {trackCount && (
+            <>
+              <span className="text-spotify-text-secondary mx-1">•</span>
+              <span className="text-spotify-text-secondary">{trackCount}</span>
+            </>
+          )}
+          {duration && (
+            <>
+              <span className="text-spotify-text-secondary mx-1">•</span>
+              <span className="text-spotify-text-secondary">{duration}</span>
+            </>
+          )}
         </div>
       </div>
     </div>

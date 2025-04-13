@@ -8,6 +8,7 @@ import AlbumNavigation from '@/components/album/AlbumNavigation';
 import AlbumActions from '@/components/album/AlbumActions';
 import RelatedAlbums from '@/components/album/RelatedAlbums';
 import AlbumNotFound from '@/components/album/AlbumNotFound';
+import UpdateAlbumArtDialog from '@/components/album/UpdateAlbumArtDialog';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { Track } from '@/types/supabase';
@@ -35,6 +36,17 @@ const Album = () => {
     toast({
       title: "Success",
       description: "Track added successfully!",
+      duration: 3000
+    });
+  };
+
+  const handleAlbumArtUpdated = (newImageUrl: string) => {
+    // Refetch album data to get the updated image
+    refetch();
+    
+    toast({
+      title: "Success",
+      description: "Album art updated successfully!",
       duration: 3000
     });
   };
@@ -97,7 +109,7 @@ const Album = () => {
   }, [tracks]);
 
   return (
-    <div className="flex-1 overflow-y-auto pb-24">
+    <div className="flex-1 overflow-y-auto pb-32">
       <AlbumNavigation onGoBack={handleGoBack} />
       
       {loading ? (
@@ -107,14 +119,23 @@ const Album = () => {
       ) : album ? (
         <div className={`flex ${isMobile ? 'flex-col' : 'md:flex-row'} gap-6`}>
           <div className="flex-1">
-            <AlbumHeader 
-              image={album.image_url}
-              title={album.title}
-              artist={album.artist}
-              year={album.year || ""}
-              trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
-              duration={album.duration || ""}
-            />
+            <div className="flex items-end justify-between pr-6">
+              <AlbumHeader 
+                image={album.image_url}
+                title={album.title}
+                artist={album.artist}
+                year={album.year || ""}
+                trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
+                duration={album.duration || ""}
+              />
+              <div className="mb-4">
+                <UpdateAlbumArtDialog 
+                  albumId={id || ''} 
+                  currentImage={album.image_url}
+                  onImageUpdated={handleAlbumArtUpdated}
+                />
+              </div>
+            </div>
             
             <AlbumActions 
               albumId={id} 
