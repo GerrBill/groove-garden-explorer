@@ -9,7 +9,7 @@ import AlbumActions from '@/components/album/AlbumActions';
 import RelatedAlbums from '@/components/album/RelatedAlbums';
 import AlbumNotFound from '@/components/album/AlbumNotFound';
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Album = () => {
   const { id } = useParams();
@@ -83,7 +83,7 @@ const Album = () => {
               duration={album.duration || ""}
             />
             
-            <AlbumActions />
+            <AlbumActions albumId={id} />
             
             <TrackList 
               tracks={formattedTracks} 
