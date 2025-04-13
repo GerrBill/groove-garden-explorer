@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +13,7 @@ import Player from "./components/player/Player";
 import TopBar from "./components/navigation/TopBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "./hooks/use-mobile";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -121,32 +123,34 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
-            <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-            <div className="flex flex-grow relative">
-              {sidebarOpen && (
-                <div className="transition-all duration-300">
-                  <Sidebar />
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
+              <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+              <div className="flex flex-grow relative">
+                {sidebarOpen && (
+                  <div className="transition-all duration-300">
+                    <Sidebar />
+                  </div>
+                )}
+                <div className="flex flex-col flex-grow w-full">
+                  <div className="flex-grow overflow-y-auto">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/album/:id" element={<Album />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </div>
+                  <Player />
                 </div>
-              )}
-              <div className="flex flex-col flex-grow w-full">
-                <div className="flex-grow overflow-y-auto">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/album/:id" element={<Album />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </div>
-                <Player />
               </div>
             </div>
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

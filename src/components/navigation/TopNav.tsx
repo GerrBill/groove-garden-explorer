@@ -2,6 +2,7 @@
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { Button } from "@/components/ui/button";
+import AccountButton from '@/components/auth/AccountButton';
 
 interface TopNavProps {
   selectedTab: string;
@@ -24,7 +25,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, onAlbumAdd
           </button>
         </div>
         
-        {/* Profile link removed */}
+        <AccountButton />
       </div>
       
       <div className="flex items-center gap-2 px-6">
