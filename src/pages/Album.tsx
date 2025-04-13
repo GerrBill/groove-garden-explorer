@@ -109,7 +109,7 @@ const Album = () => {
   }, [tracks]);
 
   return (
-    <div className="flex-1 overflow-y-auto pb-36">
+    <div className="flex-1 overflow-y-auto pb-40">
       <AlbumNavigation onGoBack={handleGoBack} />
       
       {loading ? (
@@ -139,17 +139,20 @@ const Album = () => {
             }
           />
           
-          <TrackList 
-            tracks={formattedTracks} 
-            onToggleLike={handleToggleLike}
-            onPlayTrack={handlePlayTrack}
-          />
+          {/* Make sure TrackList is displayed with proper spacing */}
+          <div className="px-6 py-4 flex-grow">
+            <TrackList 
+              tracks={formattedTracks} 
+              onToggleLike={handleToggleLike}
+              onPlayTrack={handlePlayTrack}
+            />
+          </div>
           
-          {/* RelatedAlbums moved here, below the track list */}
+          {/* RelatedAlbums with more space at bottom */}
           <div className="mt-8 mb-24 px-6">
             <RelatedAlbums album={album} isMobile={isMobile} />
           </div>
-          <div className="h-16"></div> {/* Extra spacing at the bottom */}
+          <div className="h-24"></div> {/* Extra spacing at the bottom (at least 100px) */}
         </div>
       ) : (
         <AlbumNotFound onGoBack={handleGoBack} />
