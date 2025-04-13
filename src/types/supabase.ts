@@ -21,4 +21,5 @@ export interface Track {
   is_liked: boolean;
   created_at: string;
   genre?: string | null;
+  audio_path?: string | null;
 }

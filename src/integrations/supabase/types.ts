@@ -46,8 +46,10 @@ export type Database = {
         Row: {
           album_id: string
           artist: string
+          audio_path: string | null
           created_at: string
           duration: string
+          genre: string | null
           id: string
           is_liked: boolean | null
           plays: number | null
@@ -57,8 +59,10 @@ export type Database = {
         Insert: {
           album_id: string
           artist: string
+          audio_path?: string | null
           created_at?: string
           duration: string
+          genre?: string | null
           id?: string
           is_liked?: boolean | null
           plays?: number | null
@@ -68,8 +72,10 @@ export type Database = {
         Update: {
           album_id?: string
           artist?: string
+          audio_path?: string | null
           created_at?: string
           duration?: string
+          genre?: string | null
           id?: string
           is_liked?: boolean | null
           plays?: number | null

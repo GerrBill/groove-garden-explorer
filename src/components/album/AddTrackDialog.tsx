@@ -87,6 +87,28 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
     setIsSubmitting(true);
 
     try {
+      // Upload the audio file to Supabase Storage
+      const fileExt = audioFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${audioFile.name}`;
+      const filePath = `${albumId}/${fileName}`;
+      
+      // Upload the file to the media bucket
+      const { data: fileData, error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, audioFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get the public URL for the file
+      const { data: publicUrlData } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
       // Calculate next track number
       const { data: existingTracks, error: fetchError } = await supabase
         .from('tracks')
@@ -98,6 +120,10 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       
       const nextTrackNumber = existingTracks.length > 0 ? 
         existingTracks[0].track_number + 1 : 1;
+
+      // Calculate an approximate duration for placeholder
+      // In a real app, this would be derived from the actual audio file metadata
+      const approximateDuration = '3:30';
       
       // Insert the track data into Supabase
       const { data: trackData, error } = await supabase
@@ -107,12 +133,12 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
             album_id: albumId,
             title: data.title,
             artist: data.artist,
-            duration: '0:00', // This would be calculated from the actual file in a real implementation
+            duration: approximateDuration,
             plays: 0,
             track_number: nextTrackNumber,
             is_liked: false,
             genre: data.genre || null,
-            // Note: In a real app, we would save the audio file to a server and store the path
+            audio_path: filePath
           }
         ])
         .select('*')

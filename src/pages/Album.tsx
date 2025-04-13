@@ -95,7 +95,10 @@ const Album = () => {
               duration={album.duration || ""}
             />
             
-            <AlbumActions albumId={id} />
+            <AlbumActions 
+              albumId={id} 
+              onTrackAdded={handleTrackAdded}
+            />
             
             <TrackList 
               tracks={formattedTracks} 
