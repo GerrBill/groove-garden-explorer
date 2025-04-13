@@ -11,14 +11,14 @@ import AlbumNotFound from '@/components/album/AlbumNotFound';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { Track } from '@/types/supabase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Album = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { album, tracks, loading, setTracks } = useAlbumData(id);
+  const { album, tracks, loading, setTracks, refetch } = useAlbumData(id);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
 
   const handleGoBack = () => {
@@ -28,6 +28,9 @@ const Album = () => {
   const handleTrackAdded = (newTrack: Track) => {
     // Add the new track to the tracks list
     setTracks(prevTracks => [...prevTracks, newTrack]);
+    
+    // Refetch to ensure we have the latest data
+    refetch();
     
     toast({
       title: "Success",
@@ -77,14 +80,21 @@ const Album = () => {
 
   // Convert tracks to the format expected by TrackList component
   const formattedTracks = tracks.map(track => ({
-    id: track.track_number,
+    id: track.id,
     title: track.title,
     artist: track.artist,
-    plays: track.plays.toLocaleString(),
+    plays: track.plays,
     duration: track.duration,
     isLiked: track.is_liked,
     trackId: track.id
   }));
+
+  // Debug logs to help trace the issue
+  useEffect(() => {
+    if (tracks.length > 0) {
+      console.log('Tracks available:', tracks);
+    }
+  }, [tracks]);
 
   return (
     <div className="flex-1 overflow-y-auto pb-24">
@@ -102,7 +112,7 @@ const Album = () => {
               title={album.title}
               artist={album.artist}
               year={album.year || ""}
-              trackCount={album.track_count || `${tracks.length} songs`}
+              trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
               duration={album.duration || ""}
             />
             

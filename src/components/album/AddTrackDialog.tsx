@@ -109,8 +109,10 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       
       if (fetchError) throw fetchError;
       
-      const nextTrackNumber = existingTracks.length > 0 ? 
+      const nextTrackNumber = existingTracks && existingTracks.length > 0 ? 
         existingTracks[0].track_number + 1 : 1;
+      
+      console.log('Next track number:', nextTrackNumber);
       
       // Calculate an approximate duration
       const approximateDuration = getApproximateDuration();
@@ -152,7 +154,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       toast({
         title: "Success",
         description: "Track added successfully!",
-        variant: "default",
+        duration: 3000,
       });
     } catch (error) {
       console.error("Error adding track:", error);
