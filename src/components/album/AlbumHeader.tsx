@@ -25,11 +25,11 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
   return (
     <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6 w-full">
       {isMobile ? (
-        // Mobile layout - everything centered and stacked
-        <div className="flex flex-col items-center text-center w-full">
+        // Mobile layout - everything centered properly
+        <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{title}</h1>
           
-          <div className="w-full flex justify-center mb-4">
+          <div className="flex justify-center w-full mb-4">
             <img 
               src={image} 
               alt={title} 
@@ -37,7 +37,7 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
             />
           </div>
           
-          <div className="flex flex-col items-center mt-4 w-full gap-2">
+          <div className="flex flex-col items-center mt-4 gap-2">
             <div className="flex items-center gap-1 text-xs sm:text-sm">
               <img 
                 src={image} 

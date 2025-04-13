@@ -1,12 +1,12 @@
 
-import { ChevronLeft, ChevronRight, User, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { Button } from "@/components/ui/button";
 
 interface TopNavProps {
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
-  onAlbumAdded?: () => void;  // Add this prop
+  onAlbumAdded?: () => void;
 }
 
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, onAlbumAdded }) => {
@@ -24,12 +24,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, onAlbumAdd
           </button>
         </div>
         
-        <button className="flex items-center gap-2 bg-black rounded-full py-1 px-1 pr-3 hover:bg-zinc-800">
-          <div className="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center">
-            <User size={14} />
-          </div>
-          <span className="text-sm font-medium">Profile</span>
-        </button>
+        {/* Profile link removed */}
       </div>
       
       <div className="flex items-center gap-2 px-6">
