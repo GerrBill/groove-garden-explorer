@@ -66,8 +66,8 @@ const Index = () => {
           {/* Featured Album section removed as requested */}
           
           <HomeSection 
-            title="Available Albums" 
-            showAllLink
+            title="Available Albums"
+            // showAllLink prop removed
           >
             {loading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">

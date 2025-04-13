@@ -12,7 +12,7 @@ interface HomeSectionProps {
 const HomeSection: React.FC<HomeSectionProps> = ({ 
   title, 
   children, 
-  showAllLink = false, 
+  showAllLink = false, // We'll keep this prop to avoid breaking existing code
   actionButton 
 }) => {
   return (
@@ -21,11 +21,7 @@ const HomeSection: React.FC<HomeSectionProps> = ({
         <h2 className="text-2xl font-bold">{title}</h2>
         <div className="flex items-center gap-3">
           {actionButton}
-          {showAllLink && (
-            <Button variant="ghost" size="sm" className="text-sm font-bold text-spotify-text-secondary hover:text-white">
-              Show all
-            </Button>
-          )}
+          {/* Show All link removed */}
         </div>
       </div>
       {children}
