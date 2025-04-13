@@ -32,7 +32,7 @@ const Player = () => {
   }, []);
   
   return (
-    <div className="h-20 bg-zinc-900 border-t border-zinc-800 flex items-center px-4 justify-between fixed bottom-0 left-0 right-0">
+    <div className="h-20 bg-zinc-900 border-t border-zinc-800 flex items-center px-4 justify-between fixed bottom-0 left-0 right-0 z-50">
       {/* Currently playing song */}
       <div className={`flex items-center gap-4 ${isCompact ? 'w-1/3' : 'w-1/4'}`}>
         {!isCompact && (

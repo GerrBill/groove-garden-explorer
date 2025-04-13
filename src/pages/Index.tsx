@@ -9,6 +9,8 @@ import FeaturedCard from '@/components/home/FeaturedCard';
 import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState('All');
@@ -45,10 +47,10 @@ const Index = () => {
   const featuredAlbum = albums.length > 0 ? albums[0] : null;
 
   return (
-    <div className="flex-1 overflow-y-auto pb-24 w-full">
+    <div className="flex-1 overflow-hidden w-full pb-24">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
           {/* Featured Album Section */}
           <HomeSection title="Featured Album">
@@ -75,7 +77,14 @@ const Index = () => {
           <HomeSection 
             title="Available Albums" 
             showAllLink
-            actionButton={<AddAlbumDialog />}
+            actionButton={
+              <AddAlbumDialog>
+                <Button size="sm" className="flex items-center gap-1">
+                  <Plus size={16} />
+                  Add Album
+                </Button>
+              </AddAlbumDialog>
+            }
           >
             {loading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
