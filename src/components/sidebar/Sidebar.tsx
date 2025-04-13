@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, Library, Heart, Book } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -63,9 +62,9 @@ const Sidebar = () => {
           return;
         }
         
-        // If we have data, update the count
-        if (data && data.liked_songs_count !== null) {
-          setLikedSongsCount(data.liked_songs_count);
+        // Safely access the liked_songs_count property
+        if (data) {
+          setLikedSongsCount(data.liked_songs_count || 0);
         } else {
           // Alternatively, count the tracks that are liked
           const { data: likedTracks, error: tracksError } = await supabase
@@ -78,14 +77,15 @@ const Sidebar = () => {
             return;
           }
           
-          setLikedSongsCount(likedTracks?.length || 0);
+          const tracksCount = likedTracks?.length || 0;
+          setLikedSongsCount(tracksCount);
           
           // Update the preference with the correct count
           await supabase
             .from('user_preferences')
             .upsert({
               user_id: user.id,
-              liked_songs_count: likedTracks?.length || 0,
+              liked_songs_count: tracksCount,
               updated_at: new Date().toISOString()
             });
         }

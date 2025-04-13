@@ -96,6 +96,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          liked_songs_count: number | null
           sidebar_visible: boolean | null
           updated_at: string | null
           user_id: string
@@ -103,6 +104,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          liked_songs_count?: number | null
           sidebar_visible?: boolean | null
           updated_at?: string | null
           user_id: string
@@ -110,6 +112,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          liked_songs_count?: number | null
           sidebar_visible?: boolean | null
           updated_at?: string | null
           user_id?: string

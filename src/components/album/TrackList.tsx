@@ -63,6 +63,7 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
         throw prefsError;
       }
       
+      // Safely access the liked_songs_count
       const currentCount = prefsData?.liked_songs_count || 0;
       const newCount = newLikedStatus ? currentCount + 1 : Math.max(0, currentCount - 1);
       
