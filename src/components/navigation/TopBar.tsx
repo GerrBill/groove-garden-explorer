@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Music, BookOpen, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TopBarProps {
   sidebarOpen?: boolean;
@@ -25,9 +26,18 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         <Link to="/" className="text-orange-700 hover:text-white transition-colors">
           <Music size={18} />
         </Link>
-        <Link to="/blogs" className="text-orange-700 hover:text-white transition-colors">
-          <BookOpen size={18} />
-        </Link>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link to="/blogs" className="text-orange-700 hover:text-white transition-colors">
+              <BookOpen size={18} />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
+            <p>FFS give me a chance...</p>
+          </TooltipContent>
+        </Tooltip>
+        
         {toggleSidebar && (
           <button 
             onClick={toggleSidebar}
@@ -40,9 +50,17 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
             }
           </button>
         )}
-        <Link to="/settings" className="text-orange-700 hover:text-white transition-colors">
-          <Settings size={18} />
-        </Link>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link to="/settings" className="text-orange-700 hover:text-white transition-colors">
+              <Settings size={18} />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
+            <p>FFS give me a chance...</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
