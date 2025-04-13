@@ -19,13 +19,11 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
             className="h-full"
           />
         </div>
-      </div>
-      
-      <div className="flex items-center gap-3">
+        
         {toggleSidebar && (
           <button 
             onClick={toggleSidebar}
-            className="text-orange-700 hover:text-white transition-colors"
+            className="text-orange-700 hover:text-white transition-colors ml-[50px]"
             aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
           >
             {sidebarOpen ? 
@@ -34,6 +32,9 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
             }
           </button>
         )}
+      </div>
+      
+      <div className="flex items-center gap-3">
         <Link to="/" className="text-orange-700 hover:text-white transition-colors">
           <Music size={14} />
         </Link>

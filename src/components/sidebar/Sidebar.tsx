@@ -1,19 +1,45 @@
 
+import { useState, useEffect } from "react";
 import { Search, Library, Heart, Book } from "lucide-react";
 import { Link } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
-import { useState } from "react";
+import { supabase } from '@/integrations/supabase/client';
+import { Album as AlbumType } from '@/types/supabase';
 
 const Sidebar = () => {
   const [activeFilter, setActiveFilter] = useState('Playlists');
+  const [albums, setAlbums] = useState<AlbumType[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
   };
   
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('albums')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(10);
+        
+        if (error) throw error;
+        setAlbums(data || []);
+      } catch (error) {
+        console.error('Error fetching albums for sidebar:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAlbums();
+  }, []);
+  
   return (
-    <div className="w-64 h-screen bg-black flex flex-col border-r border-zinc-800 flex-shrink-0 transition-all duration-300 md:translate-x-0 sm:w-56 xs:w-48 absolute md:relative z-20 transform -translate-x-full md:translate-x-0">
+    <div className="w-64 h-screen bg-black flex flex-col border-r border-zinc-800 flex-shrink-0 transition-all duration-300 md:translate-x-0 sm:w-56 xs:w-48 absolute md:relative z-20 transform">
       <div className="p-4 flex flex-col gap-4">
         <SidebarItem icon={<Library />} text="Your Library" />
         
@@ -78,48 +104,25 @@ const Sidebar = () => {
           type="Blog" 
         />
         
-        <SidebarPlaylist 
-          name="Jack Pearson" 
-          image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png" 
-          type="Artist" 
-        />
+        {/* Display actual albums from the database instead of placeholders */}
+        {loading ? (
+          <div className="py-2 px-4 text-xs text-zinc-400">Loading albums...</div>
+        ) : (
+          albums.map((album) => (
+            <SidebarPlaylist 
+              key={album.id}
+              name={album.title} 
+              image={album.image_url}
+              type="Album" 
+              owner={album.artist} 
+              link={`/album/${album.id}`}
+            />
+          ))
+        )}
         
-        <SidebarPlaylist 
-          name="Atlanta Pop Festival 1970" 
-          type="Playlist" 
-          owner="seddy1977" 
-        />
-        
-        <SidebarPlaylist 
-          name="Frankie Miller" 
-          type="Artist" 
-        />
-        
-        <SidebarPlaylist 
-          name="Juicy Lucy" 
-          type="Artist" 
-        />
-        
-        <SidebarPlaylist 
-          name="Snakecharmer: Anthology" 
-          type="Album" 
-          owner="Snakecharmer" 
-        />
-        
-        <SidebarPlaylist 
-          name="DJ" 
-          type="Click to start listening" 
-        />
-        
-        <SidebarPlaylist 
-          name="Jakko M. Jakszyk" 
-          type="Artist" 
-        />
-        
-        <SidebarPlaylist 
-          name="Mel Collins" 
-          type="Artist" 
-        />
+        {albums.length === 0 && !loading && (
+          <div className="py-2 px-4 text-xs text-zinc-400">No albums found</div>
+        )}
       </div>
     </div>
   );

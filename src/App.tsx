@@ -116,7 +116,7 @@ const App = () => {
           <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
             <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
             <div className="flex flex-grow">
-              <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-transform duration-300`}>
+              <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300`}>
                 <Sidebar />
               </div>
               <div className="flex flex-col flex-grow w-full">
