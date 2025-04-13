@@ -39,7 +39,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const AddAlbumDialog = () => {
+interface AddAlbumDialogProps {
+  children?: React.ReactNode; // Add children prop
+}
+
+const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -170,10 +174,12 @@ const AddAlbumDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2" size="sm">
-          <Upload size={16} />
-          Add Album
-        </Button>
+        {children || (
+          <Button className="gap-2" size="sm">
+            <Upload size={16} />
+            Add Album
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md md:max-w-xl">
         <DialogHeader>
