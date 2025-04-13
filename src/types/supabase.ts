@@ -20,4 +20,5 @@ export interface Track {
   track_number: number;
   is_liked: boolean;
   created_at: string;
+  genre?: string | null;
 }
