@@ -1,5 +1,7 @@
 
-import { ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Plus } from 'lucide-react';
+import AddAlbumDialog from '@/components/album/AddAlbumDialog';
+import { Button } from "@/components/ui/button";
 
 interface TopNavProps {
   selectedTab: string;
@@ -29,7 +31,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
         </button>
       </div>
       
-      <div className="flex gap-2 px-6">
+      <div className="flex items-center gap-2 px-6">
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -43,6 +45,16 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
             {tab}
           </button>
         ))}
+        
+        {/* Add spacing between tab buttons and Add Album button */}
+        <div className="ml-3">
+          <AddAlbumDialog>
+            <Button size="sm" className="flex items-center gap-1 rounded-full">
+              <Plus size={16} />
+              Add Album
+            </Button>
+          </AddAlbumDialog>
+        </div>
       </div>
     </div>
   );

@@ -6,11 +6,8 @@ import TopNav from '@/components/navigation/TopNav';
 import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
 import FeaturedCard from '@/components/home/FeaturedCard';
-import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState('All');
@@ -88,14 +85,6 @@ const Index = () => {
           <HomeSection 
             title="Available Albums" 
             showAllLink
-            actionButton={
-              <AddAlbumDialog onAlbumAdded={handleAlbumAdded}>
-                <Button size="sm" className="flex items-center gap-1">
-                  <Plus size={16} />
-                  Add Album
-                </Button>
-              </AddAlbumDialog>
-            }
           >
             {loading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
