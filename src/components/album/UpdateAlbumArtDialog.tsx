@@ -64,12 +64,22 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `albums/${albumId}/${fileName}`;
       
-      // Upload the image file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, imageFile);
+      console.log('Uploading file to path:', filePath);
       
-      if (uploadError) throw uploadError;
+      // Upload the image file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+      
+      console.log('Upload successful:', uploadData);
       
       // Get the public URL for the uploaded image
       const { data } = supabase.storage
@@ -77,6 +87,7 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
         .getPublicUrl(filePath);
       
       const publicUrl = data.publicUrl;
+      console.log('Public URL:', publicUrl);
       
       // Update the album with the new image URL
       const { error: updateError } = await supabase
@@ -84,7 +95,10 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
         .update({ image_url: publicUrl })
         .eq('id', albumId);
       
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Album update error:', updateError);
+        throw new Error(`Album update failed: ${updateError.message}`);
+      }
       
       // Call the callback to update the UI
       onImageUpdated(publicUrl);
@@ -98,7 +112,7 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
       console.error("Error updating album art:", error);
       toast({
         title: "Error",
-        description: "Failed to update album art. Please try again.",
+        description: `Failed to update album art: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
