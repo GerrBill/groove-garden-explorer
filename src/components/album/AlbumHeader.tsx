@@ -29,13 +29,15 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
         <div className="w-full flex flex-col items-center text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{title}</h1>
           
-          {/* Center the album art properly */}
-          <div className="w-full flex justify-center mb-4">
-            <img 
-              src={image} 
-              alt={title} 
-              className="w-[250px] h-[250px] shadow-xl object-cover" 
-            />
+          {/* Center the album art properly with fixed dimensions */}
+          <div className="flex justify-center w-full mb-4">
+            <div className="w-[250px] h-[250px] flex justify-center items-center">
+              <img 
+                src={image} 
+                alt={title} 
+                className="w-full h-full shadow-xl object-cover" 
+              />
+            </div>
           </div>
           
           <div className="w-full flex flex-col items-center mt-4 gap-2">
