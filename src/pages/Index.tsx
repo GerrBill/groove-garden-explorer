@@ -101,20 +101,7 @@ const Index = () => {
             )}
           </HomeSection>
           
-          <HomeSection title="Recently played" showAllLink>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
-              {albums.slice(0, 6).map((album) => (
-                <AlbumCard 
-                  key={album.id}
-                  id={album.id}
-                  image={album.image_url}
-                  title={album.title}
-                  artist={album.artist}
-                  size="sm"
-                />
-              ))}
-            </div>
-          </HomeSection>
+          {/* Removed the "Recently played" section as requested */}
         </div>
       </ScrollArea>
     </div>
