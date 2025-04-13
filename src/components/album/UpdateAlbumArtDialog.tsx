@@ -123,9 +123,8 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex items-center gap-1">
-          <ImageIcon size={14} />
-          <span>Update Cover</span>
+        <Button variant="outline" size="sm" className="w-10 h-10 p-0 rounded-full" aria-label="Update Album Cover">
+          <ImageIcon size={16} />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

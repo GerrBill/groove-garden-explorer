@@ -7,9 +7,10 @@ import { Track } from '@/types/supabase';
 interface AlbumActionsProps {
   albumId?: string;
   onTrackAdded?: (track: Track) => void;
+  updateAlbumArtDialog?: React.ReactNode;
 }
 
-const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded }) => {
+const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded, updateAlbumArtDialog }) => {
   return (
     <div className="px-6 py-4 flex items-center gap-8">
       <button 
@@ -26,12 +27,16 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded }) =>
         <Heart size={20} />
       </button>
       
-      {albumId && (
-        <AddTrackDialog 
-          albumId={albumId} 
-          onTrackAdded={onTrackAdded}
-        />
-      )}
+      <div className="flex items-center gap-2">
+        {albumId && (
+          <AddTrackDialog 
+            albumId={albumId} 
+            onTrackAdded={onTrackAdded}
+          />
+        )}
+        
+        {updateAlbumArtDialog}
+      </div>
       
       <button 
         className="w-10 h-10 flex items-center justify-center hover:text-white ml-auto"

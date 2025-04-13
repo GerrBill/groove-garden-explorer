@@ -109,7 +109,7 @@ const Album = () => {
   }, [tracks]);
 
   return (
-    <div className="flex-1 overflow-y-auto pb-32">
+    <div className="flex-1 overflow-y-auto pb-36">
       <AlbumNavigation onGoBack={handleGoBack} />
       
       {loading ? (
@@ -118,27 +118,25 @@ const Album = () => {
         </div>
       ) : album ? (
         <div className="flex flex-col">
-          <div className="flex items-end justify-between pr-6">
-            <AlbumHeader 
-              image={album.image_url}
-              title={album.title}
-              artist={album.artist}
-              year={album.year || ""}
-              trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
-              duration={album.duration || ""}
-            />
-            <div className="mb-4">
+          <AlbumHeader 
+            image={album.image_url}
+            title={album.title}
+            artist={album.artist}
+            year={album.year || ""}
+            trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
+            duration={album.duration || ""}
+          />
+          
+          <AlbumActions 
+            albumId={id} 
+            onTrackAdded={handleTrackAdded}
+            updateAlbumArtDialog={
               <UpdateAlbumArtDialog 
                 albumId={id || ''} 
                 currentImage={album.image_url}
                 onImageUpdated={handleAlbumArtUpdated}
               />
-            </div>
-          </div>
-          
-          <AlbumActions 
-            albumId={id} 
-            onTrackAdded={handleTrackAdded}
+            }
           />
           
           <TrackList 
@@ -148,9 +146,10 @@ const Album = () => {
           />
           
           {/* RelatedAlbums moved here, below the track list */}
-          <div className="mt-8 mb-16 px-6">
+          <div className="mt-8 mb-24 px-6">
             <RelatedAlbums album={album} isMobile={isMobile} />
           </div>
+          <div className="h-16"></div> {/* Extra spacing at the bottom */}
         </div>
       ) : (
         <AlbumNotFound onGoBack={handleGoBack} />
