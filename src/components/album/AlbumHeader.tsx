@@ -24,16 +24,18 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
 
   return (
     <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6">
-      <div className={`flex ${isMobile ? 'flex-col items-center' : 'items-end gap-6'}`}>
+      <div className={`flex ${isMobile ? 'flex-col items-center w-full' : 'items-end gap-6'}`}>
         {isMobile && (
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center">{title}</h1>
         )}
         
-        <img 
-          src={image} 
-          alt={title} 
-          className={`${isMobile ? 'w-full max-w-[300px]' : 'w-48 md:w-56'} h-auto shadow-xl object-cover`} 
-        />
+        <div className={`${isMobile ? 'flex justify-center w-full' : ''}`}>
+          <img 
+            src={image} 
+            alt={title} 
+            className={`${isMobile ? 'max-w-[300px]' : 'w-48 md:w-56'} h-auto shadow-xl object-cover`} 
+          />
+        </div>
         
         <div className={`flex flex-col ${isMobile ? 'mt-4 items-center' : ''} gap-2 md:gap-4`}>
           {!isMobile && (
