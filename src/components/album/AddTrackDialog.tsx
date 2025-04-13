@@ -19,8 +19,8 @@ import {
   fileToBase64, 
   getApproximateDuration, 
   generateFilePath, 
-  storeAudioFile,
-  extractTitleFromFilename 
+  extractTitleFromFilename,
+  uploadAudioFile 
 } from '@/utils/fileUpload';
 
 interface AddTrackDialogProps {
@@ -97,11 +97,8 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       // Generate a file path for the audio file
       const filePath = generateFilePath(albumId, audioFile.name);
       
-      // Convert the audio file to base64 for in-memory storage
-      const audioBase64 = await fileToBase64(audioFile);
-      
-      // Store the audio in memory
-      storeAudioFile(filePath, audioBase64);
+      // Upload the audio file to Supabase Storage
+      await uploadAudioFile(audioFile, filePath);
       
       // Calculate next track number
       const { data: existingTracks, error: fetchError } = await supabase

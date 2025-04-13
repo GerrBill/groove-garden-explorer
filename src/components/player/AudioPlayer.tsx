@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Track } from '@/types/supabase';
-import { getAudioFile } from '@/utils/fileUpload';
+import { getAudioUrl } from '@/utils/fileUpload';
 
 interface AudioPlayerProps {
   track?: Track | null;
@@ -33,13 +33,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
 
   useEffect(() => {
     if (track?.audio_path && audioRef.current) {
-      // Get audio data from our in-memory store
-      const audioData = getAudioFile(track.audio_path);
+      // Get audio URL from Supabase Storage
+      const audioUrl = getAudioUrl(track.audio_path);
       
-      if (audioData) {
+      if (audioUrl) {
         // Stop current audio and load new one
         audioRef.current.pause();
-        audioRef.current.src = audioData;
+        audioRef.current.src = audioUrl;
         setHasAudio(true);
         
         // Auto-play when a new track is loaded
@@ -50,7 +50,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
           setIsPlaying(false);
         });
       } else {
-        console.log("No audio found for path:", track.audio_path);
+        console.log("No audio URL found for path:", track.audio_path);
         setHasAudio(false);
       }
     } else {
