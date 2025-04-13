@@ -1,6 +1,9 @@
 
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Track {
   id: string;
@@ -20,8 +23,76 @@ interface TrackListProps {
 }
 
 const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack }) => {
-  // Debug output to check tracks data
-  console.log('TrackList rendering with tracks:', tracks);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  // Updated function to handle track likes with user association
+  const handleToggleLike = async (trackId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like tracks",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Find the track in the list to get its current like status
+    const track = tracks.find(t => t.trackId === trackId);
+    if (!track) return;
+    
+    const newLikedStatus = !track.isLiked;
+    
+    try {
+      // Update the track in the database
+      const { error } = await supabase
+        .from('tracks')
+        .update({ is_liked: newLikedStatus })
+        .eq('id', trackId);
+      
+      if (error) throw error;
+      
+      // Update the liked_songs count in the user_preferences table
+      const { data: prefsData, error: prefsError } = await supabase
+        .from('user_preferences')
+        .select('liked_songs_count')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (prefsError && prefsError.code !== 'PGRST116') {
+        throw prefsError;
+      }
+      
+      const currentCount = prefsData?.liked_songs_count || 0;
+      const newCount = newLikedStatus ? currentCount + 1 : Math.max(0, currentCount - 1);
+      
+      // Upsert the user preferences with the new count
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          liked_songs_count: newCount,
+          updated_at: new Date().toISOString()
+        });
+      
+      // Call the parent component's onToggleLike if provided
+      if (onToggleLike) {
+        onToggleLike(trackId);
+      }
+      
+      toast({
+        title: newLikedStatus ? "Added to Liked Songs" : "Removed from Liked Songs",
+        description: `${track.title} has been ${newLikedStatus ? 'added to' : 'removed from'} your Liked Songs`,
+      });
+    } catch (error) {
+      console.error('Error toggling track like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update liked status",
+        variant: "destructive",
+      });
+    }
+  };
   
   return (
     <div className="w-full">
@@ -68,7 +139,7 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
               <div className="flex items-center justify-end">
                 <button 
                   className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
-                  onClick={() => onToggleLike && track.trackId && onToggleLike(track.trackId)}
+                  onClick={() => track.trackId && handleToggleLike(track.trackId)}
                 >
                   <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                 </button>

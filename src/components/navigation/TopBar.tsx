@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Music, BookOpen, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from '@/context/AuthContext';
 
 interface TopBarProps {
   sidebarOpen?: boolean;
@@ -10,6 +11,8 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
+  const { user } = useAuth();
+  
   return (
     <div className="h-[45px] w-full bg-black border-b border-zinc-800 flex items-center justify-between px-4">
       <div className="flex items-center">
@@ -51,16 +54,19 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
           </button>
         )}
         
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-orange-700 hover:text-white transition-colors cursor-not-allowed">
-              <Settings size={18} />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent className="bg-[#FEF7CD] border-zinc-800 text-[#ea384c] font-bold px-4 py-3 text-base">
-            <p>FFS give me a chance...</p>
-          </TooltipContent>
-        </Tooltip>
+        {/* Only show Settings icon to logged-in users */}
+        {user ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-orange-700 hover:text-white transition-colors cursor-not-allowed">
+                <Settings size={18} />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="bg-[#FEF7CD] border-zinc-800 text-[#ea384c] font-bold px-4 py-3 text-base">
+              <p>FFS give me a chance...</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : null}
       </div>
     </div>
   );

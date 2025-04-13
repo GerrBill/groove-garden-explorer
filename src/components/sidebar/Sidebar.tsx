@@ -6,16 +6,20 @@ import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 const Sidebar = () => {
   const [activeFilter, setActiveFilter] = useState('Playlists');
   const [albums, setAlbums] = useState<AlbumType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [likedSongsCount, setLikedSongsCount] = useState(0);
+  const { user } = useAuth();
   
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
   };
   
+  // Fetch albums for the sidebar
   useEffect(() => {
     const fetchAlbums = async () => {
       setLoading(true);
@@ -37,6 +41,80 @@ const Sidebar = () => {
 
     fetchAlbums();
   }, []);
+  
+  // Fetch liked songs count for authenticated users
+  useEffect(() => {
+    const fetchLikedSongsCount = async () => {
+      if (!user) {
+        setLikedSongsCount(0);
+        return;
+      }
+      
+      try {
+        // Try to get user preferences with liked songs count
+        const { data, error } = await supabase
+          .from('user_preferences')
+          .select('liked_songs_count')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching liked songs count:', error);
+          return;
+        }
+        
+        // If we have data, update the count
+        if (data && data.liked_songs_count !== null) {
+          setLikedSongsCount(data.liked_songs_count);
+        } else {
+          // Alternatively, count the tracks that are liked
+          const { data: likedTracks, error: tracksError } = await supabase
+            .from('tracks')
+            .select('id')
+            .eq('is_liked', true);
+            
+          if (tracksError) {
+            console.error('Error counting liked tracks:', tracksError);
+            return;
+          }
+          
+          setLikedSongsCount(likedTracks?.length || 0);
+          
+          // Update the preference with the correct count
+          await supabase
+            .from('user_preferences')
+            .upsert({
+              user_id: user.id,
+              liked_songs_count: likedTracks?.length || 0,
+              updated_at: new Date().toISOString()
+            });
+        }
+      } catch (error) {
+        console.error('Error in liked songs count effect:', error);
+      }
+    };
+    
+    fetchLikedSongsCount();
+    
+    // Set up a subscription to listen for changes to the tracks table
+    if (user) {
+      const channel = supabase
+        .channel('track-likes')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'tracks',
+          filter: 'is_liked=true'
+        }, () => {
+          fetchLikedSongsCount();
+        })
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
   
   return (
     <div className="w-64 h-screen bg-black flex flex-col border-r border-zinc-800 flex-shrink-0 transition-all duration-300 md:translate-x-0 sm:w-56 xs:w-48 absolute md:relative z-20 transform">
@@ -94,7 +172,7 @@ const Sidebar = () => {
           name="Liked Songs" 
           icon={<Heart className="text-orange-700" size={18} />} 
           type="Playlist" 
-          count="592 songs" 
+          count={`${likedSongsCount} song${likedSongsCount !== 1 ? 's' : ''}`} 
           isLiked={true} 
         />
         

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { Button } from "@/components/ui/button";
 import AccountButton from '@/components/auth/AccountButton';
+import { useAuth } from '@/context/AuthContext';
 
 interface TopNavProps {
   selectedTab: string;
@@ -12,6 +13,7 @@ interface TopNavProps {
 
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, onAlbumAdded }) => {
   const tabs = ['All', 'Music', 'Blogs'];
+  const { user } = useAuth();
   
   return (
     <div className="sticky top-0 z-10 backdrop-blur-md bg-spotify-background/80 pt-4 pb-2">
@@ -43,15 +45,17 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, onAlbumAdd
           </button>
         ))}
         
-        {/* Add spacing between tab buttons and Add Album button */}
-        <div className="ml-3">
-          <AddAlbumDialog onAlbumAdded={onAlbumAdded}>
-            <Button size="sm" className="flex items-center gap-1 rounded-full">
-              <Plus size={16} />
-              Add Album
-            </Button>
-          </AddAlbumDialog>
-        </div>
+        {/* Only show Add Album button to logged-in users */}
+        {user && (
+          <div className="ml-3">
+            <AddAlbumDialog onAlbumAdded={onAlbumAdded}>
+              <Button size="sm" className="flex items-center gap-1 rounded-full">
+                <Plus size={16} />
+                Add Album
+              </Button>
+            </AddAlbumDialog>
+          </div>
+        )}
       </div>
     </div>
   );
