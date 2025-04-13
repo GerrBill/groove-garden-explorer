@@ -11,7 +11,7 @@ import NotFound from "./pages/NotFound";
 import Sidebar from "./components/sidebar/Sidebar";
 import Player from "./components/player/Player";
 import TopBar from "./components/navigation/TopBar";
-import { Menu } from "lucide-react";
+import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -39,9 +39,13 @@ const App = () => {
               <div className="flex flex-col flex-grow w-full">
                 <button 
                   onClick={toggleSidebar}
-                  className="md:hidden fixed top-10 left-4 z-30 bg-zinc-900 rounded-full p-2 shadow-lg"
+                  className="fixed top-12 left-4 z-30 bg-zinc-900 rounded-full p-2 shadow-lg"
+                  aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
                 >
-                  <Menu size={24} className="text-orange-700" />
+                  {sidebarOpen ? 
+                    <ChevronLeft size={20} className="text-orange-700" /> : 
+                    <ChevronRight size={20} className="text-orange-700" />
+                  }
                 </button>
                 <div className="flex-grow overflow-y-auto">
                   <Routes>

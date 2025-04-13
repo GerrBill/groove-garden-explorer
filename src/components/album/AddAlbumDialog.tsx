@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -152,20 +153,20 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md md:max-w-xl">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md md:max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="py-2">
           <DialogTitle>Add New Album</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs">
             Upload an album cover and fill in the details below.
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+            <div className="flex flex-col md:flex-row gap-2">
               <div className="w-full md:w-1/2">
-                <FormLabel>Album Cover</FormLabel>
-                <div className="mt-2 flex items-center justify-center border-2 border-dashed border-gray-600 rounded-md p-4 h-36">
+                <FormLabel className="text-xs">Album Cover</FormLabel>
+                <div className="mt-1 flex items-center justify-center border-2 border-dashed border-gray-600 rounded-md h-28">
                   <Input
                     type="file"
                     accept="image/*"
@@ -177,15 +178,15 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
                     htmlFor="album-cover"
                     className="flex flex-col items-center justify-center cursor-pointer w-full h-full"
                   >
-                    <Upload className="w-8 h-8 text-gray-500" />
-                    <span className="mt-2 text-sm text-gray-500">Click to browse</span>
+                    <Upload className="w-6 h-6 text-gray-500" />
+                    <span className="mt-1 text-xs text-gray-500">Click to browse</span>
                   </label>
                 </div>
               </div>
               
               <div className="w-full md:w-1/2 flex items-center justify-center">
                 {imagePreview ? (
-                  <div className="relative w-36 h-36 overflow-hidden rounded-md">
+                  <div className="relative w-28 h-28 overflow-hidden rounded-md">
                     <img
                       src={imagePreview}
                       alt="Album preview"
@@ -193,25 +194,25 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
                     />
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center w-36 h-36 bg-gray-800 rounded-md">
-                    <ImageIcon className="w-10 h-10 text-gray-400" />
-                    <span className="mt-2 text-xs text-gray-400">No image selected</span>
+                  <div className="flex flex-col items-center justify-center w-28 h-28 bg-gray-800 rounded-md">
+                    <ImageIcon className="w-8 h-8 text-gray-400" />
+                    <span className="mt-1 text-xs text-gray-400">No image selected</span>
                   </div>
                 )}
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Album title" {...field} />
+                      <Input placeholder="Album title" {...field} className="h-8" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -220,30 +221,30 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
                 control={form.control}
                 name="artist"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Artist</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Artist</FormLabel>
                     <FormControl>
-                      <Input placeholder="Artist name" {...field} />
+                      <Input placeholder="Artist name" {...field} className="h-8" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <FormField
                 control={form.control}
                 name="genre"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Genre</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Genre</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-8">
                           <SelectValue placeholder="Select genre" />
                         </SelectTrigger>
                       </FormControl>
@@ -257,7 +258,7 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -266,12 +267,12 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
                 control={form.control}
                 name="year"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Year</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs">Year</FormLabel>
                     <FormControl>
-                      <Input placeholder="Release year" {...field} />
+                      <Input placeholder="Release year" {...field} className="h-8" />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -281,32 +282,34 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Comments</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs">Comments</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Additional notes about this album"
-                      className="resize-none"
+                      className="resize-none h-16"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
             
-            <DialogFooter>
+            <DialogFooter className="pt-1">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
                 disabled={isUploading}
+                size="sm"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
                 disabled={isUploading}
+                size="sm"
               >
                 {isUploading ? "Uploading..." : "Add Album"}
               </Button>
