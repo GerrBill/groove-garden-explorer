@@ -1,10 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
 import TopNav from '@/components/navigation/TopNav';
 import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
-import FeaturedCard from '@/components/home/FeaturedCard';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -43,8 +43,6 @@ const Index = () => {
     fetchAlbums();
   }, []);
 
-  const featuredAlbum = albums.length > 0 ? albums[0] : null;
-
   const handleAlbumAdded = () => {
     console.log("Album added, refreshing list...");
     fetchAlbums();
@@ -65,25 +63,7 @@ const Index = () => {
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
-          <HomeSection title="Featured Album">
-            {featuredAlbum && (
-              <FeaturedCard 
-                image={featuredAlbum.image_url}
-                title={featuredAlbum.title || "Dark Academia Jazz"}
-                description={featuredAlbum.artist ? `By ${featuredAlbum.artist}` : "In a dim, dusty library, reading your novel..."}
-                type="Album"
-                id={featuredAlbum.id}
-              />
-            )}
-            {!featuredAlbum && (
-              <FeaturedCard 
-                image="/lovable-uploads/139e8005-e704-48e4-8b89-b9bc1a1e47ae.png"
-                title="Dark Academia Jazz"
-                description="In a dim, dusty library, reading your novel, and thinking of that special someone..."
-                type="Playlist"
-              />
-            )}
-          </HomeSection>
+          {/* Featured Album section removed as requested */}
           
           <HomeSection 
             title="Available Albums" 

@@ -11,7 +11,6 @@ import NotFound from "./pages/NotFound";
 import Sidebar from "./components/sidebar/Sidebar";
 import Player from "./components/player/Player";
 import TopBar from "./components/navigation/TopBar";
-import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const queryClient = new QueryClient();
@@ -115,23 +114,12 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
-            <TopBar />
+            <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
             <div className="flex flex-grow">
               <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-transform duration-300`}>
                 <Sidebar />
               </div>
               <div className="flex flex-col flex-grow w-full">
-                {/* New position for sidebar toggle - always visible at top left of main content */}
-                <button 
-                  onClick={toggleSidebar}
-                  className="fixed top-12 left-4 z-30 bg-zinc-900 rounded-full p-2 shadow-lg"
-                  aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
-                >
-                  {sidebarOpen ? 
-                    <ChevronLeft size={20} className="text-orange-700" /> : 
-                    <ChevronRight size={20} className="text-orange-700" />
-                  }
-                </button>
                 <div className="flex-grow overflow-y-auto">
                   <Routes>
                     <Route path="/" element={<Index />} />
