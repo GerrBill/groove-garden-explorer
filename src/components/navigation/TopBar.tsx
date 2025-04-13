@@ -33,7 +33,7 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
               <BookOpen size={18} />
             </span>
           </TooltipTrigger>
-          <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
+          <TooltipContent className="bg-[#FEF7CD] border-zinc-800 text-[#ea384c] font-bold px-4 py-3 text-base">
             <p>FFS give me a chance...</p>
           </TooltipContent>
         </Tooltip>
@@ -57,7 +57,7 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
               <Settings size={18} />
             </span>
           </TooltipTrigger>
-          <TooltipContent className="bg-zinc-900 border-zinc-800 text-white">
+          <TooltipContent className="bg-[#FEF7CD] border-zinc-800 text-[#ea384c] font-bold px-4 py-3 text-base">
             <p>FFS give me a chance...</p>
           </TooltipContent>
         </Tooltip>
