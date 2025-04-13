@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Play } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { supabase } from '@/integrations/supabase/client';
+import { Track } from '@/types/supabase';
 
 interface AlbumCardProps {
   image: string;
@@ -19,17 +21,51 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   size = 'md',
   id
 }) => {
+  const navigate = useNavigate();
   const sizeClasses = {
     sm: 'w-full',
     md: 'w-full',
     lg: 'w-full',
   };
   
-  // Separate handler for the play button to prevent navigation
-  const handlePlayClick = (e: React.MouseEvent) => {
+  // Separate handler for the play button to prevent navigation through Link
+  const handlePlayClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Play button clicked for album:', id);
+    
+    if (!id) return;
+    
+    try {
+      // Get the first track of the album
+      const { data: tracks, error } = await supabase
+        .from('tracks')
+        .select('*')
+        .eq('album_id', id)
+        .order('track_number', { ascending: true })
+        .limit(1);
+      
+      if (error) throw error;
+      
+      if (tracks && tracks.length > 0) {
+        const firstTrack = tracks[0] as Track;
+        
+        // Navigate to album detail page
+        navigate(`/album/${id}`);
+        
+        // Use a small timeout to ensure the album page is loaded before we try to play
+        setTimeout(() => {
+          // Dispatch event to play the track
+          window.dispatchEvent(new CustomEvent('trackSelected', { detail: firstTrack }));
+        }, 300);
+      } else {
+        // If no tracks, just navigate to the album page
+        navigate(`/album/${id}`);
+      }
+    } catch (error) {
+      console.error('Error fetching first track:', error);
+      // Fallback to just navigation
+      navigate(`/album/${id}`);
+    }
   };
   
   // Content to display in the card
