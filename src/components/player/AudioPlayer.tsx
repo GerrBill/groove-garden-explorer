@@ -1,31 +1,49 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Track } from '@/types/supabase';
+import { getAudioFile } from '@/utils/fileUpload';
 
 interface AudioPlayerProps {
   track?: Track | null;
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
-  const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audio] = useState(new Audio());
+  const [hasAudio, setHasAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (track?.audio_path) {
-      // In a real app, we would fetch from a server
-      // For this demo, we'll get it from localStorage
-      const storedAudio = localStorage.getItem(`audio_${track.audio_path}`);
-      if (storedAudio) {
-        setAudioSrc(storedAudio);
-        
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+    };
+
+    const audio = audioRef.current;
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (track?.audio_path && audioRef.current) {
+      // Get audio data from our in-memory store
+      const audioData = getAudioFile(track.audio_path);
+      
+      if (audioData) {
         // Stop current audio and load new one
-        audio.pause();
-        audio.src = storedAudio;
+        audioRef.current.pause();
+        audioRef.current.src = audioData;
+        setHasAudio(true);
         
         // Auto-play when a new track is loaded
-        audio.play().then(() => {
+        audioRef.current.play().then(() => {
           setIsPlaying(true);
         }).catch(error => {
           console.error("Error playing audio:", error);
@@ -33,28 +51,28 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         });
       } else {
         console.log("No audio found for path:", track.audio_path);
-        setAudioSrc(null);
+        setHasAudio(false);
       }
     } else {
-      setAudioSrc(null);
-      audio.pause();
-      setIsPlaying(false);
+      setHasAudio(false);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
     }
-    
-    return () => {
-      audio.pause();
-    };
-  }, [track, audio]);
+  }, [track]);
 
   const togglePlayPause = () => {
-    if (audioSrc) {
-      if (isPlaying) {
-        audio.pause();
-      } else {
-        audio.play();
-      }
-      setIsPlaying(!isPlaying);
+    if (!audioRef.current || !hasAudio) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(error => {
+        console.error("Error playing audio:", error);
+      });
     }
+    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -62,15 +80,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
       <div className="flex items-center gap-1">
         <button 
           className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white"
-          disabled={!audioSrc}
+          disabled={!hasAudio}
         >
           <SkipBack size={16} />
         </button>
         
         <button 
-          className={`w-10 h-10 flex items-center justify-center rounded-full bg-white hover:scale-105 transition ${!audioSrc ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-white hover:scale-105 transition ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={togglePlayPause}
-          disabled={!audioSrc}
+          disabled={!hasAudio}
         >
           {isPlaying ? 
             <Pause size={20} className="text-black" fill="black" /> : 
@@ -80,7 +98,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         
         <button 
           className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white"
-          disabled={!audioSrc}
+          disabled={!hasAudio}
         >
           <SkipForward size={16} />
         </button>

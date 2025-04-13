@@ -13,7 +13,13 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ currentTrack }) => {
       <div className="flex items-center justify-start">
         {currentTrack && (
           <div className="flex items-center gap-3 ml-3">
-            <div className="w-10 h-10 bg-zinc-800 rounded"></div>
+            <div className="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center">
+              <span className="text-xs text-zinc-400">♪</span>
+            </div>
+            <div className="hidden sm:block">
+              <div className="text-sm font-medium">{currentTrack.title}</div>
+              <div className="text-xs text-zinc-400">{currentTrack.artist}</div>
+            </div>
           </div>
         )}
       </div>

@@ -15,7 +15,13 @@ import { TrackFormValues } from './schemas/trackFormSchema';
 import TrackForm from './components/TrackForm';
 import { supabase } from '@/integrations/supabase/client';
 import { Track } from '@/types/supabase';
-import { fileToBase64, getApproximateDuration, generateFilePath } from '@/utils/fileUpload';
+import { 
+  fileToBase64, 
+  getApproximateDuration, 
+  generateFilePath, 
+  storeAudioFile,
+  extractTitleFromFilename 
+} from '@/utils/fileUpload';
 
 interface AddTrackDialogProps {
   children?: React.ReactNode;
@@ -64,13 +70,13 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       const file = e.target.files[0];
       setAudioFile(file);
       
-      // Extract title from filename (without extension)
-      const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+      // Extract title from filename
+      const suggestedTitle = extractTitleFromFilename(file.name);
       
       // Update the form with the title from the filename
       setInitialValues(prev => ({
         ...prev,
-        title: fileNameWithoutExtension
+        title: suggestedTitle
       }));
     }
   };
@@ -91,10 +97,11 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       // Generate a file path for the audio file
       const filePath = generateFilePath(albumId, audioFile.name);
       
-      // In a real production app, we would upload the file to a server here
-      // For this demo, we'll store the audio data in the database
-      // Note: In production, you would use a proper file storage system
+      // Convert the audio file to base64 for in-memory storage
       const audioBase64 = await fileToBase64(audioFile);
+      
+      // Store the audio in memory
+      storeAudioFile(filePath, audioBase64);
       
       // Calculate next track number
       const { data: existingTracks, error: fetchError } = await supabase
@@ -110,10 +117,6 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       
       // Calculate an approximate duration
       const approximateDuration = getApproximateDuration();
-      
-      // Save the audio data to localStorage for demo purposes
-      // In a real app, you would upload this to a server or cloud storage
-      localStorage.setItem(`audio_${filePath}`, audioBase64);
       
       // Insert the track data into Supabase
       const { data: trackData, error } = await supabase
