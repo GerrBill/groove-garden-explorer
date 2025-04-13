@@ -15,6 +15,7 @@ import {
 import { Upload } from 'lucide-react';
 import { albumFormSchema, AlbumFormValues } from './schemas/albumFormSchema';
 import AlbumForm from './components/AlbumForm';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AddAlbumDialogProps {
   children?: React.ReactNode;
@@ -63,25 +64,32 @@ const AddAlbumDialog: React.FC<AddAlbumDialogProps> = ({ children, onAlbumAdded 
     setIsUploading(true);
 
     try {
-      // Use the preview image URL for the album
-      let albumImageUrl = imagePreview;
+      // Use the preview image URL for the album temporarily
+      const albumImageUrl = imagePreview || "/placeholder.svg";
       
-      if (!albumImageUrl) {
-        // Fallback to a default image if needed
-        albumImageUrl = "/placeholder.svg";
+      // Insert the album data into Supabase
+      const { data: albumData, error } = await supabase
+        .from('albums')
+        .insert([
+          {
+            title: data.title,
+            artist: data.artist,
+            image_url: albumImageUrl,
+            year: data.year || null,
+            track_count: '0',
+            duration: '0:00',
+          }
+        ])
+        .select('*')
+        .single();
+      
+      if (error) {
+        throw error;
       }
       
-      // Create a mock album to display in the UI immediately
-      const mockAlbum = {
-        title: data.title,
-        artist: data.artist,
-        image_url: albumImageUrl,
-        year: data.year || null,
-        created_at: new Date().toISOString(),
-        id: `temp-${Date.now()}`
-      };
+      console.log("Album added successfully:", albumData);
       
-      // If onAlbumAdded callback exists, call it to update the UI immediately
+      // If onAlbumAdded callback exists, call it to update the UI
       if (onAlbumAdded) {
         onAlbumAdded();
       }

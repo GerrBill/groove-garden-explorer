@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
@@ -20,12 +21,15 @@ const Index = () => {
   const fetchAlbums = async () => {
     setLoading(true);
     try {
+      console.log("Fetching albums...");
       const { data, error } = await supabase
         .from('albums')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
+      
+      console.log("Albums fetched:", data);
       setAlbums(data || []);
     } catch (error) {
       console.error('Error fetching albums:', error);
@@ -46,6 +50,7 @@ const Index = () => {
   const featuredAlbum = albums.length > 0 ? albums[0] : null;
 
   const handleAlbumAdded = () => {
+    console.log("Album added, refreshing list...");
     fetchAlbums();
     toast({
       title: "Success",
@@ -104,16 +109,22 @@ const Index = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
-                {albums.map((album) => (
-                  <AlbumCard 
-                    key={album.id}
-                    id={album.id}
-                    image={album.image_url}
-                    title={album.title}
-                    artist={album.artist}
-                    size="md"
-                  />
-                ))}
+                {albums.length > 0 ? (
+                  albums.map((album) => (
+                    <AlbumCard 
+                      key={album.id}
+                      id={album.id}
+                      image={album.image_url}
+                      title={album.title}
+                      artist={album.artist}
+                      size="md"
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-8 text-zinc-400">
+                    No albums found. Click "Add Album" to create one.
+                  </div>
+                )}
               </div>
             )}
           </HomeSection>
