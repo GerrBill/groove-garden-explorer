@@ -10,6 +10,7 @@ import RelatedAlbums from '@/components/album/RelatedAlbums';
 import AlbumNotFound from '@/components/album/AlbumNotFound';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
+import { Track } from '@/types/supabase';
 
 const Album = () => {
   const { id } = useParams();
@@ -20,6 +21,11 @@ const Album = () => {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const handleTrackAdded = (newTrack: Track) => {
+    // Add the new track to the tracks list
+    setTracks([...tracks, newTrack]);
   };
 
   const handleToggleLike = async (trackId: string) => {
