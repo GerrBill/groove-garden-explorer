@@ -28,6 +28,12 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const { toast } = useToast();
   const [albumInfo, setAlbumInfo] = useState<{ artist: string } | null>(null);
+  const [initialValues, setInitialValues] = useState<TrackFormValues>({
+    title: "",
+    artist: "",
+    genre: "",
+    comment: "",
+  });
 
   useEffect(() => {
     // Fetch album info to pre-fill the artist field
@@ -41,19 +47,16 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
         
         if (!error && data) {
           setAlbumInfo(data);
+          setInitialValues(prev => ({
+            ...prev,
+            artist: data.artist
+          }));
         }
       }
     };
     
     fetchAlbumInfo();
   }, [albumId]);
-
-  const initialValues: TrackFormValues = {
-    title: "",
-    artist: albumInfo?.artist || "",
-    genre: "",
-    comment: "",
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -70,17 +73,6 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({ children, albumId, onTr
       }));
     }
   };
-
-  const [initialValues, setInitialValues] = useState<TrackFormValues>(initialValues);
-
-  useEffect(() => {
-    if (albumInfo) {
-      setInitialValues(prev => ({
-        ...prev,
-        artist: albumInfo.artist
-      }));
-    }
-  }, [albumInfo]);
 
   const onSubmit = async (data: TrackFormValues) => {
     if (!audioFile) {
