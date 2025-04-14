@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { Search, Library, Heart, Book } from "lucide-react";
+import { Library, Book, Music } from "lucide-react";
 import { Link } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
@@ -12,7 +11,6 @@ const Sidebar = () => {
   const [activeFilter, setActiveFilter] = useState('Playlists');
   const [albums, setAlbums] = useState<AlbumType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [likedSongsCount, setLikedSongsCount] = useState(0);
   const { user } = useAuth();
   
   const handleFilterClick = (filter: string) => {
@@ -41,81 +39,6 @@ const Sidebar = () => {
 
     fetchAlbums();
   }, []);
-  
-  // Fetch liked songs count for authenticated users
-  useEffect(() => {
-    const fetchLikedSongsCount = async () => {
-      if (!user) {
-        setLikedSongsCount(0);
-        return;
-      }
-      
-      try {
-        // Try to get user preferences with liked songs count
-        const { data, error } = await supabase
-          .from('user_preferences')
-          .select('liked_songs_count')
-          .eq('user_id', user.id)
-          .single();
-          
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching liked songs count:', error);
-          return;
-        }
-        
-        // Safely access the liked_songs_count property
-        if (data) {
-          setLikedSongsCount(data.liked_songs_count || 0);
-        } else {
-          // Alternatively, count the tracks that are liked
-          const { data: likedTracks, error: tracksError } = await supabase
-            .from('tracks')
-            .select('id')
-            .eq('is_liked', true);
-            
-          if (tracksError) {
-            console.error('Error counting liked tracks:', tracksError);
-            return;
-          }
-          
-          const tracksCount = likedTracks?.length || 0;
-          setLikedSongsCount(tracksCount);
-          
-          // Update the preference with the correct count
-          await supabase
-            .from('user_preferences')
-            .upsert({
-              user_id: user.id,
-              liked_songs_count: tracksCount,
-              updated_at: new Date().toISOString()
-            });
-        }
-      } catch (error) {
-        console.error('Error in liked songs count effect:', error);
-      }
-    };
-    
-    fetchLikedSongsCount();
-    
-    // Set up a subscription to listen for changes to the tracks table
-    if (user) {
-      const channel = supabase
-        .channel('track-likes')
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'tracks',
-          filter: 'is_liked=true'
-        }, () => {
-          fetchLikedSongsCount();
-        })
-        .subscribe();
-        
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [user]);
   
   return (
     <div className="w-64 h-screen bg-black flex flex-col border-r border-zinc-800 flex-shrink-0 transition-all duration-300 md:translate-x-0 sm:w-56 xs:w-48 absolute md:relative z-20 transform">
@@ -156,30 +79,20 @@ const Sidebar = () => {
             </button>
           </div>
         </div>
-        
-        <div className="flex items-center justify-between">
-          <button className="p-2 rounded-full hover:bg-zinc-800">
-            <Search size={20} className="text-spotify-text-secondary" />
-          </button>
-          <button className="flex items-center gap-1 text-spotify-text-secondary text-sm hover:text-white">
-            Recents
-            <span className="text-xs">▾</span>
-          </button>
-        </div>
       </div>
       
       <div className="overflow-y-auto flex-grow px-2">
-        <SidebarPlaylist 
-          name="Liked Songs" 
-          icon={<Heart className="text-orange-700" size={18} />} 
-          type="Playlist" 
-          count={`${likedSongsCount} song${likedSongsCount !== 1 ? 's' : ''}`} 
-          isLiked={true} 
-        />
+        <Link to="/">
+          <SidebarPlaylist 
+            name="Albums" 
+            icon={<Music className="text-orange-700" size={18} />} 
+            type="List" 
+          />
+        </Link>
         
         <Link to="/blog">
           <SidebarPlaylist 
-            name="Music Blogs" 
+            name="Blogs" 
             icon={<Book className="text-orange-700" size={18} />} 
             type="Blog" 
           />
