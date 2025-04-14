@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -30,7 +29,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Updated function to handle track likes with user association
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
       toast({
@@ -41,14 +39,12 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
       return;
     }
     
-    // Find the track in the list to get its current like status
     const track = tracks.find(t => t.trackId === trackId);
     if (!track) return;
     
     const newLikedStatus = !track.isLiked;
     
     try {
-      // Update the track in the database
       const { error } = await supabase
         .from('tracks')
         .update({ is_liked: newLikedStatus })
@@ -56,7 +52,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
       
       if (error) throw error;
       
-      // Update the liked_songs count in the user_preferences table
       const { data: prefsData, error: prefsError } = await supabase
         .from('user_preferences')
         .select('liked_songs_count')
@@ -67,11 +62,9 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
         throw prefsError;
       }
       
-      // Safely access the liked_songs_count
       const currentCount = prefsData?.liked_songs_count || 0;
       const newCount = newLikedStatus ? currentCount + 1 : Math.max(0, currentCount - 1);
       
-      // Upsert the user preferences with the new count
       await supabase
         .from('user_preferences')
         .upsert({
@@ -80,7 +73,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
           updated_at: new Date().toISOString()
         });
       
-      // Call the parent component's onToggleLike if provided
       if (onToggleLike) {
         onToggleLike(trackId);
       }
@@ -100,7 +92,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
   };
 
   const handlePlayClick = (track: Track) => {
-    // Get additional track data from the database
     const fetchTrackDetails = async (trackId: string) => {
       try {
         const { data, error } = await supabase
@@ -111,7 +102,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
         
         if (error) throw error;
         
-        // Create a full track object
         const fullTrack: TrackType = {
           ...data,
           id: data.id,
@@ -124,7 +114,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
           track_number: data.track_number
         };
         
-        // Dispatch the event with the full track data
         console.log("Dispatching track for playback:", fullTrack);
         window.dispatchEvent(new CustomEvent('trackSelected', { 
           detail: fullTrack 
@@ -139,7 +128,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
       }
     };
     
-    // Call the function with the track ID
     fetchTrackDetails(track.trackId);
   };
   
@@ -193,7 +181,6 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
                   <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                 </button>
                 
-                {/* Add to Playlist button */}
                 {track.trackId && (
                   <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
                 )}
@@ -207,6 +194,7 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
               </div>
             </div>
           ))}
+          <div className="h-32"></div>
         </div>
       ) : (
         <div className="py-8 text-center text-spotify-text-secondary mb-16">

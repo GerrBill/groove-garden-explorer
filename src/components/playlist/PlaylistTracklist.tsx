@@ -146,7 +146,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
           ))}
         </div>
       ) : (
-        <div className="space-y-1 mb-8">
+        <div className="space-y-1">
           {tracks.length > 0 ? (
             tracks.map((track, index) => (
               <div 
@@ -211,6 +211,9 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
               This playlist doesn't have any tracks yet. Start adding some tracks!
             </div>
           )}
+          
+          {/* Add spacer at the bottom to ensure last item is scrollable above the player */}
+          <div className="h-32"></div>
         </div>
       )}
     </ScrollArea>
