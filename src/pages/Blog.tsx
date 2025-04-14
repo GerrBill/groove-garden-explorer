@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import TopNav from '@/components/navigation/TopNav';
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
+import CreateArticleDialog from '@/components/blog/CreateArticleDialog';
 
 interface BlogPost {
   id: string;
@@ -129,12 +131,12 @@ const Blog = () => {
             <h2 className="text-2xl font-bold">Latest Articles</h2>
             {user && (
               <div className="ml-6">
-                <Link to="/blog/new">
+                <CreateArticleDialog>
                   <Button size="sm" className="flex items-center gap-1 rounded-full">
                     <Plus size={16} />
-                    Add Post
+                    Add Article
                   </Button>
-                </Link>
+                </CreateArticleDialog>
               </div>
             )}
           </div>
