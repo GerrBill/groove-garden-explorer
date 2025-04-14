@@ -31,7 +31,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     audio.addEventListener('ended', handleEnded);
     
     // Listen for play track events
-    const handlePlayTrack = (event: any) => {
+    const handlePlayTrack = (event: CustomEvent) => {
       const shouldPlayImmediately = event?.detail?.immediate === true;
       
       if (audioRef.current && hasAudio) {
@@ -44,11 +44,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
       }
     };
     
-    window.addEventListener('playTrack', handlePlayTrack);
+    window.addEventListener('playTrack', handlePlayTrack as EventListener);
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
-      window.removeEventListener('playTrack', handlePlayTrack);
+      window.removeEventListener('playTrack', handlePlayTrack as EventListener);
       audio.pause();
     };
   }, [hasAudio]);
