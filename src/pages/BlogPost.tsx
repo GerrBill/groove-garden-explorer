@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Facebook, Twitter, Linkedin, Instagram, Share2, Edit } from 'lucide-react';
+import { ArrowLeft, Facebook, Twitter, Linkedin, Instagram, Share2, Edit, Image } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,19 @@ import TopNav from '@/components/navigation/TopNav';
 import { BlogArticle } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import EditArticleDialog from '@/components/blog/EditArticleDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
+import { uploadImageFile } from '@/utils/fileUpload';
 
 const BlogPost = () => {
   const [selectedTab] = useState('Blogs');
   const { id } = useParams<{ id: string }>();
   const [blogPost, setBlogPost] = useState<BlogArticle | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isReplacing, setIsReplacing] = useState(false);
+  const [openImageDialog, setOpenImageDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -126,6 +133,63 @@ const BlogPost = () => {
     return formatted;
   };
 
+  // Handle file change for image replacement
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Replace image function
+  const handleReplaceImage = async () => {
+    if (!imageFile || !blogPost) return;
+    
+    try {
+      setIsReplacing(true);
+      
+      // Upload the new image
+      const imageUrl = await uploadImageFile(imageFile, 'blog');
+      
+      // Update the blog post with the new image URL
+      const { error } = await supabase
+        .from('blog_articles')
+        .update({ image_url: imageUrl })
+        .eq('id', blogPost.id);
+        
+      if (error) throw error;
+      
+      // Update the local state
+      setBlogPost({
+        ...blogPost,
+        image_url: imageUrl
+      });
+      
+      toast({
+        title: "Success!",
+        description: "Image has been replaced.",
+      });
+      
+      setOpenImageDialog(false);
+    } catch (error) {
+      console.error('Error replacing image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to replace image. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsReplacing(false);
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  };
+
   // Check if current user is the post creator (by matching author name)
   const isPostCreator = user && blogPost?.author === user.email;
 
@@ -160,18 +224,57 @@ const BlogPost = () => {
                 </Link>
                 
                 {isPostCreator && blogPost && (
-                  <EditArticleDialog 
-                    article={blogPost}
-                    onArticleUpdated={fetchBlogPost}
-                  >
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex items-center gap-1"
+                  <div className="flex gap-2">
+                    <Dialog open={openImageDialog} onOpenChange={setOpenImageDialog}>
+                      <DialogTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex items-center gap-1"
+                        >
+                          <Image size={16} /> Replace Image
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Replace Featured Image</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <ArticleImageUpload 
+                            imagePreview={imagePreview} 
+                            handleFileChange={handleFileChange} 
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button 
+                              variant="outline" 
+                              onClick={() => setOpenImageDialog(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              onClick={handleReplaceImage}
+                              disabled={!imageFile || isReplacing}
+                            >
+                              {isReplacing ? 'Updating...' : 'Update Image'}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    
+                    <EditArticleDialog 
+                      article={blogPost}
+                      onArticleUpdated={fetchBlogPost}
                     >
-                      <Edit size={16} /> Edit Post
-                    </Button>
-                  </EditArticleDialog>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex items-center gap-1"
+                      >
+                        <Edit size={16} /> Edit Post
+                      </Button>
+                    </EditArticleDialog>
+                  </div>
                 )}
               </div>
               
@@ -191,7 +294,7 @@ const BlogPost = () => {
                 </div>
               </div>
               
-              <div className="mb-8">
+              <div className="mb-8 relative group">
                 <img 
                   src={blogPost.image_url} 
                   alt={blogPost.title} 
@@ -201,6 +304,16 @@ const BlogPost = () => {
                     (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
                   }}
                 />
+                {isPostCreator && (
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => setOpenImageDialog(true)}
+                  >
+                    <Button variant="secondary" className="flex items-center gap-1">
+                      <Image size={16} /> Replace Image
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <div className="article-content prose max-w-none mb-8">
