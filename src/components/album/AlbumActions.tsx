@@ -4,6 +4,7 @@ import { Heart, MoreHorizontal } from 'lucide-react';
 import AddTrackDialog from './AddTrackDialog';
 import { Track } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 interface AlbumActionsProps {
   albumId?: string;
@@ -13,11 +14,12 @@ interface AlbumActionsProps {
 
 const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded, updateAlbumArtDialog }) => {
   const { user } = useAuth();
+  const { colorTheme } = useTheme();
   
   return (
     <div className="px-6 py-4 flex items-center gap-8">
       <button 
-        className="w-10 h-10 flex items-center justify-center border border-zinc-700 rounded-full hover:border-white hover:scale-105 transition"
+        className="w-10 h-10 flex items-center justify-center border border-zinc-700 rounded-full hover:border-white hover:scale-105 transition text-theme-color"
         aria-label="Like album"
       >
         <Heart size={20} />
@@ -38,7 +40,7 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded, upda
       )}
       
       <button 
-        className="w-10 h-10 flex items-center justify-center hover:text-white ml-auto"
+        className="w-10 h-10 flex items-center justify-center hover:text-white ml-auto text-theme-color"
         aria-label="More options"
       >
         <MoreHorizontal size={20} />

@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    /* Light theme variables - much brighter version */
+    /* Light theme variables - extremely bright version */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -51,7 +51,7 @@
   }
 
   .dark {
-    /* Dark theme variables - keep existing dark theme */
+    /* Dark theme variables - keep existing code */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 

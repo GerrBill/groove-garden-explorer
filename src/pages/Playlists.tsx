@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import TopNav from '@/components/navigation/TopNav';
@@ -6,11 +5,12 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Plus, BookOpen, ListMusic } from 'lucide-react'; // Added BookOpen and ListMusic icons
+import { Plus, BookOpen, ListMusic } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import AlbumCard from '@/components/home/AlbumCard';
 import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
-import { Link } from 'react-router-dom'; // Added Link import
+import { Link } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Playlist {
   id: string;
@@ -28,7 +28,8 @@ const Playlists = () => {
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
-
+  const { colorTheme } = useTheme();
+  
   const fetchPlaylists = async () => {
     setLoading(true);
     try {
@@ -85,13 +86,12 @@ const Playlists = () => {
             <div className="flex items-center">
               <h2 className="text-2xl font-bold">Your Playlists</h2>
               
-              {/* Header navigation buttons */}
               <div className="flex items-center ml-8 gap-6">
-                <Link to="/blog" className="flex items-center gap-2 text-orange-700 hover:text-white transition-colors">
+                <Link to="/blog" className="flex items-center gap-2 text-theme-color hover:text-white transition-colors">
                   <BookOpen size={18} />
                   <span>Blog</span>
                 </Link>
-                <Link to="/playlists" className="flex items-center gap-2 text-orange-700 hover:text-white transition-colors">
+                <Link to="/playlists" className="flex items-center gap-2 text-theme-color hover:text-white transition-colors">
                   <ListMusic size={18} />
                   <span>Playlists</span>
                 </Link>
