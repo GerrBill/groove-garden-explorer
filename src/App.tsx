@@ -11,6 +11,7 @@ import Playlists from "./pages/Playlists";
 import Playlist from "./pages/Playlist";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Sidebar from "./components/sidebar/Sidebar";
 import Player from "./components/player/Player";
@@ -18,6 +19,7 @@ import TopBar from "./components/navigation/TopBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "./hooks/use-mobile";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const queryClient = new QueryClient();
 
@@ -133,36 +135,39 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
-              <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-              <div className="flex flex-grow relative">
-                {sidebarOpen && (
-                  <div className="transition-all duration-300">
-                    <Sidebar />
+        <ThemeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
+                <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+                <div className="flex flex-grow relative">
+                  {sidebarOpen && (
+                    <div className="transition-all duration-300">
+                      <Sidebar />
+                    </div>
+                  )}
+                  <div className="flex flex-col flex-grow w-full">
+                    <div className="flex-grow overflow-y-auto">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/album/:id" element={<Album />} />
+                        <Route path="/playlists" element={<Playlists />} />
+                        <Route path="/playlist/:id" element={<Playlist />} />
+                        <Route path="/blog" element={<Blog />} />
+                        <Route path="/blog/:id" element={<BlogPost />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </div>
+                    {!window.location.pathname.includes('/blog') && <Player />}
                   </div>
-                )}
-                <div className="flex flex-col flex-grow w-full">
-                  <div className="flex-grow overflow-y-auto">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/album/:id" element={<Album />} />
-                      <Route path="/playlists" element={<Playlists />} />
-                      <Route path="/playlist/:id" element={<Playlist />} />
-                      <Route path="/blog" element={<Blog />} />
-                      <Route path="/blog/:id" element={<BlogPost />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </div>
-                  {!window.location.pathname.includes('/blog') && <Player />}
                 </div>
               </div>
-            </div>
-          </BrowserRouter>
-        </TooltipProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

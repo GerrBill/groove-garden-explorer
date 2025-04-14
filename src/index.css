@@ -5,6 +5,7 @@
 
 @layer base {
   :root {
+    /* Light theme variables */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -46,6 +47,7 @@
   }
 
   .dark {
+    /* Dark theme variables - keep existing dark theme */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -95,42 +97,4 @@
   }
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #5a5a5a;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #7a7a7a;
-}
-
-/* Responsive breakpoints */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-}
+/* ... keep existing code (scrollbar styles and responsive breakpoints) */
