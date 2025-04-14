@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
 import { supabase } from '@/integrations/supabase/client';
@@ -31,9 +31,23 @@ const Sidebar = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
+    
+    // Navigate to respective pages when filter buttons are clicked
+    switch(filter) {
+      case 'Albums':
+        navigate('/');
+        break;
+      case 'Blogs':
+        navigate('/blog');
+        break;
+      case 'Playlists':
+        navigate('/playlists');
+        break;
+    }
   };
   
   // Fetch data based on active filter
@@ -129,31 +143,6 @@ const Sidebar = () => {
               Playlists
             </button>
           </div>
-        </div>
-        
-        {/* Add links to main section pages */}
-        <div className="flex flex-col gap-1 mt-2">
-          <Link 
-            to="/" 
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
-          >
-            <Music size={16} className="text-orange-700" />
-            <span>View All Albums</span>
-          </Link>
-          <Link 
-            to="/blog" 
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
-          >
-            <BookOpen size={16} className="text-orange-700" />
-            <span>View All Blog Posts</span>
-          </Link>
-          <Link 
-            to="/playlists" 
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
-          >
-            <ListMusic size={16} className="text-orange-700" />
-            <span>View All Playlists</span>
-          </Link>
         </div>
       </div>
       
