@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,8 +24,8 @@ const App = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
 
+  // Load sidebar state from localStorage on mount
   useEffect(() => {
-    // Load sidebar state from localStorage when component mounts
     const storedSidebarState = localStorage.getItem('sidebar_visible');
     if (storedSidebarState !== null) {
       setSidebarOpen(storedSidebarState === 'true');
@@ -46,6 +47,7 @@ const App = () => {
     }
   }, [isMobileView]);
 
+  // Set up anonymous user ID
   useEffect(() => {
     const existingUserId = localStorage.getItem('anonymous_user_id');
     if (existingUserId) {
@@ -57,6 +59,7 @@ const App = () => {
     }
   }, []);
 
+  // Load user preferences from Supabase
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (!userId) return;
@@ -74,18 +77,16 @@ const App = () => {
         return;
       }
 
-      if (data) {
-        // Only apply user preferences if not on mobile
-        if (!isMobileView) {
-          setSidebarOpen(data.sidebar_visible);
-          localStorage.setItem('sidebar_visible', data.sidebar_visible.toString());
-        }
+      if (data && !isMobileView) {
+        setSidebarOpen(data.sidebar_visible);
+        localStorage.setItem('sidebar_visible', data.sidebar_visible.toString());
       }
     };
 
     loadUserPreferences();
   }, [userId, isMobileView]);
 
+  // Toggle sidebar and save preferences
   const toggleSidebar = async () => {
     const newState = !sidebarOpen;
     setSidebarOpen(newState);
@@ -120,8 +121,8 @@ const App = () => {
     }
   };
 
+  // Force dark mode
   useEffect(() => {
-    // Add dark class to root element
     document.documentElement.classList.add('dark');
   }, []);
 
