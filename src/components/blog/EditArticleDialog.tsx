@@ -1,14 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
+import { BlogArticle } from '@/types/supabase';
 
-interface CreateArticleDialogProps {
+interface EditArticleDialogProps {
   children: React.ReactNode;
+  article: BlogArticle;
+  onArticleUpdated?: () => void;
 }
 
 interface ArticleFormValues {
@@ -20,7 +23,11 @@ interface ArticleFormValues {
   imageFile?: File | null;
 }
 
-const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) => {
+const EditArticleDialog: React.FC<EditArticleDialogProps> = ({ 
+  children, 
+  article,
+  onArticleUpdated 
+}) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -29,16 +36,16 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
   const handleSubmit = async (values: ArticleFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png'; // Default image
+      let imageUrl = article.image_url; // Keep existing image by default
       
-      // Upload image if provided
+      // Upload new image if provided
       if (values.imageFile) {
-        console.log('Uploading image file:', values.imageFile.name);
+        console.log('Uploading new image file:', values.imageFile.name);
         imageUrl = await uploadImageFile(values.imageFile, 'blog');
         console.log('Image uploaded successfully:', imageUrl);
       }
       
-      // Generate excerpt if not provided (use first 150 chars of content)
+      // Generate excerpt if content changed (use first 150 chars of content)
       const excerpt = values.content
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
@@ -47,20 +54,19 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
         .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
         .substring(0, 150) + '...';
       
-      // Insert article into database
-      const { data, error } = await supabase
+      // Update article in database
+      const { error } = await supabase
         .from('blog_articles')
-        .insert({
+        .update({
           title: values.title,
           subtitle: values.subtitle || null,
           content: values.content,
           excerpt: excerpt,
           image_url: imageUrl,
-          author: values.author,
           category: values.category,
+          // Don't update author
         })
-        .select('id')
-        .single();
+        .eq('id', article.id);
       
       if (error) {
         throw error;
@@ -68,28 +74,37 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
       
       toast({
         title: "Success!",
-        description: "Your article has been published.",
+        description: "Your article has been updated.",
       });
       
       setOpen(false);
 
-      // Navigate to the newly created article
-      if (data && data.id) {
-        navigate(`/blog/${data.id}`);
-      } else {
-        // Refresh the blog page to show the new article
-        navigate('/blog');
+      // Call callback if provided
+      if (onArticleUpdated) {
+        onArticleUpdated();
       }
     } catch (error) {
-      console.error('Error creating article:', error);
+      console.error('Error updating article:', error);
       toast({
         title: "Error",
-        description: "Failed to create article. Please try again.",
+        description: "Failed to update article. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Convert the article data to form values
+  const articleToFormValues = (): ArticleFormValues => {
+    return {
+      title: article.title,
+      subtitle: article.subtitle || '',
+      content: article.content,
+      category: article.category,
+      author: article.author,
+      imageFile: null,
+    };
   };
 
   return (
@@ -99,16 +114,19 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Create New Article</DialogTitle>
+          <DialogTitle>Edit Article</DialogTitle>
         </DialogHeader>
         <ArticleForm 
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
           onCancel={() => setOpen(false)}
+          initialValues={articleToFormValues()}
+          imageUrl={article.image_url}
+          isEditing={true}
         />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default CreateArticleDialog;
+export default EditArticleDialog;

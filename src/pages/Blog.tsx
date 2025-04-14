@@ -12,27 +12,18 @@ import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import CreateArticleDialog from '@/components/blog/CreateArticleDialog';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  image_url: string;
-  author: string;
-  published_at: string;
-  category: string;
-}
+import { BlogArticle } from '@/types/supabase';
 
 const Blog = () => {
   const [selectedTab, setSelectedTab] = useState('Blogs');
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
   const location = useLocation();
 
-  const sampleBlogPosts: BlogPost[] = [
+  const sampleBlogPosts: BlogArticle[] = [
     {
       id: '1',
       title: 'Beauty is personal and imperfectly perfect',
@@ -40,7 +31,8 @@ const Blog = () => {
       image_url: '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png',
       author: 'Jane Smith',
       published_at: '2025-04-10',
-      category: 'Fashion'
+      category: 'Fashion',
+      created_at: '2025-04-10T00:00:00Z'
     },
     {
       id: '2',
@@ -49,7 +41,8 @@ const Blog = () => {
       image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Alex Johnson',
       published_at: '2025-04-08',
-      category: 'Fashion'
+      category: 'Fashion',
+      created_at: '2025-04-08T00:00:00Z'
     },
     {
       id: '3',
@@ -58,7 +51,8 @@ const Blog = () => {
       image_url: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Marie Chen',
       published_at: '2025-04-05',
-      category: 'Sustainability'
+      category: 'Sustainability',
+      created_at: '2025-04-05T00:00:00Z'
     },
     {
       id: '4',
@@ -67,7 +61,8 @@ const Blog = () => {
       image_url: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Thomas Wright',
       published_at: '2025-04-01',
-      category: 'Style'
+      category: 'Style',
+      created_at: '2025-04-01T00:00:00Z'
     },
     {
       id: '5',
@@ -76,7 +71,8 @@ const Blog = () => {
       image_url: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Sophia Lee',
       published_at: '2025-03-28',
-      category: 'Fashion'
+      category: 'Fashion',
+      created_at: '2025-03-28T00:00:00Z'
     },
     {
       id: '6',
@@ -85,7 +81,8 @@ const Blog = () => {
       image_url: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Marcus Rivera',
       published_at: '2025-03-25',
-      category: 'Events'
+      category: 'Events',
+      created_at: '2025-03-25T00:00:00Z'
     }
   ];
 
@@ -94,7 +91,7 @@ const Blog = () => {
     try {
       const { data, error } = await supabase
         .from('blog_articles')
-        .select('id, title, excerpt, image_url, author, published_at, category')
+        .select('id, title, excerpt, image_url, author, published_at, category, created_at')
         .order('published_at', { ascending: false });
 
       if (error) {
@@ -102,8 +99,10 @@ const Blog = () => {
       }
 
       if (data && data.length > 0) {
-        setBlogPosts(data as BlogPost[]);
+        console.log('Loaded blog posts:', data);
+        setBlogPosts(data as BlogArticle[]);
       } else {
+        console.log('No blog posts found, using sample data');
         setBlogPosts(sampleBlogPosts);
       }
       

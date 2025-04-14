@@ -25,14 +25,21 @@ const BlogCard: React.FC<BlogCardProps> = ({
   // Format the date as "X days ago"
   const formattedDate = formatDistanceToNow(new Date(date), { addSuffix: true });
   
+  // Use a default image if none is provided
+  const imgSrc = image || '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+  
   return (
     <Link to={`/blog/${id}`} className="group">
       <div className="bg-zinc-900 rounded-lg overflow-hidden h-full transition-all duration-300 hover:bg-zinc-800">
         <div className="relative aspect-video overflow-hidden">
           <img 
-            src={image} 
+            src={imgSrc} 
             alt={title} 
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+            onError={(e) => {
+              // Fallback to default image if loading fails
+              (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+            }}
           />
           <div className="absolute top-2 left-2 bg-orange-700 text-white text-xs px-2 py-1 rounded-full">
             {category}

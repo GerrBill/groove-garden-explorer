@@ -26,12 +26,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ArticleImageUpload from './ArticleImageUpload';
 
-interface ArticleFormProps {
-  isSubmitting: boolean;
-  onSubmit: (values: ArticleFormValues) => void;
-  onCancel: () => void;
-}
-
 interface ArticleFormValues {
   title: string;
   subtitle: string;
@@ -41,18 +35,30 @@ interface ArticleFormValues {
   imageFile?: File | null;
 }
 
+interface ArticleFormProps {
+  isSubmitting: boolean;
+  onSubmit: (values: ArticleFormValues) => void;
+  onCancel: () => void;
+  initialValues?: ArticleFormValues;
+  imageUrl?: string;
+  isEditing?: boolean;
+}
+
 const ArticleForm: React.FC<ArticleFormProps> = ({
   isSubmitting,
   onSubmit,
-  onCancel
+  onCancel,
+  initialValues,
+  imageUrl,
+  isEditing = false
 }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(imageUrl || null);
   const [showPreview, setShowPreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   
   const form = useForm<ArticleFormValues>({
-    defaultValues: {
+    defaultValues: initialValues || {
       title: "",
       subtitle: "",
       content: "",
@@ -156,6 +162,8 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-orange-500 underline">$1</a>')
       // Handle images
       .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full my-2 rounded" />')
+      // Handle text alignment
+      .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '<div style="text-align: $1;">$2</div>')
       // Handle lists
       .replace(/- (.*?)(?:\n|$)/g, '<li>$1</li>')
       // Add line breaks
@@ -366,7 +374,11 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
               <FormItem>
                 <FormLabel className="text-sm font-medium">Author</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your name" {...field} />
+                  <Input 
+                    placeholder="Your name" 
+                    {...field} 
+                    disabled={isEditing} // Disable author field when editing
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -387,7 +399,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
             type="submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Creating...' : 'Create Article'}
+            {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Article' : 'Create Article')}
           </Button>
         </div>
       </form>

@@ -1,4 +1,3 @@
-
 /**
  * Utility function to handle file uploads for the media player using Supabase Storage
  */
@@ -15,25 +14,20 @@ export const fileToBase64 = (file: File): Promise<string> => {
 };
 
 // Function to upload an image file to Supabase Storage
-export const uploadImageFile = async (file: File, albumId: string): Promise<string> => {
+export const uploadImageFile = async (file: File, folder: string): Promise<string> => {
   // Generate a unique filename for storage
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-  const filePath = `blog/${albumId}/${fileName}`;
+  const filePath = `${folder}/${fileName}`;
   
   try {
     // Check if the images bucket exists, if not create it
     const { data: buckets } = await supabase.storage.listBuckets();
     if (!buckets?.find(bucket => bucket.name === 'images')) {
-      const { data, error } = await supabase.storage.createBucket('images', {
+      await supabase.storage.createBucket('images', {
         public: true,
         fileSizeLimit: 5242880, // 5MB
       });
-      
-      if (error) {
-        console.error('Error creating bucket:', error);
-        throw error;
-      }
     }
 
     // Upload the image file to Supabase Storage
