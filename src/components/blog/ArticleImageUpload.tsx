@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Upload, ImageIcon } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 interface ArticleImageUploadProps {
   imagePreview: string | null;
@@ -15,7 +14,7 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      <FormLabel className="text-sm font-medium">Featured Image</FormLabel>
+      <label className="text-sm font-medium">Featured Image</label>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">
           <div className="flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md h-32 sm:h-64 relative overflow-hidden">

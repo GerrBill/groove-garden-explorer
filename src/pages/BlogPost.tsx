@@ -14,7 +14,7 @@ import { BlogArticle } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
+import { Input } from "@/components/ui/input";
 import { uploadImageFile } from '@/utils/fileUpload';
 
 const BlogPost = () => {
@@ -66,7 +66,6 @@ const BlogPost = () => {
     ? formatDistanceToNow(new Date(blogPost.published_at), { addSuffix: true }) 
     : '';
 
-  // Function to share on social media
   const shareOnSocial = (platform: string) => {
     const url = window.location.href;
     const title = blogPost?.title || 'Blog Post';
@@ -83,7 +82,6 @@ const BlogPost = () => {
         shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
         break;
       case 'instagram':
-        // Instagram doesn't have a direct sharing URL, so just copy to clipboard
         navigator.clipboard.writeText(`${title} ${url}`);
         toast({
           title: "Link Copied!",
@@ -91,7 +89,6 @@ const BlogPost = () => {
         });
         return;
       default:
-        // Copy link to clipboard
         navigator.clipboard.writeText(url);
         toast({
           title: "Link Copied!",
@@ -103,27 +100,18 @@ const BlogPost = () => {
     window.open(shareUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Function to format content with markdown-like syntax
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
     
     let formatted = content
-      // Handle bold
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Handle italic
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Handle links
       .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-orange-700 underline">$1</a>')
-      // Handle images
       .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full my-4 rounded-md" />')
-      // Handle text alignment
       .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '<div style="text-align: $1;">$2</div>')
-      // Handle lists
       .replace(/- (.*?)(?:\n|$)/g, '<li>$1</li>')
-      // Add line breaks
       .replace(/\n/g, '<br />');
     
-    // Wrap lists in ul tags
     if (formatted.includes('<li>')) {
       formatted = formatted.replace(/<li>(.*?)(?:<br \/>|$)/g, '<li>$1</li>');
       formatted = '<ul class="list-disc pl-5 my-4">' + formatted + '</ul>';
@@ -132,7 +120,6 @@ const BlogPost = () => {
     return formatted;
   };
 
-  // Handle file change for image replacement
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -145,17 +132,14 @@ const BlogPost = () => {
     }
   };
 
-  // Replace image function
   const handleReplaceImage = async () => {
     if (!imageFile || !blogPost) return;
     
     try {
       setIsReplacing(true);
       
-      // Upload the new image
       const imageUrl = await uploadImageFile(imageFile, 'blog');
       
-      // Update the blog post with the new image URL
       const { error } = await supabase
         .from('blog_articles')
         .update({ image_url: imageUrl })
@@ -163,7 +147,6 @@ const BlogPost = () => {
         
       if (error) throw error;
       
-      // Update the local state
       setBlogPost({
         ...blogPost,
         image_url: imageUrl
@@ -189,15 +172,12 @@ const BlogPost = () => {
     }
   };
 
-  // Function to check if the current user is the post creator
   const isPostOwner = () => {
     if (!user || !blogPost) return false;
     
     console.log('Current user:', user);
     console.log('Blog post author:', blogPost.author);
     
-    // Check if the user's email matches the author field
-    // Note: We're also logging to help debug the issue
     return user.email === blogPost.author;
   };
 
@@ -233,7 +213,6 @@ const BlogPost = () => {
                 
                 {user && (
                   <div className="flex gap-2">
-                    {/* Debug info - remove in production */}
                     <div className="hidden">
                       <p>User: {user?.email}</p>
                       <p>Author: {blogPost?.author}</p>
@@ -255,10 +234,34 @@ const BlogPost = () => {
                           <DialogTitle>Replace Featured Image</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
-                          <ArticleImageUpload 
-                            imagePreview={imagePreview} 
-                            handleFileChange={handleFileChange} 
-                          />
+                          <div className="space-y-3">
+                            <label className="text-sm font-medium">Featured Image</label>
+                            <div className="flex flex-col md:flex-row gap-4">
+                              <div className="w-full">
+                                <div className="flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md h-32 sm:h-64 relative overflow-hidden">
+                                  <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
+                                  />
+                                  {imagePreview ? (
+                                    <img 
+                                      src={imagePreview}
+                                      alt="Article preview" 
+                                      className="w-full h-full object-cover" 
+                                    />
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center">
+                                      <Image className="w-6 h-6 text-gray-500" />
+                                      <span className="mt-2 text-sm text-gray-500">Upload new image</span>
+                                      <span className="mt-1 text-xs text-gray-400">Recommended size: 1200 x 800px</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                           <div className="flex justify-end gap-2">
                             <Button 
                               variant="outline" 
@@ -315,11 +318,9 @@ const BlogPost = () => {
                   alt={blogPost.title} 
                   className="w-full h-auto rounded-md object-cover max-h-[500px]" 
                   onError={(e) => {
-                    // Fallback to default image if loading fails
                     (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
                   }}
                 />
-                
               </div>
               
               <div className="article-content prose max-w-none mb-8">
