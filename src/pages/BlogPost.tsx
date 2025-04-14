@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,7 +69,7 @@ const BlogPost = () => {
     if (!id) return;
     
     try {
-      // Using a custom query approach for tables not in TypeScript types yet
+      // Using the RPC function to get comments
       const { data, error } = await supabase
         .rpc('get_comments_for_article', { article_id_param: id });
       

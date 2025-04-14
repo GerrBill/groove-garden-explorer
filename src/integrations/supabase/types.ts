@@ -81,6 +81,38 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_comments: {
+        Row: {
+          article_id: string
+          content: string
+          created_at: string
+          id: string
+          user_name: string
+        }
+        Insert: {
+          article_id: string
+          content: string
+          created_at?: string
+          id?: string
+          user_name: string
+        }
+        Update: {
+          article_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tracks: {
         Row: {
           album_id: string
@@ -163,7 +195,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_blog_comment: {
+        Args: {
+          article_id_param: string
+          user_name_param: string
+          content_param: string
+        }
+        Returns: Json
+      }
+      get_comments_for_article: {
+        Args: { article_id_param: string }
+        Returns: Json[]
+      }
     }
     Enums: {
       [_ in never]: never
