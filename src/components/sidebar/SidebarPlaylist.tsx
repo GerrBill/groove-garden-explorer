@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-interface Playlist {
+export interface Playlist {
   id: string;
   title: string;
   owner: string;
