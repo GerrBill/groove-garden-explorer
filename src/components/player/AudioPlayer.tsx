@@ -17,6 +17,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const { toast } = useToast();
   const playRequestPending = useRef<boolean>(false);
 
+  // Initialize audio element
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
@@ -31,9 +32,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     
     // Listen for play track events
     const handlePlayTrack = () => {
-      if (audioRef.current && hasAudio && !playRequestPending.current) {
-        playRequestPending.current = true;
-        setIsPlaying(true);
+      if (audioRef.current && hasAudio) {
+        playAudio();
       }
     };
     
@@ -46,6 +46,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     };
   }, [hasAudio]);
 
+  // Load new track when track prop changes
   useEffect(() => {
     if (track?.audio_path && audioRef.current) {
       console.log("Loading audio track:", track.title, track.audio_path);
@@ -84,51 +85,56 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     }
   }, [track, toast]);
 
+  // Play audio function that can be called from multiple places
+  const playAudio = () => {
+    if (!audioRef.current || !hasAudio || playRequestPending.current) return;
+    
+    playRequestPending.current = true;
+    setIsPlaying(true);
+    
+    const playPromise = audioRef.current.play();
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          playRequestPending.current = false;
+        })
+        .catch(error => {
+          console.error("Error playing audio:", error);
+          setIsPlaying(false);
+          playRequestPending.current = false;
+          
+          if (error.name !== 'AbortError') {
+            toast({
+              title: "Playback Error",
+              description: "Could not play the audio file",
+              variant: "destructive"
+            });
+          }
+        });
+    } else {
+      playRequestPending.current = false;
+    }
+  };
+
+  // Pause audio function
+  const pauseAudio = () => {
+    if (!audioRef.current || !hasAudio) return;
+    audioRef.current.pause();
+    setIsPlaying(false);
+    playRequestPending.current = false;
+  };
+
   // Effect to actually play or pause the audio when isPlaying changes
   useEffect(() => {
     if (!audioRef.current || !hasAudio) return;
     
     if (isPlaying) {
-      // Ensure we don't have multiple play requests in flight
-      if (!playRequestPending.current) {
-        playRequestPending.current = true;
-        
-        // Small delay to ensure any previous pause operation completes
-        setTimeout(() => {
-          if (audioRef.current) {
-            const playPromise = audioRef.current.play();
-            
-            if (playPromise !== undefined) {
-              playPromise
-                .then(() => {
-                  playRequestPending.current = false;
-                })
-                .catch(error => {
-                  console.error("Error playing audio:", error);
-                  setIsPlaying(false);
-                  playRequestPending.current = false;
-                  
-                  // Only show error for non-AbortError cases
-                  if (error.name !== 'AbortError') {
-                    toast({
-                      title: "Playback Error",
-                      description: "Could not play the audio file",
-                      variant: "destructive"
-                    });
-                  }
-                });
-            } else {
-              playRequestPending.current = false;
-            }
-          }
-        }, 50);
-      }
+      playAudio();
     } else {
-      // Always safe to pause
-      audioRef.current.pause();
-      playRequestPending.current = false;
+      pauseAudio();
     }
-  }, [isPlaying, hasAudio, toast]);
+  }, [isPlaying, hasAudio]);
 
   const togglePlayPause = () => {
     if (!audioRef.current || !hasAudio) return;

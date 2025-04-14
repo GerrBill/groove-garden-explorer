@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -117,16 +116,13 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
         
         console.log("Dispatching track for playback:", fullTrack);
         
-        // First dispatch track data
+        // First dispatch track selected event
         window.dispatchEvent(new CustomEvent('trackSelected', { 
           detail: fullTrack 
         }));
         
-        // Give a small delay to ensure track is loaded before playing
-        setTimeout(() => {
-          // Then trigger play command
-          window.dispatchEvent(new CustomEvent('playTrack'));
-        }, 100);
+        // Then immediately trigger playback
+        window.dispatchEvent(new CustomEvent('playTrack'));
       } catch (error) {
         console.error('Error fetching track details:', error);
         toast({

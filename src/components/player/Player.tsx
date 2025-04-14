@@ -18,19 +18,10 @@ const Player = () => {
       setCurrentTrack(track);
     };
 
-    // Listen for play track events
-    const handlePlayTrack = () => {
-      console.log("Play track event received, playing audio");
-      // We don't manipulate audio directly here anymore, 
-      // AudioPlayer component handles this internally
-    };
-
     window.addEventListener('trackSelected', handleTrackSelected);
-    window.addEventListener('playTrack', handlePlayTrack);
-
+    
     return () => {
       window.removeEventListener('trackSelected', handleTrackSelected);
-      window.removeEventListener('playTrack', handlePlayTrack);
     };
   }, []);
 

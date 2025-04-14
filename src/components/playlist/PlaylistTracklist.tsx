@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -72,7 +71,6 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   };
 
   const handlePlayClick = (track: PlaylistTrack) => {
-    // Get additional track data from the database
     const fetchTrackDetails = async (trackId: string) => {
       try {
         const { data, error } = await supabase
@@ -83,7 +81,6 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
         
         if (error) throw error;
         
-        // Create a full track object
         const fullTrack: TrackType = {
           ...data,
           id: data.id,
@@ -96,17 +93,13 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
           track_number: data.track_number
         };
         
-        // First dispatch track data
         console.log("Dispatching playlist track for playback:", fullTrack);
+        
         window.dispatchEvent(new CustomEvent('trackSelected', { 
           detail: fullTrack 
         }));
         
-        // Small delay to ensure track is loaded before playing
-        setTimeout(() => {
-          // Then trigger play command
-          window.dispatchEvent(new CustomEvent('playTrack'));
-        }, 100);
+        window.dispatchEvent(new CustomEvent('playTrack'));
       } catch (error) {
         console.error('Error fetching track details:', error);
         toast({
@@ -117,7 +110,6 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
       }
     };
     
-    // Call the function with the track ID
     fetchTrackDetails(track.trackId);
   };
   
@@ -218,7 +210,6 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
             </div>
           )}
           
-          {/* Add spacer at the bottom to ensure last item is scrollable above the player */}
           <div className="h-32"></div>
         </div>
       )}
