@@ -8,21 +8,21 @@ const Player = () => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const location = useLocation();
   
-  // Check if we should hide the player (when on blog pages)
+  // Check if we should hide the player (only on blog pages)
   const shouldHidePlayer = location.pathname.includes('/blog');
 
   useEffect(() => {
     // Listen for track selection events
-    const handleTrackSelected = (event: any) => {
+    const handleTrackSelected = (event: CustomEvent) => {
       const track = event.detail as Track;
       console.log("Player received track selection event:", track.title);
       setCurrentTrack(track);
     };
 
-    window.addEventListener('trackSelected', handleTrackSelected);
+    window.addEventListener('trackSelected', handleTrackSelected as EventListener);
     
     return () => {
-      window.removeEventListener('trackSelected', handleTrackSelected);
+      window.removeEventListener('trackSelected', handleTrackSelected as EventListener);
     };
   }, []);
 
