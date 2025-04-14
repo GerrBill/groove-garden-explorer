@@ -50,7 +50,7 @@ const Blog = () => {
     {
       id: '3',
       title: 'Sustainable Clothing: A Guide to Eco-Friendly Fashion',
-      excerpt: 'Learn how to build a wardrobe that's both stylish and environmentally conscious.',
+      excerpt: "Learn how to build a wardrobe that's both stylish and environmentally conscious.",
       image_url: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Marie Chen',
       published_at: '2025-04-05',
@@ -77,7 +77,7 @@ const Blog = () => {
     {
       id: '6',
       title: 'Fashion Week Highlights: What You Missed',
-      excerpt: 'A roundup of the most exciting moments and trends from this year's fashion weeks around the globe.',
+      excerpt: "A roundup of the most exciting moments and trends from this year's fashion weeks around the globe.",
       image_url: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=720&q=80',
       author: 'Marcus Rivera',
       published_at: '2025-03-25',
