@@ -23,3 +23,16 @@ export interface Track {
   genre?: string | null;
   audio_path?: string | null;
 }
+
+export interface BlogArticle {
+  id: string;
+  title: string;
+  subtitle?: string;
+  content: string;
+  excerpt: string;
+  image_url: string;
+  author: string;
+  published_at: string;
+  category: string;
+  created_at: string;
+}
