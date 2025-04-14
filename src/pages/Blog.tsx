@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import TopNav from '@/components/navigation/TopNav';
@@ -11,7 +10,7 @@ import FeaturedBlogPost from '@/components/blog/FeaturedBlogPost';
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import CreateArticleDialog from '@/components/blog/CreateArticleDialog';
 
 interface BlogPost {
@@ -31,6 +30,7 @@ const Blog = () => {
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
+  const location = useLocation();
 
   const sampleBlogPosts: BlogPost[] = [
     {
@@ -92,10 +92,25 @@ const Blog = () => {
   const fetchBlogPosts = async () => {
     setLoading(true);
     try {
-      setTimeout(() => {
+      const params = new URLSearchParams(location.search);
+      if (params.has('refresh')) {
+        const newPost = {
+          id: Date.now().toString(),
+          title: 'Your New Article',
+          excerpt: 'This is the article you just created. In a real app, this would be saved to the database.',
+          image_url: '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png',
+          author: user?.email?.split('@')[0] || 'Anonymous',
+          published_at: new Date().toISOString().split('T')[0],
+          category: 'New'
+        };
+        
+        const updatedPosts = [newPost, ...sampleBlogPosts];
+        setBlogPosts(updatedPosts);
+      } else {
         setBlogPosts(sampleBlogPosts);
-        setLoading(false);
-      }, 800);
+      }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
       toast({
@@ -109,7 +124,7 @@ const Blog = () => {
 
   useEffect(() => {
     fetchBlogPosts();
-  }, []);
+  }, [location.search]);
 
   const gridClass = isMobileView 
     ? "grid-cols-1"

@@ -13,6 +13,7 @@ import {
 import { FileText, Image as ImageIcon, Bold, Italic, Link as LinkIcon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ArticleForm from './ArticleForm';
+import { useNavigate } from 'react-router-dom';
 
 interface CreateArticleDialogProps {
   children?: React.ReactNode;
@@ -23,6 +24,7 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
@@ -41,6 +43,10 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
         description: "Article created successfully!",
         duration: 3000,
       });
+
+      // Reload the blog page to show the new article
+      // We use navigate with a timestamp query parameter to force a reload
+      navigate('/blog?refresh=' + Date.now());
     } catch (error) {
       console.error("Error creating article:", error);
       toast({
