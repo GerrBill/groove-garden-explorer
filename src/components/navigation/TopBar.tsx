@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Music, BookOpen, ListMusic, Settings, ChevronLeft, ChevronRight, User, List, Playlist } from 'lucide-react';
+import { Music, BookOpen, ListMusic, Settings, ChevronLeft, ChevronRight, User, List } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from '@/context/AuthContext';
 import AccountButton from '@/components/auth/AccountButton';
@@ -35,7 +36,7 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         </Link>
 
         <Link to="/playlists" className="text-orange-700 hover:text-white transition-colors">
-          <Playlist size={18} />
+          <ListMusic size={18} />
         </Link>
 
         <Link to="/playlists" className="text-orange-700 hover:text-white transition-colors">
