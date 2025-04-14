@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -77,7 +76,8 @@ const BlogPost = () => {
         throw error;
       }
       
-      setComments(data as BlogComment[]);
+      // Cast the returned JSON data to BlogComment[] type
+      setComments(data as unknown as BlogComment[]);
     } catch (error) {
       console.error('Error fetching comments:', error);
       toast({
