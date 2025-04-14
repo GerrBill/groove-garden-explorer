@@ -54,6 +54,15 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
         .substring(0, 150) + '...';
       
+      console.log('Submitting article update with values:', {
+        title: values.title,
+        subtitle: values.subtitle,
+        content: values.content,
+        excerpt: excerpt,
+        imageUrl: imageUrl,
+        category: values.category
+      });
+      
       // Update article in database
       const { error } = await supabase
         .from('blog_articles')
@@ -63,14 +72,16 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
           content: values.content,
           excerpt: excerpt,
           image_url: imageUrl,
-          category: values.category,
-          // Don't update author
+          category: values.category
         })
         .eq('id', article.id);
       
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
+      
+      console.log('Article updated successfully');
       
       toast({
         title: "Success!",
