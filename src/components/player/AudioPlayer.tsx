@@ -48,17 +48,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         audioRef.current.src = url;
         setHasAudio(true);
         
-        // Auto-play when a new track is loaded
+        // Do NOT auto-play when a new track is loaded
+        // Instead, set isPlaying to false and let the user press play
+        setIsPlaying(false);
+        
+        // Load the audio but don't play it
         audioRef.current.load();
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-          toast({
-            title: "Now Playing",
-            description: `${track.title} by ${track.artist}`,
-          });
-        }).catch(error => {
-          console.error("Error playing audio:", error);
-          setIsPlaying(false);
+        
+        toast({
+          title: "Track Ready",
+          description: `${track.title} by ${track.artist} is ready to play`,
         });
       } else {
         console.log("No audio URL found for path:", track.audio_path);
