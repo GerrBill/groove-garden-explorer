@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Music, BookOpen, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Music, BookOpen, Settings, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from '@/context/AuthContext';
+import AccountButton from '@/components/auth/AccountButton';
 
 interface TopBarProps {
   sidebarOpen?: boolean;
@@ -60,6 +61,11 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
             </TooltipContent>
           </Tooltip>
         ) : null}
+        
+        {/* Account button with white color */}
+        <div className="text-white">
+          <AccountButton />
+        </div>
       </div>
     </div>
   );

@@ -23,15 +23,14 @@ const AccountButton: React.FC = () => {
         <DropdownMenuTrigger asChild>
           <Button 
             size="sm" 
-            variant="outline" 
-            className="rounded-full flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700"
+            variant="ghost" 
+            className="rounded-full w-auto p-0 h-auto hover:bg-transparent"
           >
-            <User size={16} />
-            <span className="max-w-[100px] truncate">{user.email}</span>
+            <User size={18} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             className="cursor-pointer"
@@ -49,12 +48,11 @@ const AccountButton: React.FC = () => {
     <>
       <Button 
         size="sm" 
-        variant="outline" 
-        className="rounded-full bg-zinc-800 hover:bg-zinc-700"
+        variant="ghost" 
+        className="rounded-full w-auto p-0 h-auto hover:bg-transparent"
         onClick={() => setShowAuthDialog(true)}
       >
-        <User size={16} className="mr-2" />
-        Sign In
+        <User size={18} />
       </Button>
       
       <AuthDialog

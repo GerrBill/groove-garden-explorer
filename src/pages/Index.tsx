@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
@@ -8,6 +7,10 @@ import AlbumCard from '@/components/home/AlbumCard';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AddAlbumDialog from '@/components/album/AddAlbumDialog';
+import { Button } from "@/components/ui/button";
+import { Plus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState('All');
@@ -15,6 +18,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
+  const { user } = useAuth();
 
   const fetchAlbums = async () => {
     setLoading(true);
@@ -55,7 +59,6 @@ const Index = () => {
     });
   };
 
-  // Determine the grid columns based on screen size
   const gridClass = isMobileView 
     ? "grid-cols-1" // 1 column on mobile
     : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; // Default grid for larger screens
@@ -65,45 +68,53 @@ const Index = () => {
       <TopNav 
         selectedTab={selectedTab} 
         setSelectedTab={setSelectedTab}
-        onAlbumAdded={handleAlbumAdded}
       />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
-          <HomeSection 
-            title="Available Albums"
-          >
-            {loading ? (
-              <div className={`grid ${gridClass} gap-1`}>
-                {[...Array(10)].map((_, i) => (
-                  <div key={i} className="w-full p-1 rounded-md">
-                    <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
-                    <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
-                    <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={`grid ${gridClass} gap-1`}>
-                {albums.length > 0 ? (
-                  albums.map((album) => (
-                    <AlbumCard 
-                      key={album.id}
-                      id={album.id}
-                      image={album.image_url}
-                      title={album.title}
-                      artist={album.artist}
-                      size="md"
-                    />
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-8 text-zinc-400">
-                    No albums found. Click "Add Album" to create one.
-                  </div>
-                )}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Available Albums</h2>
+            {user && (
+              <div className="ml-6">
+                <AddAlbumDialog onAlbumAdded={handleAlbumAdded}>
+                  <Button size="sm" className="flex items-center gap-1 rounded-full">
+                    <Plus size={16} />
+                    Add Album
+                  </Button>
+                </AddAlbumDialog>
               </div>
             )}
-          </HomeSection>
+          </div>
+          <div className="h-[60px]"></div> {/* 60px gap as requested */}
+          
+          <div className={`grid ${gridClass} gap-1`}>
+            {loading ? (
+              [...Array(10)].map((_, i) => (
+                <div key={i} className="w-full p-1 rounded-md">
+                  <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
+                  <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
+                </div>
+              ))
+            ) : (
+              albums.length > 0 ? (
+                albums.map((album) => (
+                  <AlbumCard 
+                    key={album.id}
+                    id={album.id}
+                    image={album.image_url}
+                    title={album.title}
+                    artist={album.artist}
+                    size="md"
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-zinc-400">
+                  No albums found. Click "Add Album" to create one.
+                </div>
+              )
+            )}
+          </div>
         </div>
       </ScrollArea>
     </div>

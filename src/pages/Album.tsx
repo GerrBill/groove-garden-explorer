@@ -1,4 +1,3 @@
-
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAlbumData } from '@/hooks/use-album-data';
@@ -27,12 +26,8 @@ const Album = () => {
   };
 
   const handleTrackAdded = (newTrack: Track) => {
-    // Add the new track to the tracks list
     setTracks(prevTracks => [...prevTracks, newTrack]);
-    
-    // Refetch to ensure we have the latest data
     refetch();
-    
     toast({
       title: "Success",
       description: "Track added successfully!",
@@ -41,9 +36,7 @@ const Album = () => {
   };
 
   const handleAlbumArtUpdated = (newImageUrl: string) => {
-    // Refetch album data to get the updated image
     refetch();
-    
     toast({
       title: "Success",
       description: "Album art updated successfully!",
@@ -75,7 +68,6 @@ const Album = () => {
       });
     } catch (error) {
       console.error('Error updating track:', error);
-      // Revert the optimistic update
       updatedTracks[trackIndex] = { ...updatedTracks[trackIndex], is_liked: !newLikedStatus };
       setTracks(updatedTracks);
     }
@@ -85,13 +77,10 @@ const Album = () => {
     const track = tracks.find(t => t.id === trackId);
     if (track) {
       setSelectedTrack(track);
-      // Publish the selected track to be used by the Player component
       window.dispatchEvent(new CustomEvent('trackSelected', { detail: track }));
     }
   };
 
-  // Convert tracks to the format expected by TrackList component
-  // Add better debugging to trace any issues
   useEffect(() => {
     console.log('Raw tracks data:', tracks);
   }, [tracks]);
@@ -106,7 +95,6 @@ const Album = () => {
     trackId: track.id
   }));
 
-  // Debug logs to help trace any issues
   useEffect(() => {
     if (tracks.length > 0) {
       console.log('Tracks available:', tracks);
@@ -146,7 +134,6 @@ const Album = () => {
               }
             />
             
-            {/* Make sure TrackList is displayed with proper spacing */}
             <div className="px-6 py-4 flex-grow">
               <TrackList 
                 tracks={formattedTracks} 
@@ -155,8 +142,7 @@ const Album = () => {
               />
             </div>
             
-            {/* Remove RelatedAlbums section */}
-            <div className="h-24"></div> {/* Extra spacing at the bottom */}
+            <div className="h-24"></div>
           </div>
         ) : (
           <AlbumNotFound onGoBack={handleGoBack} />

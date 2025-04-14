@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import TopNav from '@/components/navigation/TopNav';
@@ -9,7 +8,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import BlogCard from '@/components/blog/BlogCard';
 import FeaturedBlogPost from '@/components/blog/FeaturedBlogPost';
 
-// Define the BlogPost type
 interface BlogPost {
   id: string;
   title: string;
@@ -27,7 +25,6 @@ const Blog = () => {
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
 
-  // Sample blog posts data - in a real app, this would come from the database
   const sampleBlogPosts: BlogPost[] = [
     {
       id: '1',
@@ -88,8 +85,6 @@ const Blog = () => {
   const fetchBlogPosts = async () => {
     setLoading(true);
     try {
-      // In a real application, this would fetch from your database
-      // For now, we'll use the sample data
       setTimeout(() => {
         setBlogPosts(sampleBlogPosts);
         setLoading(false);
@@ -109,14 +104,11 @@ const Blog = () => {
     fetchBlogPosts();
   }, []);
 
-  // Determine the grid columns based on screen size
   const gridClass = isMobileView 
     ? "grid-cols-1"
     : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3";
 
-  // Get featured post (first post)
   const featuredPost = blogPosts.length > 0 ? blogPosts[0] : null;
-  // Get remaining posts
   const remainingPosts = blogPosts.length > 0 ? blogPosts.slice(1) : [];
 
   return (
