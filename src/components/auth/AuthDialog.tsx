@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -51,7 +50,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[400px] dark:bg-gray-900">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {isSignUp ? "Create an account" : "Sign in to your account"}
@@ -74,7 +73,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 text-black"
+                className="pl-10 text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                 required
               />
             </div>
@@ -90,7 +89,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 text-black"
+                className="pl-10 text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                 required
               />
             </div>

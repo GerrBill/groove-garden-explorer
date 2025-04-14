@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Facebook, Twitter, Linkedin, Instagram, Share2, Edit, Image } from 'lucide-react';
@@ -259,14 +259,14 @@ const BlogPost = () => {
   };
 
   return (
-    <div className="flex-1 overflow-hidden w-full pb-24 bg-gray-100">
+    <div className="flex-1 overflow-hidden w-full pb-24 bg-background dark:bg-black">
       <TopNav 
         selectedTab={selectedTab} 
         setSelectedTab={() => {}}
       />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
-        <div className="max-w-4xl mx-auto bg-white shadow-sm p-4 sm:p-8">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
           {loading ? (
             <div className="space-y-4">
               <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>
