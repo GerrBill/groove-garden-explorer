@@ -1,5 +1,6 @@
 
-import { React } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface TopNavProps {
   selectedTab: string;
@@ -7,14 +8,15 @@ interface TopNavProps {
 }
 
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
-  const tabs = ['All', 'Music', 'Blogs'];
+  const tabs = ['Music', 'Blogs'];
   
   return (
     <div className="sticky top-0 z-10 backdrop-blur-md bg-spotify-background/80 pt-4 pb-2">
       <div className="flex items-center gap-2 px-6">
         {tabs.map((tab) => (
-          <button
-            key={tab}
+          <Link 
+            key={tab} 
+            to={tab === 'Music' ? '/' : '/blog'}
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               selectedTab === tab 
                 ? 'bg-orange-700 text-white' 
@@ -23,7 +25,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
             onClick={() => setSelectedTab(tab)}
           >
             {tab}
-          </button>
+          </Link>
         ))}
       </div>
     </div>
