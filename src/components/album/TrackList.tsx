@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
+import { Track as TrackType } from '@/types/supabase';
 
 interface Track {
   id: string;
@@ -15,6 +16,7 @@ interface Track {
   isPlaying?: boolean;
   isLiked?: boolean;
   trackId: string;
+  audio_path?: string;
 }
 
 interface TrackListProps {
@@ -96,6 +98,50 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
       });
     }
   };
+
+  const handlePlayClick = (track: Track) => {
+    // Get additional track data from the database
+    const fetchTrackDetails = async (trackId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('tracks')
+          .select('*')
+          .eq('id', trackId)
+          .single();
+        
+        if (error) throw error;
+        
+        // Create a full track object
+        const fullTrack: TrackType = {
+          ...data,
+          id: data.id,
+          title: data.title,
+          artist: data.artist,
+          album_id: data.album_id,
+          duration: data.duration,
+          plays: data.plays || 0,
+          audio_path: data.audio_path,
+          track_number: data.track_number
+        };
+        
+        // Dispatch the event with the full track data
+        console.log("Dispatching track for playback:", fullTrack);
+        window.dispatchEvent(new CustomEvent('trackSelected', { 
+          detail: fullTrack 
+        }));
+      } catch (error) {
+        console.error('Error fetching track details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to play track",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    // Call the function with the track ID
+    fetchTrackDetails(track.trackId);
+  };
   
   return (
     <div className="w-full">
@@ -122,7 +168,7 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
                 <span className="group-hover:hidden">{index + 1}</span>
                 <button 
                   className="hidden group-hover:flex items-center justify-center"
-                  onClick={() => onPlayTrack && track.trackId && onPlayTrack(track.trackId)}
+                  onClick={() => handlePlayClick(track)}
                 >
                   <Play size={14} />
                 </button>

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Track } from '@/types/supabase';
 import { getAudioUrl } from '@/utils/fileUpload';
+import { useToast } from '@/hooks/use-toast';
 
 interface AudioPlayerProps {
   track?: Track | null;
@@ -11,7 +12,9 @@ interface AudioPlayerProps {
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasAudio, setHasAudio] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -33,18 +36,26 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
 
   useEffect(() => {
     if (track?.audio_path && audioRef.current) {
-      // Get audio URL from Supabase Storage
-      const audioUrl = getAudioUrl(track.audio_path);
+      console.log("Loading audio track:", track.title, track.audio_path);
       
-      if (audioUrl) {
+      // Get audio URL from Supabase Storage
+      const url = getAudioUrl(track.audio_path);
+      setAudioUrl(url);
+      
+      if (url) {
         // Stop current audio and load new one
         audioRef.current.pause();
-        audioRef.current.src = audioUrl;
+        audioRef.current.src = url;
         setHasAudio(true);
         
         // Auto-play when a new track is loaded
+        audioRef.current.load();
         audioRef.current.play().then(() => {
           setIsPlaying(true);
+          toast({
+            title: "Now Playing",
+            description: `${track.title} by ${track.artist}`,
+          });
         }).catch(error => {
           console.error("Error playing audio:", error);
           setIsPlaying(false);
@@ -52,6 +63,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
       } else {
         console.log("No audio URL found for path:", track.audio_path);
         setHasAudio(false);
+        toast({
+          title: "Playback Error",
+          description: "Could not load the audio file",
+          variant: "destructive"
+        });
       }
     } else {
       setHasAudio(false);
@@ -60,7 +76,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         setIsPlaying(false);
       }
     }
-  }, [track]);
+  }, [track, toast]);
 
   const togglePlayPause = () => {
     if (!audioRef.current || !hasAudio) return;
@@ -70,6 +86,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     } else {
       audioRef.current.play().catch(error => {
         console.error("Error playing audio:", error);
+        toast({
+          title: "Playback Error",
+          description: "Could not play the audio file",
+          variant: "destructive"
+        });
       });
     }
     setIsPlaying(!isPlaying);

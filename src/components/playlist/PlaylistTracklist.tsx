@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Track as TrackType } from '@/types/supabase';
 
 interface PlaylistTrack {
   id: string;
@@ -68,6 +70,50 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
       });
     }
   };
+
+  const handlePlayClick = (track: PlaylistTrack) => {
+    // Get additional track data from the database
+    const fetchTrackDetails = async (trackId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('tracks')
+          .select('*')
+          .eq('id', trackId)
+          .single();
+        
+        if (error) throw error;
+        
+        // Create a full track object
+        const fullTrack: TrackType = {
+          ...data,
+          id: data.id,
+          title: data.title,
+          artist: data.artist,
+          album_id: data.album_id,
+          duration: data.duration,
+          plays: data.plays || 0,
+          audio_path: data.audio_path,
+          track_number: data.track_number
+        };
+        
+        // Dispatch the event with the full track data
+        console.log("Dispatching playlist track for playback:", fullTrack);
+        window.dispatchEvent(new CustomEvent('trackSelected', { 
+          detail: fullTrack 
+        }));
+      } catch (error) {
+        console.error('Error fetching track details:', error);
+        toast({
+          title: "Error",
+          description: "Failed to play track",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    // Call the function with the track ID
+    fetchTrackDetails(track.trackId);
+  };
   
   return (
     <ScrollArea className="w-full h-[calc(100vh-400px)]">
@@ -113,6 +159,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                   <span className="group-hover:hidden">{track.position}</span>
                   <button 
                     className="hidden group-hover:flex items-center justify-center"
+                    onClick={() => handlePlayClick(track)}
                   >
                     <Play size={14} />
                   </button>
