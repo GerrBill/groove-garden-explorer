@@ -1,3 +1,4 @@
+
 /**
  * Utility function to handle file uploads for the media player using Supabase Storage
  */
@@ -35,7 +36,8 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
       .from('images')
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: true
+        upsert: true,
+        contentType: file.type // Explicitly set the content type
       });
 
     if (error) {
@@ -47,6 +49,9 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
     const { data: urlData } = supabase.storage
       .from('images')
       .getPublicUrl(filePath);
+    
+    // Log the URL to help with debugging
+    console.log('Generated public URL:', urlData.publicUrl);
     
     return urlData.publicUrl;
   } catch (error) {

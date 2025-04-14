@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CreateArticleDialogProps {
   children: React.ReactNode;
@@ -97,15 +98,17 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="sm:max-w-3xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Create New Article</DialogTitle>
         </DialogHeader>
-        <ArticleForm 
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          onCancel={() => setOpen(false)}
-        />
+        <ScrollArea className="max-h-[calc(80vh-120px)] overflow-auto pr-4">
+          <ArticleForm 
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+            onCancel={() => setOpen(false)}
+          />
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
