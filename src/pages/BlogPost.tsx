@@ -344,7 +344,7 @@ const BlogPost = () => {
               </div>
               
               <div className="text-center mb-8">
-                <div className="inline-block bg-orange-700 text-white text-xs px-3 py-1 rounded-full mb-3">
+                <div className="inline-block bg-theme-color text-white text-xs px-3 py-1 rounded-full mb-3">
                   {blogPost.category}
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-3">{blogPost.title}</h1>

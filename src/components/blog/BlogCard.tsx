@@ -42,13 +42,13 @@ const BlogCard: React.FC<BlogCardProps> = ({
               (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
             }}
           />
-          <div className="absolute top-2 left-2 bg-orange-700 text-white text-xs px-2 py-1 rounded-full">
+          <div className="absolute top-2 left-2 bg-theme-color text-white text-xs px-2 py-1 rounded-full">
             {category}
           </div>
         </div>
         
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-orange-700 transition-colors">
+          <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-theme-color transition-colors">
             {title}
           </h3>
           <p className="text-sm text-zinc-400 mb-3 line-clamp-2">

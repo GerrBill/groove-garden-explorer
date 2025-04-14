@@ -35,7 +35,7 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
       <div className="flex flex-col md:flex-row">
         <div className="md:w-2/3 p-6 md:p-8 flex flex-col">
           <div className="mb-4">
-            <span className="bg-orange-700 text-white text-xs px-2 py-1 rounded-full">
+            <span className="bg-theme-color text-white text-xs px-2 py-1 rounded-full">
               {category}
             </span>
           </div>
@@ -49,7 +49,7 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
           </div>
           
           <div className="mt-auto">
-            <Button asChild className="bg-orange-700 hover:bg-orange-800 text-white">
+            <Button asChild variant="default" className="text-white">
               <Link to={`/blog/${id}`} className="flex items-center gap-2">
                 Read Article <ArrowRight size={16} />
               </Link>
