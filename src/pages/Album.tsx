@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AlbumHeader from "@/components/album/AlbumHeader";
 import AlbumActions from "@/components/album/AlbumActions";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import AlbumNotFound from "@/components/album/AlbumNotFound";
 import AlbumNavigation from "@/components/album/AlbumNavigation";
 import UpdateAlbumArtDialog from "@/components/album/UpdateAlbumArtDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TrackWithMeta extends Track {
   isLiked?: boolean;
@@ -24,6 +25,8 @@ const Album = () => {
   const [tracks, setTracks] = useState<TrackWithMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const isMobile = useIsMobile(768);
+  const navigate = useNavigate();
 
   const fetchAlbum = async () => {
     if (!id) return;
@@ -141,7 +144,7 @@ const Album = () => {
           <AlbumHeader 
             title={album.title}
             artist={album.artist}
-            imageUrl={album.image_url}
+            image={album.image_url}
             year={album.year}
             trackCount={album.track_count}
             duration={album.duration}
@@ -153,8 +156,8 @@ const Album = () => {
             updateAlbumArtDialog={
               <UpdateAlbumArtDialog 
                 albumId={id}
-                currentImageUrl={album.image_url}
-                onAlbumArtUpdated={handleAlbumArtUpdated}
+                currentImage={album.image_url}
+                onImageUpdated={handleAlbumArtUpdated}
               />
             }
           />
@@ -165,7 +168,12 @@ const Album = () => {
             albumName={album.title}
           />
           
-          <RelatedAlbums currentAlbumId={id} />
+          {isMobile !== undefined && (
+            <RelatedAlbums 
+              album={album}
+              isMobile={isMobile}
+            />
+          )}
         </>
       )}
     </div>

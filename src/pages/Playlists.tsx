@@ -110,7 +110,7 @@ const Playlists = () => {
                   <AlbumCard 
                     key={playlist.id}
                     id={playlist.id}
-                    image={playlist.image_url}
+                    image={playlist.image_url || '/placeholder.svg'}
                     title={playlist.title}
                     artist={playlist.owner}
                     size="md"

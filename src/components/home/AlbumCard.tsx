@@ -12,6 +12,7 @@ interface AlbumCardProps {
   artist: string;
   size?: 'sm' | 'md' | 'lg';
   id?: string;
+  type?: 'album' | 'playlist';
 }
 
 const AlbumCard: React.FC<AlbumCardProps> = ({ 
@@ -19,7 +20,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   title, 
   artist,
   size = 'md',
-  id
+  id,
+  type = 'album'
 }) => {
   const navigate = useNavigate();
   const sizeClasses = {
@@ -50,7 +52,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         const firstTrack = tracks[0] as Track;
         
         // Navigate to album detail page
-        navigate(`/album/${id}`);
+        navigate(`/${type}/${id}`);
         
         // Use a small timeout to ensure the album page is loaded before we try to play
         setTimeout(() => {
@@ -59,12 +61,12 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         }, 300);
       } else {
         // If no tracks, just navigate to the album page
-        navigate(`/album/${id}`);
+        navigate(`/${type}/${id}`);
       }
     } catch (error) {
       console.error('Error fetching first track:', error);
       // Fallback to just navigation
-      navigate(`/album/${id}`);
+      navigate(`/${type}/${id}`);
     }
   };
   
@@ -82,7 +84,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
         <button 
           className="absolute bottom-1 right-1 w-8 h-8 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
           onClick={handlePlayClick}
-          aria-label="Play album"
+          aria-label={`Play ${type}`}
         >
           <Play size={16} className="text-white ml-0.5" fill="white" />
         </button>
@@ -95,18 +97,18 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   // Handle navigation when the card is clicked
   const handleCardClick = () => {
     if (id) {
-      console.log(`Navigating to album/${id}`);
+      console.log(`Navigating to ${type}/${id}`);
     }
   };
   
   if (id) {
     return (
       <Link 
-        to={`/album/${id}`} 
+        to={`/${type}/${id}`} 
         className={`${sizeClasses[size]} block bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer`}
-        aria-label={`View album ${title}`}
+        aria-label={`View ${type} ${title}`}
         onClick={handleCardClick}
-        data-testid={`album-card-${id}`}
+        data-testid={`${type}-card-${id}`}
       >
         {content}
       </Link>
