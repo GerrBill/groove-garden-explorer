@@ -96,14 +96,17 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
           track_number: data.track_number
         };
         
-        // Dispatch the event with the full track data
+        // First dispatch track data
         console.log("Dispatching playlist track for playback:", fullTrack);
         window.dispatchEvent(new CustomEvent('trackSelected', { 
           detail: fullTrack 
         }));
         
-        // Immediately play the track
-        window.dispatchEvent(new CustomEvent('playTrack'));
+        // Small delay to ensure track is loaded before playing
+        setTimeout(() => {
+          // Then trigger play command
+          window.dispatchEvent(new CustomEvent('playTrack'));
+        }, 100);
       } catch (error) {
         console.error('Error fetching track details:', error);
         toast({

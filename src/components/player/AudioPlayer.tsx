@@ -15,6 +15,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+  const playRequestPending = useRef<boolean>(false);
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -30,7 +31,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     
     // Listen for play track events
     const handlePlayTrack = () => {
-      if (audioRef.current && hasAudio) {
+      if (audioRef.current && hasAudio && !playRequestPending.current) {
+        playRequestPending.current = true;
         setIsPlaying(true);
       }
     };
@@ -87,20 +89,44 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     if (!audioRef.current || !hasAudio) return;
     
     if (isPlaying) {
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error("Error playing audio:", error);
-          setIsPlaying(false);
-          toast({
-            title: "Playback Error",
-            description: "Could not play the audio file",
-            variant: "destructive"
-          });
-        });
+      // Ensure we don't have multiple play requests in flight
+      if (!playRequestPending.current) {
+        playRequestPending.current = true;
+        
+        // Small delay to ensure any previous pause operation completes
+        setTimeout(() => {
+          if (audioRef.current) {
+            const playPromise = audioRef.current.play();
+            
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  playRequestPending.current = false;
+                })
+                .catch(error => {
+                  console.error("Error playing audio:", error);
+                  setIsPlaying(false);
+                  playRequestPending.current = false;
+                  
+                  // Only show error for non-AbortError cases
+                  if (error.name !== 'AbortError') {
+                    toast({
+                      title: "Playback Error",
+                      description: "Could not play the audio file",
+                      variant: "destructive"
+                    });
+                  }
+                });
+            } else {
+              playRequestPending.current = false;
+            }
+          }
+        }, 50);
       }
     } else {
+      // Always safe to pause
       audioRef.current.pause();
+      playRequestPending.current = false;
     }
   }, [isPlaying, hasAudio, toast]);
 
