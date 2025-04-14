@@ -7,6 +7,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BlogCard from '@/components/blog/BlogCard';
 import FeaturedBlogPost from '@/components/blog/FeaturedBlogPost';
+import { Button } from "@/components/ui/button";
+import { Plus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface BlogPost {
   id: string;
@@ -19,11 +23,12 @@ interface BlogPost {
 }
 
 const Blog = () => {
-  const [selectedTab, setSelectedTab] = useState('All');
+  const [selectedTab, setSelectedTab] = useState('Blogs');
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
+  const { user } = useAuth();
 
   const sampleBlogPosts: BlogPost[] = [
     {
@@ -120,6 +125,21 @@ const Blog = () => {
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Latest Articles</h2>
+            {user && (
+              <div className="ml-6">
+                <Link to="/blog/new">
+                  <Button size="sm" className="flex items-center gap-1 rounded-full">
+                    <Plus size={16} />
+                    Add Post
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+          <div className="h-[60px]"></div>
+          
           {featuredPost && (
             <HomeSection title="Featured Article">
               <FeaturedBlogPost

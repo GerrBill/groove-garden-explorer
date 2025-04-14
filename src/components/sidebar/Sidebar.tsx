@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { Library, Book, Music } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +13,7 @@ const Sidebar = () => {
   const [albums, setAlbums] = useState<AlbumType[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const location = useLocation();
   
   const handleFilterClick = (filter: string) => {
     setActiveFilter(filter);
@@ -50,7 +52,7 @@ const Sidebar = () => {
             <button 
               className={`px-2 py-1 text-xs font-medium rounded-full transition-colors flex-1 ${
                 activeFilter === 'Playlists' 
-                  ? 'bg-orange-700 text-white' 
+                  ? 'bg-orange-800 text-white' 
                   : 'bg-zinc-900 text-white hover:bg-zinc-800'
               }`}
               onClick={() => handleFilterClick('Playlists')}
@@ -60,7 +62,7 @@ const Sidebar = () => {
             <button 
               className={`px-2 py-1 text-xs font-medium rounded-full transition-colors flex-1 ${
                 activeFilter === 'Albums' 
-                  ? 'bg-orange-700 text-white' 
+                  ? 'bg-orange-800 text-white' 
                   : 'bg-zinc-900 text-white hover:bg-zinc-800'
               }`}
               onClick={() => handleFilterClick('Albums')}
@@ -70,7 +72,7 @@ const Sidebar = () => {
             <button 
               className={`px-2 py-1 text-xs font-medium rounded-full transition-colors flex-1 ${
                 activeFilter === 'Blogs' 
-                  ? 'bg-orange-700 text-white' 
+                  ? 'bg-orange-800 text-white' 
                   : 'bg-zinc-900 text-white hover:bg-zinc-800'
               }`}
               onClick={() => handleFilterClick('Blogs')}
