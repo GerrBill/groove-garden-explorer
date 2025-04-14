@@ -18,10 +18,22 @@ const Player = () => {
       setCurrentTrack(track);
     };
 
+    // Listen for play track events
+    const handlePlayTrack = () => {
+      const audioElement = document.querySelector('audio');
+      if (audioElement) {
+        audioElement.play().catch(error => {
+          console.error("Error auto-playing:", error);
+        });
+      }
+    };
+
     window.addEventListener('trackSelected', handleTrackSelected);
+    window.addEventListener('playTrack', handlePlayTrack);
 
     return () => {
       window.removeEventListener('trackSelected', handleTrackSelected);
+      window.removeEventListener('playTrack', handlePlayTrack);
     };
   }, []);
 

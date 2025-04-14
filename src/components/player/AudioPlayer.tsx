@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Track } from '@/types/supabase';
@@ -54,11 +53,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         
         // Load the audio but don't play it
         audioRef.current.load();
-        
-        toast({
-          title: "Track Ready",
-          description: `${track.title} by ${track.artist} is ready to play`,
-        });
       } else {
         console.log("No audio URL found for path:", track.audio_path);
         setHasAudio(false);

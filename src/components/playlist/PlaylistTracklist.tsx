@@ -101,6 +101,9 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
         window.dispatchEvent(new CustomEvent('trackSelected', { 
           detail: fullTrack 
         }));
+        
+        // Immediately play the track
+        window.dispatchEvent(new CustomEvent('playTrack'));
       } catch (error) {
         console.error('Error fetching track details:', error);
         toast({
