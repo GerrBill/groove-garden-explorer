@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -9,11 +10,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Settings = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, colorTheme, toggleTheme, setColorTheme } = useTheme();
   
   return (
-    <ScrollArea className="h-[calc(100vh-45px)]">
-      <div className="container py-6 space-y-8 pb-20">
+    <ScrollArea className="h-[calc(100vh-65px)]">
+      <div className="container py-6 space-y-8 pb-36">
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold">Settings</h1>
           <p className="text-muted-foreground">Customize your music experience</p>
@@ -59,7 +60,11 @@ const Settings = () => {
                   </div>
                 </div>
                 
-                <RadioGroup defaultValue="orange" className="flex flex-wrap gap-3">
+                <RadioGroup 
+                  value={colorTheme} 
+                  onValueChange={(value) => setColorTheme(value as 'orange' | 'blue' | 'green' | 'purple')}
+                  className="flex flex-wrap gap-3"
+                >
                   <div className="flex flex-col items-center gap-1">
                     <div className="flex items-center justify-center">
                       <RadioGroupItem 
@@ -120,9 +125,6 @@ const Settings = () => {
                     <span className="text-xs">Purple</span>
                   </div>
                 </RadioGroup>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Note: Color theme implementation will be applied in a future update
-                </p>
               </div>
             </CardContent>
           </Card>

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface SidebarItemProps {
   icon: LucideIcon;
@@ -16,9 +17,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   active = false,
   href 
 }) => {
+  const { colorTheme } = useTheme();
+  
   const content = (
     <div className={`flex items-center gap-3 py-2 px-3 text-spotify-text-primary font-medium rounded-md hover:bg-zinc-800 cursor-pointer ${active ? 'bg-zinc-800' : ''}`}>
-      <div className="text-orange-700">
+      <div className="text-theme-color">
         <Icon size={20} />
       </div>
       <span>{label}</span>

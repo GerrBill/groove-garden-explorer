@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    /* Light theme variables */
+    /* Light theme variables - brighter version */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -44,6 +44,10 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Theme color variables */
+    --theme-color: 24 95% 40%;
+    --theme-color-hover: 24 95% 35%;
   }
 
   .dark {
@@ -84,6 +88,34 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Theme color variables */
+    --theme-color: 24 95% 40%;
+    --theme-color-hover: 24 95% 35%;
+  }
+  
+  /* Orange theme (default) */
+  [data-color-theme="orange"] {
+    --theme-color: 24 95% 40%;
+    --theme-color-hover: 24 95% 35%;
+  }
+  
+  /* Blue theme */
+  [data-color-theme="blue"] {
+    --theme-color: 210 100% 50%;
+    --theme-color-hover: 210 100% 45%;
+  }
+  
+  /* Green theme */
+  [data-color-theme="green"] {
+    --theme-color: 142 76% 36%;
+    --theme-color-hover: 142 76% 31%;
+  }
+  
+  /* Purple theme */
+  [data-color-theme="purple"] {
+    --theme-color: 270 76% 50%;
+    --theme-color-hover: 270 76% 45%;
   }
 }
 
@@ -94,6 +126,20 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-theme-color {
+    color: hsl(var(--theme-color));
+  }
+  
+  .bg-theme-color {
+    background-color: hsl(var(--theme-color));
+  }
+  
+  .bg-theme-color-hover {
+    background-color: hsl(var(--theme-color-hover));
   }
 }
 
