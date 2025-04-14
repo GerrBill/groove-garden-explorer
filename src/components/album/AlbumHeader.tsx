@@ -25,13 +25,13 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
   return (
     <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6 w-full">
       {isMobile ? (
-        // Mobile layout - everything centered properly
+        // Mobile layout - everything centered properly with reduced height
         <div className="w-full flex flex-col items-center text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-2">{title}</h1>
           
-          {/* Center the album art properly with fixed dimensions */}
-          <div className="flex justify-center w-full mb-4">
-            <div className="w-[250px] h-[250px] flex justify-center items-center">
+          {/* Center the album art properly with reduced dimensions */}
+          <div className="flex justify-center w-full mb-2">
+            <div className="w-[150px] h-[150px] flex justify-center items-center">
               <img 
                 src={image} 
                 alt={title} 
@@ -40,12 +40,12 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
             </div>
           </div>
           
-          <div className="w-full flex flex-col items-center mt-4 gap-2">
-            <div className="flex items-center gap-1 text-xs sm:text-sm">
+          <div className="w-full flex flex-col items-center mt-2 gap-1">
+            <div className="flex items-center gap-1 text-xs">
               <img 
                 src={image} 
                 alt={artist} 
-                className="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover" 
+                className="w-4 h-4 rounded-full object-cover" 
               />
               <span className="font-medium hover:underline cursor-pointer">{artist}</span>
               {year && (
@@ -70,25 +70,25 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
           </div>
         </div>
       ) : (
-        // Desktop layout - horizontal alignment
-        <div className="flex items-end gap-6">
+        // Desktop layout - horizontal alignment with reduced height
+        <div className="flex items-center gap-4">
           <div>
             <img 
               src={image} 
               alt={title} 
-              className="w-48 md:w-56 h-auto shadow-xl object-cover" 
+              className="w-24 h-auto shadow-xl object-cover" 
             />
           </div>
           
-          <div className="flex flex-col gap-2 md:gap-4">
+          <div className="flex flex-col gap-1">
             <span className="text-xs font-medium">Album</span>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold">{title}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
             
-            <div className="flex items-center gap-1 text-xs sm:text-sm mt-1">
+            <div className="flex items-center gap-1 text-xs mt-1">
               <img 
                 src={image} 
                 alt={artist} 
-                className="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover" 
+                className="w-4 h-4 rounded-full object-cover" 
               />
               <span className="font-medium hover:underline cursor-pointer">{artist}</span>
               {year && (
