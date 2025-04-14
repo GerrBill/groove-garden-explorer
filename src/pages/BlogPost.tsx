@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -190,8 +189,17 @@ const BlogPost = () => {
     }
   };
 
-  // Check if current user is the post creator (by matching author name)
-  const isPostCreator = user && blogPost?.author === user.email;
+  // Function to check if the current user is the post creator
+  const isPostOwner = () => {
+    if (!user || !blogPost) return false;
+    
+    console.log('Current user:', user);
+    console.log('Blog post author:', blogPost.author);
+    
+    // Check if the user's email matches the author field
+    // Note: We're also logging to help debug the issue
+    return user.email === blogPost.author;
+  };
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-gray-100">
@@ -223,8 +231,15 @@ const BlogPost = () => {
                   <ArrowLeft size={16} className="mr-1" /> Back to Blogs
                 </Link>
                 
-                {isPostCreator && blogPost && (
+                {user && (
                   <div className="flex gap-2">
+                    {/* Debug info - remove in production */}
+                    <div className="hidden">
+                      <p>User: {user?.email}</p>
+                      <p>Author: {blogPost?.author}</p>
+                      <p>IsOwner: {isPostOwner() ? 'Yes' : 'No'}</p>
+                    </div>
+                    
                     <Dialog open={openImageDialog} onOpenChange={setOpenImageDialog}>
                       <DialogTrigger asChild>
                         <Button 
@@ -304,16 +319,7 @@ const BlogPost = () => {
                     (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
                   }}
                 />
-                {isPostCreator && (
-                  <div 
-                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => setOpenImageDialog(true)}
-                  >
-                    <Button variant="secondary" className="flex items-center gap-1">
-                      <Image size={16} /> Replace Image
-                    </Button>
-                  </div>
-                )}
+                
               </div>
               
               <div className="article-content prose max-w-none mb-8">
