@@ -14,7 +14,7 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
 }) => {
   return (
     <div className="space-y-3">
-      <label className="text-sm font-medium">Featured Image</label>
+      <label className="block text-sm font-medium">Featured Image</label>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">
           <div className="flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md h-32 sm:h-64 relative overflow-hidden">

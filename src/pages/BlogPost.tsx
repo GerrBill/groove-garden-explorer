@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,9 +15,17 @@ import { BlogArticle } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { uploadImageFile } from '@/utils/fileUpload';
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
+import { uploadImageFile } from '@/utils/fileUpload';
+
+// New comment interface
+interface BlogComment {
+  id: string;
+  article_id: string;
+  user_name: string;
+  content: string;
+  created_at: string;
+}
 
 const BlogPost = () => {
   const [selectedTab] = useState('Blogs');
@@ -27,6 +36,10 @@ const BlogPost = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isReplacing, setIsReplacing] = useState(false);
   const [openImageDialog, setOpenImageDialog] = useState(false);
+  const [comments, setComments] = useState<BlogComment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [commentUsername, setCommentUsername] = useState('');
+  const [isPostingComment, setIsPostingComment] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -44,7 +57,11 @@ const BlogPost = () => {
         throw error;
       }
 
+      console.log('Fetched blog post:', data);
       setBlogPost(data as BlogArticle);
+      
+      // Fetch comments for this post
+      fetchComments();
     } catch (error) {
       console.error('Error fetching blog post:', error);
       toast({
@@ -56,12 +73,35 @@ const BlogPost = () => {
       setLoading(false);
     }
   };
+  
+  const fetchComments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_comments')
+        .select('*')
+        .eq('article_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setComments(data as BlogComment[]);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load comments. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     if (id) {
       fetchBlogPost();
     }
-  }, [id, toast]);
+  }, [id]);
 
   const formattedDate = blogPost?.published_at 
     ? formatDistanceToNow(new Date(blogPost.published_at), { addSuffix: true }) 
@@ -112,6 +152,19 @@ const BlogPost = () => {
       .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '<div style="text-align: $1;">$2</div>')
       .replace(/- (.*?)(?:\n|$)/g, '<li>$1</li>')
       .replace(/\n/g, '<br />');
+    
+    // YouTube URL regex
+    const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=|embed\/|v\/|shorts\/|playlist\?list=|channel\/)?([a-zA-Z0-9_-]{11})(\S*)?/g;
+    formatted = formatted.replace(youtubeRegex, (match) => {
+      return `<div class="aspect-w-16 aspect-h-9 my-4">
+        <iframe src="https://www.youtube.com/embed/${match.match(/([a-zA-Z0-9_-]{11})/)?.[0]}" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen
+          class="w-full h-64 rounded-md"
+        ></iframe>
+      </div>`;
+    });
     
     if (formatted.includes('<li>')) {
       formatted = formatted.replace(/<li>(.*?)(?:<br \/>|$)/g, '<li>$1</li>');
@@ -175,10 +228,43 @@ const BlogPost = () => {
       setImagePreview(null);
     }
   };
-
-  const isPostOwner = () => {
-    if (!user || !blogPost) return false;
-    return true;
+  
+  const handleSubmitComment = async () => {
+    if (!newComment.trim() || !commentUsername.trim() || !id) return;
+    
+    try {
+      setIsPostingComment(true);
+      
+      const { data, error } = await supabase
+        .from('blog_comments')
+        .insert({
+          article_id: id,
+          user_name: commentUsername,
+          content: newComment,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      setComments([data as BlogComment, ...comments]);
+      setNewComment('');
+      
+      toast({
+        title: "Comment posted!",
+        description: "Your comment has been added successfully.",
+      });
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to post comment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsPostingComment(false);
+    }
   };
 
   return (
@@ -223,7 +309,7 @@ const BlogPost = () => {
                           <Image size={16} /> Replace Image
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+                      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Replace Featured Image</DialogTitle>
                         </DialogHeader>
@@ -283,14 +369,17 @@ const BlogPost = () => {
               </div>
               
               <div className="mb-8 relative group">
-                <img 
-                  src={blogPost.image_url} 
-                  alt={blogPost.title} 
-                  className="w-full h-auto rounded-md object-cover max-h-[500px]" 
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
-                  }}
-                />
+                {blogPost.image_url && (
+                  <img 
+                    src={blogPost.image_url} 
+                    alt={blogPost.title} 
+                    className="w-full h-auto rounded-md object-cover max-h-[500px]" 
+                    onError={(e) => {
+                      console.error("Error loading image:", blogPost.image_url);
+                      (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                    }}
+                  />
+                )}
               </div>
               
               <div className="article-content prose max-w-none mb-8">
@@ -336,11 +425,75 @@ const BlogPost = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2">
                   <h3 className="text-xl font-bold mb-4">Comments</h3>
-                  <Card>
+                  
+                  {/* Comment form */}
+                  <Card className="mb-6">
                     <CardContent className="p-6">
-                      <p className="text-gray-500 text-center py-4">No comments yet. Be the first to comment!</p>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Your Name</label>
+                          <input
+                            type="text"
+                            value={commentUsername}
+                            onChange={(e) => setCommentUsername(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="Enter your name"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Comment</label>
+                          <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md min-h-[100px]"
+                            placeholder="Write your comment here..."
+                          ></textarea>
+                        </div>
+                        <div className="text-right">
+                          <Button 
+                            onClick={handleSubmitComment} 
+                            disabled={isPostingComment || !newComment.trim() || !commentUsername.trim()}
+                          >
+                            {isPostingComment ? 'Posting...' : 'Post Comment'}
+                          </Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
+                  
+                  {/* Comments list */}
+                  {comments.length > 0 ? (
+                    <div className="space-y-4">
+                      {comments.map((comment) => (
+                        <Card key={comment.id}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start">
+                              <Avatar className="h-8 w-8 mr-3">
+                                <div className="bg-gray-300 h-full w-full flex items-center justify-center text-gray-600 text-xs">
+                                  {comment.user_name.charAt(0).toUpperCase()}
+                                </div>
+                              </Avatar>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-center mb-2">
+                                  <p className="font-semibold">{comment.user_name}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                                  </p>
+                                </div>
+                                <p className="text-gray-700">{comment.content}</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <Card>
+                      <CardContent className="p-6">
+                        <p className="text-gray-500 text-center py-4">No comments yet. Be the first to comment!</p>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
                 
                 <div>

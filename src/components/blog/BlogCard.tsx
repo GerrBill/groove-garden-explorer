@@ -37,6 +37,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
             alt={title} 
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
             onError={(e) => {
+              console.error("Error loading image in BlogCard:", imgSrc);
               // Fallback to default image if loading fails
               (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
             }}
@@ -47,7 +48,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         </div>
         
         <div className="p-4">
-          <h3 className="text-lg font-semibold mb-2 group-hover:text-orange-700 transition-colors">
+          <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-orange-700 transition-colors">
             {title}
           </h3>
           <p className="text-sm text-zinc-400 mb-3 line-clamp-2">
