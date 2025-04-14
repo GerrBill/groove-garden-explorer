@@ -5,8 +5,8 @@ import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import AlbumCard from "@/components/home/AlbumCard";
-import BlogCard from "@/components/blog/BlogCard";
+import AlbumItem from "./AlbumItem";
+import BlogItem from "./BlogItem";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -102,7 +102,6 @@ const Sidebar = () => {
                 Your Playlists
               </div>
               <div className="space-y-1">
-                {/* Render playlists directly without an additional wrapper */}
                 <SidebarPlaylist playlists={playlists || []} />
               </div>
             </>
@@ -113,15 +112,11 @@ const Sidebar = () => {
               <div className="text-xs font-semibold text-spotify-text-secondary uppercase tracking-wider mb-2">
                 Recent Albums
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
                 {albums?.map((album) => (
-                  <AlbumCard 
+                  <AlbumItem 
                     key={album.id}
-                    id={album.id}
-                    image={album.image_url}
-                    title={album.title}
-                    artist={album.artist}
-                    size="sm"
+                    album={album}
                   />
                 ))}
               </div>
@@ -133,17 +128,11 @@ const Sidebar = () => {
               <div className="text-xs font-semibold text-spotify-text-secondary uppercase tracking-wider mb-2">
                 Recent Articles
               </div>
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {blogArticles?.map((article) => (
-                  <BlogCard 
+                  <BlogItem 
                     key={article.id}
-                    id={article.id}
-                    image={article.image_url || ''}
-                    title={article.title}
-                    excerpt={article.excerpt}
-                    author={article.author}
-                    date={article.published_at}
-                    category={article.category || 'Music'}
+                    article={article}
                   />
                 ))}
               </div>
