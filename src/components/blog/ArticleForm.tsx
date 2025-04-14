@@ -36,6 +36,7 @@ interface ArticleFormValues {
   content: string;
   category: string;
   author: string;
+  imageFile?: File | null; // Added imageFile property
 }
 
 const ArticleForm: React.FC<ArticleFormProps> = ({
