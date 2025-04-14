@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Music, BookOpen, ListMusic, Settings, ChevronLeft, ChevronRight, List } from 'lucide-react';
+import { Music, BookOpen, ListMusic, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from '@/context/AuthContext';
 import AccountButton from '@/components/auth/AccountButton';
@@ -52,19 +52,12 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
           </button>
         )}
         
-        {/* Only show Settings icon to logged-in users */}
-        {user ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-orange-700 hover:text-white transition-colors cursor-not-allowed">
-                <Settings size={18} />
-              </span>
-            </TooltipTrigger>
-            <TooltipContent className="bg-[#FEF7CD] border-zinc-800 text-[#ea384c] font-bold px-4 py-3 text-base">
-              <p>FFS give me a chance...</p>
-            </TooltipContent>
-          </Tooltip>
-        ) : null}
+        {/* Make Settings icon clickable with link to settings page */}
+        {user && (
+          <Link to="/settings" className="text-orange-700 hover:text-white transition-colors">
+            <Settings size={18} />
+          </Link>
+        )}
         
         {/* Account button with white color */}
         <div className="text-white">
