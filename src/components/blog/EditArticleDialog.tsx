@@ -63,25 +63,31 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         category: values.category
       });
       
+      // Create the update object with all fields
+      const updateData = {
+        title: values.title,
+        subtitle: values.subtitle || null, // Handle empty subtitle
+        content: values.content,
+        excerpt: excerpt,
+        image_url: imageUrl,
+        category: values.category
+      };
+      
+      console.log('Update data being sent to Supabase:', updateData);
+      
       // Update article in database
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('blog_articles')
-        .update({
-          title: values.title,
-          subtitle: values.subtitle || null,
-          content: values.content,
-          excerpt: excerpt,
-          image_url: imageUrl,
-          category: values.category
-        })
-        .eq('id', article.id);
+        .update(updateData)
+        .eq('id', article.id)
+        .select();
       
       if (error) {
         console.error('Supabase error:', error);
         throw error;
       }
       
-      console.log('Article updated successfully');
+      console.log('Article updated successfully, response:', data);
       
       toast({
         title: "Success!",
