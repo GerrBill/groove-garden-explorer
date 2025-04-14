@@ -92,20 +92,17 @@ const Blog = () => {
   const fetchBlogPosts = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams(location.search);
-      if (params.has('refresh')) {
-        const newPost = {
-          id: Date.now().toString(),
-          title: 'Your New Article',
-          excerpt: 'This is the article you just created. In a real app, this would be saved to the database.',
-          image_url: '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png',
-          author: user?.email?.split('@')[0] || 'Anonymous',
-          published_at: new Date().toISOString().split('T')[0],
-          category: 'New'
-        };
-        
-        const updatedPosts = [newPost, ...sampleBlogPosts];
-        setBlogPosts(updatedPosts);
+      const { data, error } = await supabase
+        .from('blog_articles')
+        .select('id, title, excerpt, image_url, author, published_at, category')
+        .order('published_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        setBlogPosts(data as BlogPost[]);
       } else {
         setBlogPosts(sampleBlogPosts);
       }
@@ -115,9 +112,10 @@ const Blog = () => {
       console.error('Error fetching blog posts:', error);
       toast({
         title: "Error",
-        description: "Failed to load blog posts. Please try again later.",
+        description: "Failed to load blog posts. Using sample data instead.",
         variant: "destructive"
       });
+      setBlogPosts(sampleBlogPosts);
       setLoading(false);
     }
   };
@@ -155,7 +153,6 @@ const Blog = () => {
               </div>
             )}
           </div>
-          <div className="h-[60px]"></div>
           
           {featuredPost && (
             <HomeSection title="Featured Article">

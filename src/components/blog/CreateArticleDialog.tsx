@@ -14,6 +14,8 @@ import { FileText, Image as ImageIcon, Bold, Italic, Link as LinkIcon } from 'lu
 import { useAuth } from '@/context/AuthContext';
 import ArticleForm from './ArticleForm';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { uploadImageFile } from '@/utils/fileUpload';
 
 interface CreateArticleDialogProps {
   children?: React.ReactNode;
@@ -30,10 +32,51 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
     setIsSubmitting(true);
     
     try {
-      // Here we would normally save the article to Supabase
-      // but for now we'll just show a success message
+      // Process the image file if it exists
+      let imageUrl = null;
+      if (data.imageFile) {
+        try {
+          // Generate a unique ID for the image
+          const imageId = crypto.randomUUID();
+          imageUrl = await uploadImageFile(data.imageFile, imageId);
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          toast({
+            title: "Error",
+            description: "Failed to upload image. Using placeholder image instead.",
+            variant: "destructive",
+          });
+          // Use a placeholder image if upload fails
+          imageUrl = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+        }
+      } else {
+        // Use a placeholder image if no image was provided
+        imageUrl = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+      }
+
+      // Create excerpt from content if not provided
+      const excerpt = data.subtitle || data.content?.substring(0, 150) + '...' || 'No content provided';
       
-      console.log("Article data to be saved:", data);
+      // Save the article to Supabase
+      const { data: articleData, error } = await supabase
+        .from('blog_articles')
+        .insert({
+          title: data.title,
+          subtitle: data.subtitle || null,
+          content: data.content,
+          excerpt: excerpt,
+          image_url: imageUrl,
+          author: data.author || (user?.email?.split('@')[0] || 'Anonymous'),
+          category: data.category || 'Uncategorized',
+          published_at: new Date().toISOString()
+        })
+        .select();
+
+      if (error) {
+        throw error;
+      }
+      
+      console.log("Article saved successfully:", articleData);
       
       // Close the dialog
       setOpen(false);
@@ -45,7 +88,6 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({ children }) =
       });
 
       // Reload the blog page to show the new article
-      // We use navigate with a timestamp query parameter to force a reload
       navigate('/blog?refresh=' + Date.now());
     } catch (error) {
       console.error("Error creating article:", error);

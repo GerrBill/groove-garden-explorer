@@ -19,27 +19,47 @@ export const uploadImageFile = async (file: File, albumId: string): Promise<stri
   // Generate a unique filename for storage
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-  const filePath = `albums/${albumId}/${fileName}`;
+  const filePath = `blog/${albumId}/${fileName}`;
   
-  // Upload the image file to Supabase Storage
-  const { data, error } = await supabase.storage
-    .from('images')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: true
-    });
+  try {
+    // Check if the images bucket exists, if not create it
+    const { data: buckets } = await supabase.storage.listBuckets();
+    if (!buckets?.find(bucket => bucket.name === 'images')) {
+      const { data, error } = await supabase.storage.createBucket('images', {
+        public: true,
+        fileSizeLimit: 5242880, // 5MB
+      });
+      
+      if (error) {
+        console.error('Error creating bucket:', error);
+        throw error;
+      }
+    }
 
-  if (error) {
-    console.error('Error uploading image:', error);
-    throw error;
+    // Upload the image file to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+
+    // Get the public URL for the uploaded image
+    const { data: urlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+    
+    return urlData.publicUrl;
+  } catch (error) {
+    console.error('Error in uploadImageFile:', error);
+    // Return a placeholder image URL if upload fails
+    return '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
   }
-
-  // Get the public URL for the uploaded image
-  const { data: urlData } = supabase.storage
-    .from('images')
-    .getPublicUrl(filePath);
-  
-  return urlData.publicUrl;
 };
 
 // Function to upload an audio file to Supabase Storage
