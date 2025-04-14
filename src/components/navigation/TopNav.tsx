@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface TopNavProps {
@@ -12,7 +12,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   const location = useLocation();
   
   // Determine current page based on location
-  React.useEffect(() => {
+  useEffect(() => {
     const currentPath = location.pathname;
     if (currentPath === '/' || currentPath.startsWith('/album')) {
       setSelectedTab('Albums');
@@ -32,7 +32,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
             to={tab === 'Albums' ? '/' : tab === 'Blogs' ? '/blog' : '/playlists'}
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               selectedTab === tab 
-                ? 'bg-orange-800 text-white' 
+                ? 'bg-theme-color text-white' 
                 : 'bg-zinc-800 text-white hover:bg-zinc-700'
             }`}
             onClick={() => setSelectedTab(tab)}

@@ -17,8 +17,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   const { colorTheme } = useTheme();
   
   const content = (
-    <div className={`flex items-center gap-3 py-2 px-3 text-spotify-text-primary font-medium rounded-md hover:bg-zinc-800 cursor-pointer ${active ? 'bg-zinc-800' : ''}`}>
-      <span className="text-theme-color">{label}</span>
+    <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+      active 
+        ? 'bg-theme-color text-white' 
+        : 'bg-zinc-800 text-white hover:bg-zinc-700'
+    }`}>
+      {label}
     </div>
   );
 
