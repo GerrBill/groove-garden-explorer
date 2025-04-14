@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Album from "./pages/Album";
+import Playlists from "./pages/Playlists";
+import Playlist from "./pages/Playlist";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
@@ -148,6 +150,8 @@ const App = () => {
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/album/:id" element={<Album />} />
+                      <Route path="/playlists" element={<Playlists />} />
+                      <Route path="/playlist/:id" element={<Playlist />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:id" element={<BlogPost />} />
                       <Route path="*" element={<NotFound />} />

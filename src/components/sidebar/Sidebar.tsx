@@ -6,7 +6,7 @@ import SidebarPlaylist from "./SidebarPlaylist";
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
-import { Library } from "lucide-react";
+import { Library, Music, ListMusic, BookOpen } from "lucide-react";
 
 // Define types for our content
 interface BlogPost {
@@ -53,13 +53,23 @@ const Sidebar = () => {
           setAlbums(data || []);
         } 
         else if (activeFilter === 'Playlists') {
-          // For now, we'll use mock data since we don't have a playlists table yet
-          // In a real implementation, this would fetch from the database
-          setPlaylists([
-            { id: '1', name: 'My Favorites', owner: 'You' },
-            { id: '2', name: 'Recently Played', owner: 'You' },
-            { id: '3', name: 'Top Tracks', owner: 'You' }
-          ]);
+          const { data, error } = await supabase
+            .from('playlists')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(10);
+          
+          if (error) throw error;
+          
+          // Transform data to match our component's expected format
+          const transformedPlaylists = data.map(playlist => ({
+            id: playlist.id,
+            name: playlist.title,
+            owner: playlist.owner,
+            image_url: playlist.image_url
+          }));
+          
+          setPlaylists(transformedPlaylists);
         } 
         else if (activeFilter === 'Blogs') {
           const { data, error } = await supabase
@@ -119,6 +129,31 @@ const Sidebar = () => {
               Blogs
             </button>
           </div>
+        </div>
+        
+        {/* Add links to main section pages */}
+        <div className="flex flex-col gap-1 mt-2">
+          <Link 
+            to="/playlists" 
+            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
+          >
+            <ListMusic size={16} className="text-orange-700" />
+            <span>View All Playlists</span>
+          </Link>
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
+          >
+            <Music size={16} className="text-orange-700" />
+            <span>View All Albums</span>
+          </Link>
+          <Link 
+            to="/blog" 
+            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
+          >
+            <BookOpen size={16} className="text-orange-700" />
+            <span>View All Blog Posts</span>
+          </Link>
         </div>
       </div>
       

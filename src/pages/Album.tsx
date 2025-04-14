@@ -1,154 +1,174 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAlbumData } from '@/hooks/use-album-data';
-import AlbumHeader from '@/components/album/AlbumHeader';
-import TrackList from '@/components/album/TrackList';
-import AlbumNavigation from '@/components/album/AlbumNavigation';
-import AlbumActions from '@/components/album/AlbumActions';
-import AlbumNotFound from '@/components/album/AlbumNotFound';
-import UpdateAlbumArtDialog from '@/components/album/UpdateAlbumArtDialog';
-import { useIsMobile } from "@/hooks/use-mobile";
+
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import AlbumHeader from "@/components/album/AlbumHeader";
+import AlbumActions from "@/components/album/AlbumActions";
+import TrackList from "@/components/album/TrackList";
+import RelatedAlbums from "@/components/album/RelatedAlbums";
+import { Track, Album as AlbumType } from "@/types/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { Track } from '@/types/supabase';
-import { useState, useEffect } from 'react';
-import { ScrollArea } from "@/components/ui/scroll-area";
+import AlbumNotFound from "@/components/album/AlbumNotFound";
+import AlbumNavigation from "@/components/album/AlbumNavigation";
+import UpdateAlbumArtDialog from "@/components/album/UpdateAlbumArtDialog";
+
+interface TrackWithMeta extends Track {
+  isLiked?: boolean;
+  isPlaying?: boolean;
+  trackId: string;
+}
 
 const Album = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [album, setAlbum] = useState<AlbumType | null>(null);
+  const [tracks, setTracks] = useState<TrackWithMeta[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const { album, tracks, loading, setTracks, refetch } = useAlbumData(id);
-  const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
-  const handleTrackAdded = (newTrack: Track) => {
-    setTracks(prevTracks => [...prevTracks, newTrack]);
-    refetch();
-    toast({
-      title: "Success",
-      description: "Track added successfully!",
-      duration: 3000
-    });
-  };
-
-  const handleAlbumArtUpdated = (newImageUrl: string) => {
-    refetch();
-    toast({
-      title: "Success",
-      description: "Album art updated successfully!",
-      duration: 3000
-    });
-  };
-
-  const handleToggleLike = async (trackId: string) => {
-    const trackIndex = tracks.findIndex(track => track.id === trackId);
-    if (trackIndex === -1) return;
-
-    const updatedTracks = [...tracks];
-    const newLikedStatus = !updatedTracks[trackIndex].is_liked;
-    updatedTracks[trackIndex] = { ...updatedTracks[trackIndex], is_liked: newLikedStatus };
-    
-    setTracks(updatedTracks);
+  const fetchAlbum = async () => {
+    if (!id) return;
     
     try {
-      const { error } = await supabase
+      // Fetch album details
+      const { data: albumData, error: albumError } = await supabase
+        .from('albums')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (albumError) throw albumError;
+      setAlbum(albumData);
+      
+      // Fetch album tracks
+      const { data: tracksData, error: tracksError } = await supabase
         .from('tracks')
-        .update({ is_liked: newLikedStatus })
-        .eq('id', trackId);
-        
-      if (error) throw error;
+        .select('*')
+        .eq('album_id', id)
+        .order('track_number', { ascending: true });
+      
+      if (tracksError) throw tracksError;
+      
+      // Transform tracks to include additional metadata
+      const transformedTracks = tracksData.map(track => ({
+        ...track,
+        isLiked: track.is_liked || false,
+        isPlaying: false,
+        trackId: track.id
+      }));
+      
+      setTracks(transformedTracks);
+    } catch (error) {
+      console.error('Error fetching album and tracks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load album data",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAlbum();
+  }, [id]);
+
+  // Handle a track being added to album
+  const handleTrackAdded = (track: Track) => {
+    // Add the new track to the tracks list
+    setTracks(prevTracks => [
+      ...prevTracks, 
+      { 
+        ...track, 
+        isLiked: false, 
+        isPlaying: false, 
+        trackId: track.id 
+      }
+    ]);
+    
+    // Also update the album track count if available
+    if (album) {
+      const newTrackCount = parseInt(album.track_count || '0', 10) + 1;
+      setAlbum({
+        ...album,
+        track_count: newTrackCount.toString()
+      });
+    }
+    
+    toast({
+      title: "Track Added",
+      description: `"${track.title}" has been added to the album.`,
+    });
+  };
+
+  // Handle toggling like for a track
+  const handleToggleLike = (trackId: string) => {
+    setTracks(prevTracks => 
+      prevTracks.map(track => 
+        track.id === trackId 
+          ? { ...track, isLiked: !track.isLiked } 
+          : track
+      )
+    );
+  };
+
+  // Handle album art being updated
+  const handleAlbumArtUpdated = (imageUrl: string) => {
+    if (album) {
+      setAlbum({
+        ...album,
+        image_url: imageUrl
+      });
       
       toast({
-        title: newLikedStatus ? "Added to Liked Songs" : "Removed from Liked Songs",
-        duration: 2000
+        title: "Album Art Updated",
+        description: "The album artwork has been updated successfully.",
       });
-    } catch (error) {
-      console.error('Error updating track:', error);
-      updatedTracks[trackIndex] = { ...updatedTracks[trackIndex], is_liked: !newLikedStatus };
-      setTracks(updatedTracks);
     }
   };
 
-  const handlePlayTrack = (trackId: string) => {
-    const track = tracks.find(t => t.id === trackId);
-    if (track) {
-      setSelectedTrack(track);
-      window.dispatchEvent(new CustomEvent('trackSelected', { detail: track }));
-    }
-  };
-
-  useEffect(() => {
-    console.log('Raw tracks data:', tracks);
-  }, [tracks]);
-
-  const formattedTracks = tracks.map(track => ({
-    id: track.id,
-    title: track.title,
-    artist: track.artist,
-    plays: track.plays || 0,
-    duration: track.duration,
-    isLiked: track.is_liked,
-    trackId: track.id
-  }));
-
-  useEffect(() => {
-    if (tracks.length > 0) {
-      console.log('Tracks available:', tracks);
-      console.log('Formatted tracks:', formattedTracks);
-    }
-  }, [tracks, formattedTracks]);
+  // If album not found and not loading
+  if (!album && !loading) {
+    return <AlbumNotFound />;
+  }
 
   return (
-    <ScrollArea className="flex-1 h-[calc(100vh-140px)]">
-      <div className="pb-40">
-        <AlbumNavigation onGoBack={handleGoBack} />
-        
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-spotify-accent"></div>
-          </div>
-        ) : album ? (
-          <div className="flex flex-col">
-            <AlbumHeader 
-              image={album.image_url}
-              title={album.title}
-              artist={album.artist}
-              year={album.year || ""}
-              trackCount={tracks.length > 0 ? `${tracks.length} songs` : album.track_count || "No tracks"}
-              duration={album.duration || ""}
-            />
-            
-            <AlbumActions 
-              albumId={id} 
-              onTrackAdded={handleTrackAdded}
-              updateAlbumArtDialog={
-                <UpdateAlbumArtDialog 
-                  albumId={id || ''} 
-                  currentImage={album.image_url}
-                  onImageUpdated={handleAlbumArtUpdated}
-                />
-              }
-            />
-            
-            <div className="px-6 py-4 flex-grow">
-              <TrackList 
-                tracks={formattedTracks} 
-                onToggleLike={handleToggleLike}
-                onPlayTrack={handlePlayTrack}
+    <div className="flex-1 overflow-hidden w-full pb-24">
+      <AlbumNavigation />
+      
+      {album && (
+        <>
+          <AlbumHeader 
+            title={album.title}
+            artist={album.artist}
+            imageUrl={album.image_url}
+            year={album.year}
+            trackCount={album.track_count}
+            duration={album.duration}
+          />
+          
+          <AlbumActions 
+            albumId={id}
+            onTrackAdded={handleTrackAdded}
+            updateAlbumArtDialog={
+              <UpdateAlbumArtDialog 
+                albumId={id}
+                currentImageUrl={album.image_url}
+                onAlbumArtUpdated={handleAlbumArtUpdated}
               />
-            </div>
-            
-            <div className="h-24"></div>
-          </div>
-        ) : (
-          <AlbumNotFound onGoBack={handleGoBack} />
-        )}
-      </div>
-    </ScrollArea>
+            }
+          />
+          
+          <TrackList 
+            tracks={tracks} 
+            onToggleLike={handleToggleLike}
+            albumName={album.title}
+          />
+          
+          <RelatedAlbums currentAlbumId={id} />
+        </>
+      )}
+    </div>
   );
 };
 

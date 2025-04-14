@@ -4,6 +4,7 @@ import { Clock, MoreHorizontal, Heart, Play } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 
 interface Track {
   id: string;
@@ -20,9 +21,10 @@ interface TrackListProps {
   tracks: Track[];
   onToggleLike?: (trackId: string) => void;
   onPlayTrack?: (trackId: string) => void;
+  albumName?: string;
 }
 
-const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack }) => {
+const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack, albumName }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -137,13 +139,18 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
                 {typeof track.plays === 'number' ? track.plays.toLocaleString() : track.plays}
               </div>
               
-              <div className="flex items-center justify-end">
+              <div className="flex items-center justify-end gap-2">
                 <button 
                   className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
                   onClick={() => track.trackId && handleToggleLike(track.trackId)}
                 >
                   <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                 </button>
+                
+                {/* Add to Playlist button */}
+                {track.trackId && (
+                  <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                )}
               </div>
               
               <div className="flex items-center justify-between">
