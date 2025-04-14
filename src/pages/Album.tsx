@@ -12,6 +12,7 @@ import AlbumNotFound from "@/components/album/AlbumNotFound";
 import AlbumNavigation from "@/components/album/AlbumNavigation";
 import UpdateAlbumArtDialog from "@/components/album/UpdateAlbumArtDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TrackWithMeta extends Track {
   isLiked?: boolean;
@@ -136,7 +137,7 @@ const Album = () => {
   }
 
   return (
-    <div className="flex-1 overflow-hidden w-full pb-24">
+    <div className="flex-1 w-full pb-24">
       <AlbumNavigation />
       
       {album && (
@@ -162,11 +163,13 @@ const Album = () => {
             }
           />
           
-          <TrackList 
-            tracks={tracks} 
-            onToggleLike={handleToggleLike}
-            albumName={album.title}
-          />
+          <ScrollArea className="h-[calc(100vh-400px)]">
+            <TrackList 
+              tracks={tracks} 
+              onToggleLike={handleToggleLike}
+              albumName={album.title}
+            />
+          </ScrollArea>
           
           {isMobile !== undefined && (
             <RelatedAlbums 

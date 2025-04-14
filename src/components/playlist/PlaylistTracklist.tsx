@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PlaylistTrack {
   id: string;
@@ -70,7 +70,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   };
   
   return (
-    <div className="w-full">
+    <ScrollArea className="w-full h-[calc(100vh-400px)]">
       <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-zinc-400 text-sm">
         <div>#</div>
         <div>Title</div>
@@ -166,7 +166,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
           )}
         </div>
       )}
-    </div>
+    </ScrollArea>
   );
 };
 
