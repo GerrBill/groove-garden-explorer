@@ -3,11 +3,19 @@ import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const AlbumNavigation: React.FC = () => {
+interface AlbumNavigationProps {
+  onGoBack?: () => void;
+}
+
+const AlbumNavigation: React.FC<AlbumNavigationProps> = ({ onGoBack }) => {
   const navigate = useNavigate();
   
   const handleGoBack = () => {
-    navigate(-1);
+    if (onGoBack) {
+      onGoBack();
+    } else {
+      navigate(-1);
+    }
   };
   
   return (

@@ -100,16 +100,6 @@ const Sidebar = () => {
           <div className="flex gap-1 w-full">
             <button 
               className={`px-2 py-1 text-xs font-medium rounded-full transition-colors flex-1 ${
-                activeFilter === 'Playlists' 
-                  ? 'bg-orange-800 text-white' 
-                  : 'bg-zinc-900 text-white hover:bg-zinc-800'
-              }`}
-              onClick={() => handleFilterClick('Playlists')}
-            >
-              Playlists
-            </button>
-            <button 
-              className={`px-2 py-1 text-xs font-medium rounded-full transition-colors flex-1 ${
                 activeFilter === 'Albums' 
                   ? 'bg-orange-800 text-white' 
                   : 'bg-zinc-900 text-white hover:bg-zinc-800'
@@ -128,18 +118,21 @@ const Sidebar = () => {
             >
               Blogs
             </button>
+            <button 
+              className={`px-2 py-1 text-xs font-medium rounded-full transition-colors flex-1 ${
+                activeFilter === 'Playlists' 
+                  ? 'bg-orange-800 text-white' 
+                  : 'bg-zinc-900 text-white hover:bg-zinc-800'
+              }`}
+              onClick={() => handleFilterClick('Playlists')}
+            >
+              Playlists
+            </button>
           </div>
         </div>
         
         {/* Add links to main section pages */}
         <div className="flex flex-col gap-1 mt-2">
-          <Link 
-            to="/playlists" 
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
-          >
-            <ListMusic size={16} className="text-orange-700" />
-            <span>View All Playlists</span>
-          </Link>
           <Link 
             to="/" 
             className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
@@ -153,6 +146,13 @@ const Sidebar = () => {
           >
             <BookOpen size={16} className="text-orange-700" />
             <span>View All Blog Posts</span>
+          </Link>
+          <Link 
+            to="/playlists" 
+            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-zinc-800"
+          >
+            <ListMusic size={16} className="text-orange-700" />
+            <span>View All Playlists</span>
           </Link>
         </div>
       </div>

@@ -48,15 +48,16 @@ const AddPlaylistDialog: React.FC<AddPlaylistDialogProps> = ({ children, onPlayl
         const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
         const filePath = `playlists/${fileName}`;
         
+        // Change this to use the "images" bucket instead of "public"
         const { error: uploadError } = await supabase.storage
-          .from('public')
+          .from('images')
           .upload(filePath, imageFile);
         
         if (uploadError) throw uploadError;
         
         // Get the public URL
         const { data: publicUrlData } = supabase.storage
-          .from('public')
+          .from('images')
           .getPublicUrl(filePath);
         
         imageUrl = publicUrlData.publicUrl;

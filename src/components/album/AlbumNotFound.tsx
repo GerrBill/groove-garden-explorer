@@ -3,11 +3,19 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-const AlbumNotFound: React.FC = () => {
+interface AlbumNotFoundProps {
+  onGoBack?: () => void;
+}
+
+const AlbumNotFound: React.FC<AlbumNotFoundProps> = ({ onGoBack }) => {
   const navigate = useNavigate();
   
   const handleGoBack = () => {
-    navigate(-1);
+    if (onGoBack) {
+      onGoBack();
+    } else {
+      navigate(-1);
+    }
   };
   
   return (
