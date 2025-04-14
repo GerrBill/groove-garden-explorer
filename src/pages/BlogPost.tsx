@@ -17,14 +17,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
 
-interface BlogComment {
-  id: string;
-  article_id: string;
-  user_name: string;
-  content: string;
-  created_at: string;
-}
-
 const BlogPost = () => {
   const [selectedTab] = useState('Blogs');
   const { id } = useParams<{ id: string }>();
@@ -76,15 +68,15 @@ const BlogPost = () => {
     if (!id) return;
     
     try {
-      // Need to use .rpc or raw SQL if the table isn't in the TypeScript types yet
-      const response = await supabase.from('blog_comments').select('*').eq('article_id', id).order('created_at', { ascending: false });
+      // Using a custom query approach for tables not in TypeScript types yet
+      const { data, error } = await supabase
+        .rpc('get_comments_for_article', { article_id_param: id });
       
-      if (response.error) {
-        throw response.error;
+      if (error) {
+        throw error;
       }
       
-      // Type assertion here is needed
-      setComments(response.data as unknown as BlogComment[]);
+      setComments(data as BlogComment[]);
     } catch (error) {
       console.error('Error fetching comments:', error);
       toast({
@@ -233,20 +225,19 @@ const BlogPost = () => {
     try {
       setIsPostingComment(true);
       
-      // Use raw insert with explicit typing or a custom function call
+      // Using rpc to add a comment
       const { data, error } = await supabase
-        .from('blog_comments')
-        .insert({
-          article_id: id,
-          user_name: commentUsername,
-          content: newComment
-        })
-        .select();
+        .rpc('add_blog_comment', {
+          article_id_param: id,
+          user_name_param: commentUsername,
+          content_param: newComment
+        });
         
       if (error) throw error;
       
-      const newCommentData = data[0] as unknown as BlogComment;
-      setComments([newCommentData, ...comments]);
+      // Refresh comments after adding
+      fetchComments();
+      
       setNewComment('');
       setCommentUsername('');
       
