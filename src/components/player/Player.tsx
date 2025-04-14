@@ -15,6 +15,7 @@ const Player = () => {
     // Listen for track selection events
     const handleTrackSelected = (event: any) => {
       const track = event.detail as Track;
+      console.log("Player received track selection event:", track.title);
       setCurrentTrack(track);
     };
 

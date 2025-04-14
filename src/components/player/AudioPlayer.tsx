@@ -31,9 +31,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     audio.addEventListener('ended', handleEnded);
     
     // Listen for play track events
-    const handlePlayTrack = () => {
+    const handlePlayTrack = (event: any) => {
+      const shouldPlayImmediately = event?.detail?.immediate === true;
+      
       if (audioRef.current && hasAudio) {
-        playAudio();
+        if (shouldPlayImmediately) {
+          console.log("Playing track immediately due to tracklist play button");
+          playAudio();
+        } else {
+          console.log("Track loaded but not auto-playing");
+        }
       }
     };
     
