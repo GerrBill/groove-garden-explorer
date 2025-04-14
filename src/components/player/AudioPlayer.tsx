@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Track } from '@/types/supabase';
@@ -26,12 +27,22 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
 
     const audio = audioRef.current;
     audio.addEventListener('ended', handleEnded);
+    
+    // Listen for play track events
+    const handlePlayTrack = () => {
+      if (audioRef.current && hasAudio) {
+        setIsPlaying(true);
+      }
+    };
+    
+    window.addEventListener('playTrack', handlePlayTrack);
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
+      window.removeEventListener('playTrack', handlePlayTrack);
       audio.pause();
     };
-  }, []);
+  }, [hasAudio]);
 
   useEffect(() => {
     if (track?.audio_path && audioRef.current) {
@@ -71,21 +82,30 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     }
   }, [track, toast]);
 
-  const togglePlayPause = () => {
+  // Effect to actually play or pause the audio when isPlaying changes
+  useEffect(() => {
     if (!audioRef.current || !hasAudio) return;
     
     if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(error => {
-        console.error("Error playing audio:", error);
-        toast({
-          title: "Playback Error",
-          description: "Could not play the audio file",
-          variant: "destructive"
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Error playing audio:", error);
+          setIsPlaying(false);
+          toast({
+            title: "Playback Error",
+            description: "Could not play the audio file",
+            variant: "destructive"
+          });
         });
-      });
+      }
+    } else {
+      audioRef.current.pause();
     }
+  }, [isPlaying, hasAudio, toast]);
+
+  const togglePlayPause = () => {
+    if (!audioRef.current || !hasAudio) return;
     setIsPlaying(!isPlaying);
   };
 

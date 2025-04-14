@@ -20,11 +20,17 @@ const Player = () => {
 
     // Listen for play track events
     const handlePlayTrack = () => {
+      console.log("Play track event received, playing audio");
       const audioElement = document.querySelector('audio');
       if (audioElement) {
-        audioElement.play().catch(error => {
-          console.error("Error auto-playing:", error);
-        });
+        // Force play with user interaction
+        const playPromise = audioElement.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Error playing audio:", error);
+          });
+        }
       }
     };
 
