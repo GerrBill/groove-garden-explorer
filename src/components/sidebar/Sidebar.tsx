@@ -102,11 +102,8 @@ const Sidebar = () => {
                 Your Playlists
               </div>
               <div className="space-y-1">
-                {playlists?.map((playlist) => (
-                  <div key={playlist.id} className="block mb-2">
-                    <SidebarPlaylist playlists={playlists || []} />
-                  </div>
-                ))}
+                {/* Render playlists directly without an additional wrapper */}
+                <SidebarPlaylist playlists={playlists || []} />
               </div>
             </>
           )}
