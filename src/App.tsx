@@ -120,6 +120,11 @@ const App = () => {
     }
   };
 
+  useEffect(() => {
+    // Add dark class to root element
+    document.documentElement.classList.add('dark');
+  }, []);
+
   console.log("App rendered, routes should be active");
 
   return (
@@ -129,7 +134,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <div className="flex flex-col h-screen overflow-hidden bg-spotify-background text-spotify-text-primary">
+            <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
               <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
               <div className="flex flex-grow relative">
                 {sidebarOpen && (

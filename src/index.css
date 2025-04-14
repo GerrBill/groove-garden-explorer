@@ -91,7 +91,7 @@
   }
 
   body {
-    @apply bg-spotify-background text-spotify-text-primary;
+    @apply bg-background text-foreground;
   }
 }
 
