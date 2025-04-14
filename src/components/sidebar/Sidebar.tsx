@@ -1,7 +1,6 @@
 
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { Home, Library, Search, ListMusic, Newspaper, Settings } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
 import { useQuery } from "@tanstack/react-query";
@@ -24,40 +23,19 @@ const Sidebar = () => {
 
   const routes = useMemo(() => [
     {
-      icon: Home,
-      label: 'Home',
+      label: 'Albums',
       active: location.pathname === '/',
       href: '/'
     },
     {
-      icon: Search,
-      label: 'Search',
-      active: location.pathname === '/search',
-      href: '/search'
-    },
-    {
-      icon: Library,
-      label: 'Library',
-      active: location.pathname === '/library',
-      href: '/library'
-    },
-    {
-      icon: ListMusic,
-      label: 'Playlists',
-      active: location.pathname === '/playlists',
-      href: '/playlists'
-    },
-    {
-      icon: Newspaper,
-      label: 'Blog',
+      label: 'Blogs',
       active: location.pathname === '/blog' || location.pathname.startsWith('/blog/'),
       href: '/blog'
     },
     {
-      icon: Settings,
-      label: 'Settings',
-      active: location.pathname === '/settings',
-      href: '/settings'
+      label: 'Playlists',
+      active: location.pathname === '/playlists',
+      href: '/playlists'
     }
   ], [location.pathname]);
 
