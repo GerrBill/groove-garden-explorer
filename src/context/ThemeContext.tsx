@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 type ThemeType = 'dark' | 'light';
 
@@ -23,33 +24,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // Load theme preference from Supabase or localStorage
+  // Load theme preference from localStorage first
   useEffect(() => {
-    const loadThemePreference = async () => {
-      // First check localStorage
-      const storedTheme = localStorage.getItem('theme_preference');
-      
-      if (storedTheme === 'light' || storedTheme === 'dark') {
-        setTheme(storedTheme);
-      }
-      
-      // Then try to get from Supabase if we have a userId
-      if (userId) {
-        const { data, error } = await supabase
-          .from('user_preferences')
-          .select('theme')
-          .eq('user_id', userId)
-          .single();
-          
-        if (!error && data && data.theme) {
-          setTheme(data.theme);
-          localStorage.setItem('theme_preference', data.theme);
-        }
-      }
-    };
+    const storedTheme = localStorage.getItem('theme_preference');
     
-    loadThemePreference();
-  }, [userId]);
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      setTheme(storedTheme);
+    }
+  }, []);
 
   // Apply theme changes to document
   useEffect(() => {
@@ -67,30 +49,40 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const saveThemePreference = async (newTheme: ThemeType) => {
     localStorage.setItem('theme_preference', newTheme);
     
+    // Only try to save to Supabase if we have a userId
     if (userId) {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking for existing preferences:', error);
-        return;
-      }
-      
-      if (data) {
-        await supabase
+      try {
+        // First check if the user_preferences record already exists
+        const { data, error } = await supabase
           .from('user_preferences')
-          .update({ theme: newTheme, updated_at: new Date().toISOString() })
-          .eq('user_id', userId);
-      } else {
-        await supabase
-          .from('user_preferences')
-          .insert({
-            user_id: userId,
-            theme: newTheme
-          });
+          .select('id')
+          .eq('user_id', userId)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking for existing preferences:', error);
+          return;
+        }
+        
+        if (data) {
+          // We need to use user_preferences without trying to update a non-existent 'theme' column
+          // Instead, we'll just update the other preferences and maintain the theme in localStorage only
+          await supabase
+            .from('user_preferences')
+            .update({ 
+              updated_at: new Date().toISOString() 
+            })
+            .eq('user_id', userId);
+        } else {
+          // Create a new record without the theme column
+          await supabase
+            .from('user_preferences')
+            .insert({
+              user_id: userId
+            });
+        }
+      } catch (err) {
+        console.error('Error saving theme preference:', err);
       }
     }
   };
@@ -99,6 +91,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     saveThemePreference(newTheme);
+    toast(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} theme applied`);
   };
 
   return (
