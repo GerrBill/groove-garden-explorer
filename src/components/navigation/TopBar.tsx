@@ -34,7 +34,7 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         <Link to="/blog" className="text-orange-700 hover:text-white transition-colors">
           <BookOpen size={18} />
         </Link>
-        
+
         <Link to="/playlists" className="text-orange-700 hover:text-white transition-colors">
           <ListMusic size={18} />
         </Link>
