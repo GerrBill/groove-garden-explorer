@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Album from "./pages/Album";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import Sidebar from "./components/sidebar/Sidebar";
 import Player from "./components/player/Player";
@@ -141,6 +142,7 @@ const App = () => {
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/album/:id" element={<Album />} />
+                      <Route path="/blog" element={<Blog />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </div>

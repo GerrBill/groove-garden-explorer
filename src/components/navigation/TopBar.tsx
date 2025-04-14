@@ -30,16 +30,9 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
           <Music size={18} />
         </Link>
         
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-orange-700 hover:text-white transition-colors cursor-not-allowed">
-              <BookOpen size={18} />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent className="bg-[#FEF7CD] border-zinc-800 text-[#ea384c] font-bold px-4 py-3 text-base">
-            <p>FFS give me a chance...</p>
-          </TooltipContent>
-        </Tooltip>
+        <Link to="/blog" className="text-orange-700 hover:text-white transition-colors">
+          <BookOpen size={18} />
+        </Link>
         
         {toggleSidebar && (
           <button 

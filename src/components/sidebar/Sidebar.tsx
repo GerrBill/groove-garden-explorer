@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Search, Library, Heart, Book } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -176,11 +177,13 @@ const Sidebar = () => {
           isLiked={true} 
         />
         
-        <SidebarPlaylist 
-          name="Music Blogs" 
-          icon={<Book className="text-orange-700" size={18} />} 
-          type="Blog" 
-        />
+        <Link to="/blog">
+          <SidebarPlaylist 
+            name="Music Blogs" 
+            icon={<Book className="text-orange-700" size={18} />} 
+            type="Blog" 
+          />
+        </Link>
         
         {/* Display actual albums from the database instead of placeholders */}
         {loading ? (
