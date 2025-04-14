@@ -6,7 +6,6 @@ import AlbumHeader from '@/components/album/AlbumHeader';
 import TrackList from '@/components/album/TrackList';
 import AlbumNavigation from '@/components/album/AlbumNavigation';
 import AlbumActions from '@/components/album/AlbumActions';
-import RelatedAlbums from '@/components/album/RelatedAlbums';
 import AlbumNotFound from '@/components/album/AlbumNotFound';
 import UpdateAlbumArtDialog from '@/components/album/UpdateAlbumArtDialog';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -156,10 +155,7 @@ const Album = () => {
               />
             </div>
             
-            {/* RelatedAlbums with more space at bottom */}
-            <div className="mt-8 mb-24 px-6">
-              <RelatedAlbums album={album} isMobile={isMobile} />
-            </div>
+            {/* Remove RelatedAlbums section */}
             <div className="h-24"></div> {/* Extra spacing at the bottom */}
           </div>
         ) : (
