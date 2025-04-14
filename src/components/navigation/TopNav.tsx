@@ -8,16 +8,18 @@ interface TopNavProps {
 }
 
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
-  const tabs = ['Music', 'Blogs'];
+  const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
   
   // Determine current page based on location
   React.useEffect(() => {
     const currentPath = location.pathname;
     if (currentPath === '/' || currentPath.startsWith('/album')) {
-      setSelectedTab('Music');
+      setSelectedTab('Albums');
     } else if (currentPath === '/blog' || currentPath.startsWith('/blog/')) {
       setSelectedTab('Blogs');
+    } else if (currentPath === '/playlists' || currentPath.startsWith('/playlist/')) {
+      setSelectedTab('Playlists');
     }
   }, [location.pathname, setSelectedTab]);
   
@@ -27,7 +29,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
         {tabs.map((tab) => (
           <Link 
             key={tab} 
-            to={tab === 'Music' ? '/' : '/blog'}
+            to={tab === 'Albums' ? '/' : tab === 'Blogs' ? '/blog' : '/playlists'}
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               selectedTab === tab 
                 ? 'bg-orange-800 text-white' 
