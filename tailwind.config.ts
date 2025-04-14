@@ -80,10 +80,6 @@ export default {
           },
           accent: '#1DB954',
         },
-        orange: {
-          700: '#c2410c', // Subtle dark orange
-          800: '#9a3412', // Darker version for hover states
-        },
       },
       borderRadius: {
         lg: 'var(--radius)',

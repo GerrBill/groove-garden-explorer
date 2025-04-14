@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    /* Light theme variables - brighter version */
+    /* Light theme variables - much brighter version */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -36,7 +36,7 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;

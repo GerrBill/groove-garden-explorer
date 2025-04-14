@@ -30,7 +30,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   if (href) {
     return (
-      <Link to={href}>
+      <Link to={href} className="text-theme-color">
         {content}
       </Link>
     );
