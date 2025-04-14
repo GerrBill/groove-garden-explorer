@@ -6,10 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Plus } from 'lucide-react';
+import { Plus, BookOpen, ListMusic } from 'lucide-react'; // Added BookOpen and ListMusic icons
 import { useAuth } from '@/context/AuthContext';
 import AlbumCard from '@/components/home/AlbumCard';
 import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
+import { Link } from 'react-router-dom'; // Added Link import
 
 interface Playlist {
   id: string;
@@ -81,7 +82,22 @@ const Playlists = () => {
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Your Playlists</h2>
+            <div className="flex items-center">
+              <h2 className="text-2xl font-bold">Your Playlists</h2>
+              
+              {/* Header navigation buttons */}
+              <div className="flex items-center ml-8 gap-6">
+                <Link to="/blog" className="flex items-center gap-2 text-orange-700 hover:text-white transition-colors">
+                  <BookOpen size={18} />
+                  <span>Blog</span>
+                </Link>
+                <Link to="/playlists" className="flex items-center gap-2 text-orange-700 hover:text-white transition-colors">
+                  <ListMusic size={18} />
+                  <span>Playlists</span>
+                </Link>
+              </div>
+            </div>
+            
             {user && (
               <div className="ml-6">
                 <AddPlaylistDialog onPlaylistAdded={handlePlaylistAdded}>
