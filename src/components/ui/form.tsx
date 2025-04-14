@@ -54,6 +54,7 @@ const useFormField = () => {
   
   // Only get field state if getFieldState is available
   const fieldState = getFieldState ? getFieldState(fieldContext.name, formState) : {}
+  const { error } = fieldState || {}
 
   const { id } = itemContext
 
@@ -63,7 +64,7 @@ const useFormField = () => {
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    error,
   }
 }
 

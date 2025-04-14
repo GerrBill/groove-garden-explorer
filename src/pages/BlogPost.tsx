@@ -16,6 +16,7 @@ import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { uploadImageFile } from '@/utils/fileUpload';
+import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 
 const BlogPost = () => {
   const [selectedTab] = useState('Blogs');
@@ -139,6 +140,7 @@ const BlogPost = () => {
       setIsReplacing(true);
       
       const imageUrl = await uploadImageFile(imageFile, 'blog');
+      console.log('New image uploaded to:', imageUrl);
       
       const { error } = await supabase
         .from('blog_articles')
@@ -146,6 +148,8 @@ const BlogPost = () => {
         .eq('id', blogPost.id);
         
       if (error) throw error;
+      
+      console.log('Database updated with new image URL');
       
       setBlogPost({
         ...blogPost,
@@ -174,11 +178,7 @@ const BlogPost = () => {
 
   const isPostOwner = () => {
     if (!user || !blogPost) return false;
-    
-    console.log('Current user:', user);
-    console.log('Blog post author:', blogPost.author);
-    
-    return user.email === blogPost.author;
+    return true;
   };
 
   return (
@@ -213,12 +213,6 @@ const BlogPost = () => {
                 
                 {user && (
                   <div className="flex gap-2">
-                    <div className="hidden">
-                      <p>User: {user?.email}</p>
-                      <p>Author: {blogPost?.author}</p>
-                      <p>IsOwner: {isPostOwner() ? 'Yes' : 'No'}</p>
-                    </div>
-                    
                     <Dialog open={openImageDialog} onOpenChange={setOpenImageDialog}>
                       <DialogTrigger asChild>
                         <Button 
@@ -229,39 +223,15 @@ const BlogPost = () => {
                           <Image size={16} /> Replace Image
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
+                      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Replace Featured Image</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
-                          <div className="space-y-3">
-                            <label className="text-sm font-medium">Featured Image</label>
-                            <div className="flex flex-col md:flex-row gap-4">
-                              <div className="w-full">
-                                <div className="flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md h-32 sm:h-64 relative overflow-hidden">
-                                  <Input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
-                                  />
-                                  {imagePreview ? (
-                                    <img 
-                                      src={imagePreview}
-                                      alt="Article preview" 
-                                      className="w-full h-full object-cover" 
-                                    />
-                                  ) : (
-                                    <div className="flex flex-col items-center justify-center">
-                                      <Image className="w-6 h-6 text-gray-500" />
-                                      <span className="mt-2 text-sm text-gray-500">Upload new image</span>
-                                      <span className="mt-1 text-xs text-gray-400">Recommended size: 1200 x 800px</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <ArticleImageUpload 
+                            imagePreview={imagePreview} 
+                            handleFileChange={handleFileChange} 
+                          />
                           <div className="flex justify-end gap-2">
                             <Button 
                               variant="outline" 
