@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -50,7 +51,7 @@ const useFormField = () => {
 
   const fieldState = formContext?.getFieldState ? 
     formContext.getFieldState(fieldContext.name, formContext.formState) : 
-    {};
+    { error: undefined };
 
   const { id } = itemContext || {}
 

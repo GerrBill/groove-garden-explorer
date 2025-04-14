@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,14 +10,13 @@ import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import TopNav from '@/components/navigation/TopNav';
-import { BlogArticle } from '@/types/supabase';
+import { BlogArticle, BlogComment } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
 
-// New comment interface
 interface BlogComment {
   id: string;
   article_id: string;
@@ -75,18 +73,18 @@ const BlogPost = () => {
   };
   
   const fetchComments = async () => {
+    if (!id) return;
+    
     try {
-      const { data, error } = await supabase
-        .from('blog_comments')
-        .select('*')
-        .eq('article_id', id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
+      // Need to use .rpc or raw SQL if the table isn't in the TypeScript types yet
+      const response = await supabase.from('blog_comments').select('*').eq('article_id', id).order('created_at', { ascending: false });
+      
+      if (response.error) {
+        throw response.error;
       }
-
-      setComments(data as BlogComment[]);
+      
+      // Type assertion here is needed
+      setComments(response.data as unknown as BlogComment[]);
     } catch (error) {
       console.error('Error fetching comments:', error);
       toast({
@@ -235,21 +233,22 @@ const BlogPost = () => {
     try {
       setIsPostingComment(true);
       
+      // Use raw insert with explicit typing or a custom function call
       const { data, error } = await supabase
         .from('blog_comments')
         .insert({
           article_id: id,
           user_name: commentUsername,
-          content: newComment,
-          created_at: new Date().toISOString()
+          content: newComment
         })
-        .select()
-        .single();
+        .select();
         
       if (error) throw error;
       
-      setComments([data as BlogComment, ...comments]);
+      const newCommentData = data[0] as unknown as BlogComment;
+      setComments([newCommentData, ...comments]);
       setNewComment('');
+      setCommentUsername('');
       
       toast({
         title: "Comment posted!",

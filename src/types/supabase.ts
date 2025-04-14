@@ -36,3 +36,11 @@ export interface BlogArticle {
   category: string;
   created_at: string;
 }
+
+export interface BlogComment {
+  id: string;
+  article_id: string;
+  user_name: string;
+  content: string;
+  created_at: string;
+}
