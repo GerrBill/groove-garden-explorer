@@ -163,7 +163,7 @@ const Album = () => {
             }
           />
           
-          <ScrollArea className="h-[calc(100vh-400px)]">
+          <ScrollArea className="h-[calc(100vh-280px)]">
             <TrackList 
               tracks={tracks} 
               onToggleLike={handleToggleLike}

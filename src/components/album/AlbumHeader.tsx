@@ -23,15 +23,15 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
   const isMobile = useIsMobile(768); // Use the useIsMobile hook with a breakpoint of 768px
 
   return (
-    <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-4 md:p-6 w-full">
+    <div className="bg-gradient-to-b from-zinc-700/40 to-spotify-background p-2 md:p-3 w-full">
       {isMobile ? (
         // Mobile layout - everything centered properly with reduced height
         <div className="w-full flex flex-col items-center text-center">
-          <h1 className="text-xl sm:text-2xl font-bold mb-2">{title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-1">{title}</h1>
           
           {/* Center the album art properly with reduced dimensions */}
-          <div className="flex justify-center w-full mb-2">
-            <div className="w-[150px] h-[150px] flex justify-center items-center">
+          <div className="flex justify-center w-full mb-1">
+            <div className="w-[100px] h-[100px] flex justify-center items-center">
               <img 
                 src={image} 
                 alt={title} 
@@ -40,7 +40,7 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
             </div>
           </div>
           
-          <div className="w-full flex flex-col items-center mt-2 gap-1">
+          <div className="w-full flex flex-col items-center mt-1 gap-1">
             <div className="flex items-center gap-1 text-xs">
               <img 
                 src={image} 
@@ -71,20 +71,20 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
         </div>
       ) : (
         // Desktop layout - horizontal alignment with reduced height
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div>
             <img 
               src={image} 
               alt={title} 
-              className="w-24 h-auto shadow-xl object-cover" 
+              className="w-16 h-auto shadow-xl object-cover" 
             />
           </div>
           
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0">
             <span className="text-xs font-medium">Album</span>
-            <h1 className="text-xl sm:text-2xl font-bold">{title}</h1>
+            <h1 className="text-lg sm:text-xl font-bold">{title}</h1>
             
-            <div className="flex items-center gap-1 text-xs mt-1">
+            <div className="flex items-center gap-1 text-xs">
               <img 
                 src={image} 
                 alt={artist} 
