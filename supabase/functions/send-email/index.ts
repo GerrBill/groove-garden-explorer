@@ -26,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { to, subject, html }: EmailRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
-      from: "Lovable App <noreply@gerrbill.com>", // Updated domain as requested
+      from: "GerrBill Snotify <noreply@gerrbill.com>", // Updated domain as requested
       to: [to],
       subject: subject,
       html: html,
