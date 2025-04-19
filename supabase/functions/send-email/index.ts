@@ -26,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { to, subject, html }: EmailRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
-      from: "Lovable <onboarding@resend.dev>", // You can customize this after verifying your domain in Resend
+      from: "Lovable App <noreply@yourdomain.com>", // Updated from address
       to: [to],
       subject: subject,
       html: html,
