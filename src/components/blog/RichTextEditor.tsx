@@ -2,6 +2,7 @@
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,12 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
     extensions: [
       StarterKit,
       Image,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-500 underline',
+        },
+      }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
@@ -118,7 +125,7 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           onClick={() => {
             const url = window.prompt('Enter image URL');
             if (url) {
-              editor.chain().focus().setImage({ src: url }).run();
+              editor.chain().focus().insertContent(`<img src="${url}" alt="Image" />`).run();
             }
           }}
         >
@@ -132,7 +139,12 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           onClick={() => {
             const url = window.prompt('Enter link URL');
             if (url) {
-              editor.chain().focus().setLink({ href: url }).run();
+              // Check if there's selected text to turn into a link
+              if (editor.isActive('link')) {
+                editor.chain().focus().unsetLink().run();
+              } else {
+                editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+              }
             }
           }}
         >
