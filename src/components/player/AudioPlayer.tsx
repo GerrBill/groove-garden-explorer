@@ -13,6 +13,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasAudio, setHasAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [trackDuration, setTrackDuration] = useState<number>(0);
+  const [currentTime, setCurrentTime] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
   const playRequestPending = useRef<boolean>(false);
@@ -21,14 +23,37 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
+      
+      // Add event listeners for audio debugging
+      audioRef.current.addEventListener('canplaythrough', () => {
+        console.log("Audio can play through");
+      });
+      
+      audioRef.current.addEventListener('error', (e) => {
+        console.error("Audio error:", e);
+      });
     }
 
     const handleEnded = () => {
       setIsPlaying(false);
     };
+    
+    const handleTimeUpdate = () => {
+      if (audioRef.current) {
+        setCurrentTime(audioRef.current.currentTime);
+      }
+    };
+    
+    const handleDurationChange = () => {
+      if (audioRef.current) {
+        setTrackDuration(audioRef.current.duration);
+      }
+    };
 
     const audio = audioRef.current;
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('durationchange', handleDurationChange);
     
     // Listen for play track events
     const handlePlayTrack = (event: CustomEvent) => {
@@ -48,6 +73,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
 
     return () => {
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('durationchange', handleDurationChange);
       window.removeEventListener('playTrack', handlePlayTrack as EventListener);
       audio.pause();
     };
@@ -60,12 +87,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
       
       // Get audio URL from Supabase Storage
       const url = getAudioUrl(track.audio_path);
+      console.log("Audio URL:", url);
       setAudioUrl(url);
       
       if (url) {
         // Stop current audio and load new one
         audioRef.current.pause();
         audioRef.current.src = url;
+        audioRef.current.crossOrigin = "anonymous"; // Add this for CORS issues
         setHasAudio(true);
         
         // Do NOT auto-play when a new track is loaded
@@ -74,6 +103,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         
         // Load the audio but don't play it
         audioRef.current.load();
+        
+        // Check if audio is actually loaded
+        audioRef.current.addEventListener('loadeddata', function onLoaded() {
+          console.log("Audio loaded successfully");
+          this.removeEventListener('loadeddata', onLoaded);
+        });
       } else {
         console.log("No audio URL found for path:", track.audio_path);
         setHasAudio(false);
@@ -96,6 +131,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const playAudio = () => {
     if (!audioRef.current || !hasAudio || playRequestPending.current) return;
     
+    console.log("Attempting to play audio");
     playRequestPending.current = true;
     setIsPlaying(true);
     
@@ -104,6 +140,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
+          console.log("Audio playing successfully");
           playRequestPending.current = false;
         })
         .catch(error => {
@@ -114,7 +151,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
           if (error.name !== 'AbortError') {
             toast({
               title: "Playback Error",
-              description: "Could not play the audio file",
+              description: "Could not play the audio file: " + error.message,
               variant: "destructive"
             });
           }
@@ -127,6 +164,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   // Pause audio function
   const pauseAudio = () => {
     if (!audioRef.current || !hasAudio) return;
+    console.log("Pausing audio");
     audioRef.current.pause();
     setIsPlaying(false);
     playRequestPending.current = false;
@@ -147,6 +185,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     if (!audioRef.current || !hasAudio) return;
     setIsPlaying(!isPlaying);
   };
+
+  // Create a progress bar for audio playback
+  const progress = trackDuration > 0 ? (currentTime / trackDuration) * 100 : 0;
 
   return (
     <div className="flex items-center gap-3 bg-transparent">
@@ -182,6 +223,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
           <>
             <div className="text-xs font-medium truncate">{track.title}</div>
             <div className="text-xs text-zinc-400 truncate">{track.artist}</div>
+            <div className="w-full bg-zinc-800 h-1 rounded-full mt-1">
+              <div 
+                className="bg-white h-1 rounded-full" 
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </>
         ) : (
           <div className="text-xs text-zinc-400">No track selected</div>
