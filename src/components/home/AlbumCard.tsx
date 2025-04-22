@@ -94,11 +94,12 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   };
 
   // Center cards and set 70% width for mobile (max-w-xs~288px)
+  // Added my-2.5 for top and bottom margin (10px)
   if (id) {
     return (
       <Link 
         to={`/${type}/${id}`} 
-        className={`block bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}
+        className={`block bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-2.5 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}
         aria-label={`View ${type} ${title}`}
         onClick={handleCardClick}
         data-testid={`${type}-card-${id}`}
@@ -110,7 +111,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   }
 
   return (
-    <div className={`bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`} style={{ minWidth: '70vw', maxWidth: '70vw' }}>
+    <div className={`bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-2.5 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`} style={{ minWidth: '70vw', maxWidth: '70vw' }}>
       {content}
     </div>
   );

@@ -93,7 +93,7 @@ const Index = () => {
           </div>
           <div className="h-[60px]"></div> {/* 60px gap as requested */}
           
-          <div className={`grid ${gridClass} gap-1`}>
+          <div className={`grid ${gridClass} gap-5 py-2`}>
             {loading ? (
               [...Array(10)].map((_, i) => (
                 <div key={i} className="w-full p-1 rounded-md">

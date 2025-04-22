@@ -22,7 +22,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   };
 
   return (
-    <div className={`${sizeClasses[size]} relative overflow-hidden rounded-lg cursor-pointer group mx-auto`}>
+    <div className={`${sizeClasses[size]} relative overflow-hidden rounded-lg cursor-pointer group mx-auto my-2.5`}>
       <img 
         src={image} 
         alt={title} 
