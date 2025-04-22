@@ -22,23 +22,20 @@ const BlogCard: React.FC<BlogCardProps> = ({
   date,
   category
 }) => {
-  // Format the date as "X days ago"
   const formattedDate = formatDistanceToNow(new Date(date), { addSuffix: true });
-  
-  // Use a default image if none is provided
   const imgSrc = image || '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
-  
+
+  // Responsive: 70vw width for mobile, reduce artwork height (aspect-video fallback)
   return (
-    <Link to={`/blog/${id}`} className="group">
+    <Link to={`/blog/${id}`} className="group mx-auto min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-sm block">
       <div className="bg-zinc-900 rounded-lg overflow-hidden h-full transition-all duration-300 hover:bg-zinc-800">
-        <div className="relative aspect-video overflow-hidden">
+        <div className="relative aspect-[16/9] overflow-hidden" style={{ maxHeight: '170px' }}>
           <img 
             src={imgSrc} 
             alt={title} 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 max-h-[170px]" 
             onError={(e) => {
               console.error("Error loading image in BlogCard:", imgSrc);
-              // Fallback to default image if loading fails
               (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
             }}
           />
@@ -46,7 +43,6 @@ const BlogCard: React.FC<BlogCardProps> = ({
             {category}
           </div>
         </div>
-        
         <div className="p-4">
           <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-theme-color transition-colors">
             {title}

@@ -14,14 +14,15 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   subtitle,
   size = 'md'
 }) => {
+  // Responsive: shrink card width/height on mobile for 70% width
   const sizeClasses = {
-    sm: 'w-36 h-36',
-    md: 'w-44 h-44',
+    sm: 'w-[70vw] h-[70vw] max-w-[280px] max-h-[280px]',
+    md: 'w-[70vw] h-[70vw] max-w-[300px] max-h-[300px]',
     lg: 'w-full h-64',
   };
-  
+
   return (
-    <div className={`${sizeClasses[size]} relative overflow-hidden rounded-lg cursor-pointer group`}>
+    <div className={`${sizeClasses[size]} relative overflow-hidden rounded-lg cursor-pointer group mx-auto`}>
       <img 
         src={image} 
         alt={title} 
