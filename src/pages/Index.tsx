@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
@@ -70,13 +71,13 @@ const Index = () => {
     : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; // Default grid for larger screens
 
   return (
-    <div className="flex-1 overflow-hidden w-full pb-24">
+    <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
       <TopNav 
         selectedTab={selectedTab} 
         setSelectedTab={setSelectedTab}
       />
       
-      <ScrollArea className="h-[calc(100vh-140px)] w-full">
+      <ScrollArea className="h-[calc(100vh-140px)] w-full bg-black">
         <div className="px-4 py-4 max-w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Available Albums</h2>
@@ -93,7 +94,7 @@ const Index = () => {
           </div>
           <div className="h-[60px]"></div> {/* 60px gap as requested */}
           
-          <div className={`grid ${gridClass} gap-5 py-2`}>
+          <div className={`grid ${gridClass} gap-4 py-4`}>
             {loading ? (
               [...Array(10)].map((_, i) => (
                 <div key={i} className="w-full p-1 rounded-md">

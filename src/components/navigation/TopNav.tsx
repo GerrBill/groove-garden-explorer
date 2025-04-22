@@ -22,26 +22,22 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
     }
   }, [location.pathname, setSelectedTab]);
 
-  // Responsive: 70vw width for mobile, more compact and always visible
+  // Responsive: buttons spaced 5px apart horizontally, compact design for mobile
   return (
-    <div className="sticky top-0 z-10 backdrop-blur-md bg-spotify-background/80 pt-3 pb-1">
-      <div className="flex items-center gap-1 px-2 sm:px-4 overflow-x-auto scrollbar-none justify-between">
+    <div className="sticky top-0 z-10 backdrop-blur-md bg-black pt-3 pb-1">
+      <div className="flex items-center gap-x-1 px-2 sm:px-4 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => (
           <Link 
             key={tab} 
             to={tab === 'Albums' ? '/' : tab === 'Blogs' ? '/blog' : '/playlists'}
             className={`
-              px-2 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium
+              px-2 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium mx-0.5
               ${selectedTab === tab 
                 ? 'bg-theme-color text-white' 
                 : 'bg-zinc-800 text-white hover:bg-zinc-700'}
               min-w-[72px] sm:min-w-[90px]
             `}
             onClick={() => setSelectedTab(tab)}
-            style={{
-              flex: '0 0 auto',
-              maxWidth: '32vw'
-            }}
           >
             {tab}
           </Link>

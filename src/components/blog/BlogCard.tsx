@@ -25,15 +25,15 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const formattedDate = formatDistanceToNow(new Date(date), { addSuffix: true });
   const imgSrc = image || '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
 
-  // Responsive: 70vw width for mobile, artwork adjusted for compact cards
+  // Responsive: proper sizing and margin for blog cards
   return (
-    <Link to={`/blog/${id}`} className="group mx-auto min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-xs block">
+    <Link to={`/blog/${id}`} className="group mx-auto my-4 min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-xs block">
       <div className="bg-zinc-900 rounded-lg overflow-hidden h-full transition-all duration-300 hover:bg-zinc-800">
-        <div className="relative aspect-[16/8] overflow-hidden" style={{ maxHeight: '110px' }}>
+        <div className="relative aspect-[16/8] overflow-hidden" style={{ maxHeight: '100px' }}>
           <img 
             src={imgSrc} 
             alt={title} 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 max-h-[110px]" 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
             onError={(e) => {
               console.error("Error loading image in BlogCard:", imgSrc);
               (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';

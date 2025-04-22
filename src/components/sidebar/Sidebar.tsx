@@ -85,7 +85,7 @@ const Sidebar = () => {
   return (
     <div className="flex h-full">
       <div 
-        className="hidden md:flex flex-col gap-y-2 bg-sidebar h-full w-[300px] p-2"
+        className="hidden md:flex flex-col gap-y-2 bg-black h-full w-[300px] p-2"
       >
         <div className="flex gap-2 px-5 py-4">
           {routes.map((item) => (

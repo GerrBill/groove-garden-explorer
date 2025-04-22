@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -25,15 +24,15 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Responsive width classes: 70% (max-w-xs) on mobile 
-  // Use a parent "flex justify-center" in grid for true centering (see page)
+  // Responsive sizing for the card container
   const sizeClasses = {
-    sm: 'w-full max-w-[300px] aspect-square',
-    md: 'w-full max-w-[320px] aspect-square',
-    lg: 'w-full max-w-[360px] aspect-square',
+    sm: 'w-full max-w-[300px]',
+    md: 'w-full max-w-[320px]',
+    lg: 'w-full max-w-[360px]',
   };
-  // Artwork aspect ratio and size tweaks (smaller for mobile)
-  const artworkSize = "aspect-square rounded shadow-md w-full h-auto max-w-[260px] max-h-[260px] sm:max-w-[240px] sm:max-h-[240px] object-cover";
+  
+  // Artwork size adjustments - smaller for mobile
+  const artworkSize = "w-full max-w-[200px] h-auto aspect-square rounded shadow-md object-cover mx-auto";
 
   const handlePlayClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -65,12 +64,12 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   // Content to display in the card
   const content = (
     <>
-      <div className="relative mb-1 flex justify-center">
-        <AspectRatio ratio={1/1} className={artworkSize + " overflow-hidden"}>
+      <div className="relative mb-2 flex justify-center">
+        <AspectRatio ratio={1/1} className="w-full overflow-hidden">
           <img 
             src={image} 
             alt={title} 
-            className="w-full h-full object-cover" 
+            className={artworkSize}
           />
         </AspectRatio>
         <button 
@@ -93,17 +92,15 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     }
   };
 
-  // Center cards and set 70% width for mobile (max-w-xs~288px)
-  // Added my-2.5 for top and bottom margin (10px)
+  // Card container with proper margins and mobile width
   if (id) {
     return (
       <Link 
         to={`/${type}/${id}`} 
-        className={`block bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-2.5 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}
+        className={`block bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-4 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}
         aria-label={`View ${type} ${title}`}
         onClick={handleCardClick}
         data-testid={`${type}-card-${id}`}
-        style={{ minWidth: '70vw', maxWidth: '70vw' }} // For 70% width on <sm
       >
         {content}
       </Link>
@@ -111,7 +108,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   }
 
   return (
-    <div className={`bg-spotify-card bg-opacity-40 p-1 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-2.5 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`} style={{ minWidth: '70vw', maxWidth: '70vw' }}>
+    <div className={`bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-4 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}>
       {content}
     </div>
   );
