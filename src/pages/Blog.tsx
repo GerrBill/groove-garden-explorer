@@ -14,6 +14,11 @@ import { Link, useLocation } from 'react-router-dom';
 import CreateArticleDialog from '@/components/blog/CreateArticleDialog';
 import { BlogArticle } from '@/types/supabase';
 
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
+
 const Blog = () => {
   const [selectedTab, setSelectedTab] = useState('Blogs');
   const [blogPosts, setBlogPosts] = useState<BlogArticle[]>([]);
@@ -21,6 +26,7 @@ const Blog = () => {
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const location = useLocation();
 
   const sampleBlogPosts: BlogArticle[] = [
@@ -147,7 +153,7 @@ const Blog = () => {
         <div className="px-4 py-4 max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Latest Articles</h2>
-            {user && (
+            {isAdmin && (
               <div className="ml-6">
                 <CreateArticleDialog>
                   <Button size="sm" className="flex items-center gap-1 rounded-full">

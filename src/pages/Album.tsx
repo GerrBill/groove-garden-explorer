@@ -20,6 +20,11 @@ interface TrackWithMeta extends Track {
   trackId: string;
 }
 
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
+
 const Album = () => {
   const { id } = useParams<{ id: string }>();
   const [album, setAlbum] = useState<AlbumType | null>(null);
@@ -29,6 +34,7 @@ const Album = () => {
   const isMobile = useIsMobile(768);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
 
   const fetchAlbum = async () => {
     if (!id) return;
@@ -295,15 +301,17 @@ const Album = () => {
           
           <AlbumActions 
             albumId={id}
-            onTrackAdded={handleTrackAdded}
+            onTrackAdded={isAdmin ? handleTrackAdded : undefined}
             updateAlbumArtDialog={
-              <UpdateAlbumArtDialog 
-                albumId={id}
-                currentImage={album.image_url}
-                onImageUpdated={handleAlbumArtUpdated}
-              />
+              isAdmin ? (
+                <UpdateAlbumArtDialog 
+                  albumId={id}
+                  currentImage={album.image_url}
+                  onImageUpdated={handleAlbumArtUpdated}
+                />
+              ) : null
             }
-            onDeleteAlbum={user ? handleDeleteAlbum : undefined}
+            onDeleteAlbum={isAdmin ? handleDeleteAlbum : undefined}
           />
           
           <ScrollArea className="h-[calc(100vh-280px)]">
@@ -311,7 +319,7 @@ const Album = () => {
               tracks={tracks} 
               onToggleLike={handleToggleLike}
               albumName={album.title}
-              onDeleteTrack={user ? handleDeleteTrack : undefined}
+              onDeleteTrack={isAdmin ? handleDeleteTrack : undefined}
             />
           </ScrollArea>
           

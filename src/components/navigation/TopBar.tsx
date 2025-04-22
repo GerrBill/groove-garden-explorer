@@ -1,6 +1,7 @@
+
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Music, BookOpen, ListMusic, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+// Removed: Music, BookOpen, ListMusic icons.
+import { Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import AccountButton from '@/components/auth/AccountButton';
@@ -28,18 +29,6 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
       </div>
       
       <div className="flex items-center gap-4">
-        <Link to="/" className="text-theme-color hover:text-white transition-colors">
-          <Music size={18} />
-        </Link>
-        
-        <Link to="/blog" className="text-theme-color hover:text-white transition-colors">
-          <BookOpen size={18} />
-        </Link>
-
-        <Link to="/playlists" className="text-theme-color hover:text-white transition-colors">
-          <ListMusic size={18} />
-        </Link>
-
         <SendEmailDialog />
 
         {toggleSidebar && (
@@ -56,9 +45,9 @@ const TopBar: React.FC<TopBarProps> = ({ sidebarOpen, toggleSidebar }) => {
         )}
         
         {user && (
-          <Link to="/settings" className="text-theme-color hover:text-white transition-colors">
+          <a href="/settings" className="text-theme-color hover:text-white transition-colors">
             <Settings size={18} />
-          </Link>
+          </a>
         )}
         
         <div className="text-white">

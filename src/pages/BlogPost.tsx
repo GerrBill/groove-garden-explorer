@@ -17,6 +17,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
 
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
+
 const BlogPost = () => {
   const [selectedTab] = useState('Blogs');
   const { id } = useParams<{ id: string }>();
@@ -33,6 +38,7 @@ const BlogPost = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
 
   const fetchBlogPost = async () => {
     setLoading(true);
@@ -288,7 +294,7 @@ const BlogPost = () => {
                   <ArrowLeft size={16} className="mr-1" /> Back to Blogs
                 </Link>
                 
-                {user && (
+                {isAdmin && (
                   <div className="flex gap-2">
                     <Dialog open={openImageDialog} onOpenChange={setOpenImageDialog}>
                       <DialogTrigger asChild>

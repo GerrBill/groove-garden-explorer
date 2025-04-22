@@ -21,6 +21,11 @@ interface Playlist {
   created_at: string;
 }
 
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
+
 const Playlists = () => {
   const [selectedTab, setSelectedTab] = useState('All');
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -28,6 +33,7 @@ const Playlists = () => {
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const { colorTheme } = useTheme();
   
   const fetchPlaylists = async () => {

@@ -14,6 +14,11 @@ interface AlbumActionsProps {
   onDeleteAlbum?: () => void;
 }
 
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
+
 const AlbumActions: React.FC<AlbumActionsProps> = ({ 
   albumId, 
   onTrackAdded, 
@@ -22,7 +27,8 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
 }) => {
   const { user } = useAuth();
   const { colorTheme } = useTheme();
-  
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
+
   return (
     <div className="px-6 py-4 flex items-center gap-4">
       <button 
@@ -32,8 +38,7 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
         <Heart size={20} />
       </button>
       
-      {/* Only show Add Track and Update Album Art buttons to logged-in users */}
-      {user && (
+      {isAdmin && (
         <div className="flex items-center gap-2">
           {albumId && (
             <AddTrackDialog 
@@ -41,7 +46,7 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
               onTrackAdded={onTrackAdded}
             />
           )}
-          
+
           {updateAlbumArtDialog}
 
           {onDeleteAlbum && (

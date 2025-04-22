@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
@@ -13,6 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
+
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState('All');
   const [albums, setAlbums] = useState<AlbumType[]>([]);
@@ -20,6 +24,7 @@ const Index = () => {
   const { toast } = useToast();
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
   const { user } = useAuth();
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
 
   const fetchAlbums = async () => {
     setLoading(true);
@@ -75,7 +80,7 @@ const Index = () => {
         <div className="px-4 py-4 max-w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Available Albums</h2>
-            {user && (
+            {isAdmin && (
               <div className="ml-6">
                 <AddAlbumDialog onAlbumAdded={handleAlbumAdded}>
                   <Button size="sm" className="flex items-center gap-1 rounded-full">

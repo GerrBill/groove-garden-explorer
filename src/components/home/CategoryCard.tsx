@@ -14,11 +14,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   subtitle,
   size = 'md'
 }) => {
-  // Responsive: shrink card width/height on mobile for 70% width
+  // Responsive: 70vw width for mobile (max 380px), compact aspect ratio
   const sizeClasses = {
-    sm: 'w-[70vw] h-[70vw] max-w-[280px] max-h-[280px]',
-    md: 'w-[70vw] h-[70vw] max-w-[300px] max-h-[300px]',
-    lg: 'w-full h-64',
+    sm: 'w-[70vw] max-w-[230px] h-[90vw] max-h-[170px]',
+    md: 'w-[70vw] max-w-[270px] h-[46vw] max-h-[180px]',
+    lg: 'w-full h-56',
   };
 
   return (
@@ -29,7 +29,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         className="w-full h-full object-cover brightness-75 group-hover:scale-105 group-hover:brightness-90 transition-all duration-300" 
       />
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-        <h3 className="font-bold text-sm md:text-base">{title}</h3>
+        <h3 className="font-bold text-xs md:text-base">{title}</h3>
         {subtitle && <p className="text-xs text-spotify-text-secondary mt-1">{subtitle}</p>}
       </div>
     </div>
