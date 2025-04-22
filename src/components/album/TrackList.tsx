@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { Clock, MoreHorizontal, Heart, Play } from 'lucide-react';
+import { Clock, MoreHorizontal, Heart, Play, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 import { Track as TrackType } from '@/types/supabase';
+import { Button } from '@/components/ui/button';
 
 interface Track {
   id: string;
@@ -24,9 +25,16 @@ interface TrackListProps {
   onToggleLike?: (trackId: string) => void;
   onPlayTrack?: (trackId: string) => void;
   albumName?: string;
+  onDeleteTrack?: (trackId: string) => void;
 }
 
-const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack, albumName }) => {
+const TrackList: React.FC<TrackListProps> = ({ 
+  tracks, 
+  onToggleLike, 
+  onPlayTrack, 
+  albumName,
+  onDeleteTrack
+}) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -193,7 +201,19 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, onToggleLike, onPlayTrack
                 </button>
                 
                 {track.trackId && (
-                  <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                  <>
+                    <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                    
+                    {user && onDeleteTrack && (
+                      <button 
+                        className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400"
+                        onClick={() => track.trackId && onDeleteTrack(track.trackId)}
+                        title="Delete track"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               

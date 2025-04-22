@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +12,7 @@ import AlbumNavigation from "@/components/album/AlbumNavigation";
 import UpdateAlbumArtDialog from "@/components/album/UpdateAlbumArtDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/context/AuthContext";
 
 interface TrackWithMeta extends Track {
   isLiked?: boolean;
@@ -28,12 +28,12 @@ const Album = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile(768);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const fetchAlbum = async () => {
     if (!id) return;
     
     try {
-      // Fetch album details
       const { data: albumData, error: albumError } = await supabase
         .from('albums')
         .select('*')
@@ -43,7 +43,6 @@ const Album = () => {
       if (albumError) throw albumError;
       setAlbum(albumData);
       
-      // Fetch album tracks
       const { data: tracksData, error: tracksError } = await supabase
         .from('tracks')
         .select('*')
@@ -52,7 +51,6 @@ const Album = () => {
       
       if (tracksError) throw tracksError;
       
-      // Transform tracks to include additional metadata
       const transformedTracks = tracksData.map(track => ({
         ...track,
         isLiked: track.is_liked || false,
@@ -77,9 +75,7 @@ const Album = () => {
     fetchAlbum();
   }, [id]);
 
-  // Handle a track being added to album
   const handleTrackAdded = (track: Track) => {
-    // Add the new track to the tracks list
     setTracks(prevTracks => [
       ...prevTracks, 
       { 
@@ -90,7 +86,6 @@ const Album = () => {
       }
     ]);
     
-    // Also update the album track count if available
     if (album) {
       const newTrackCount = parseInt(album.track_count || '0', 10) + 1;
       setAlbum({
@@ -105,7 +100,6 @@ const Album = () => {
     });
   };
 
-  // Handle toggling like for a track
   const handleToggleLike = (trackId: string) => {
     setTracks(prevTracks => 
       prevTracks.map(track => 
@@ -116,7 +110,6 @@ const Album = () => {
     );
   };
 
-  // Handle album art being updated
   const handleAlbumArtUpdated = (imageUrl: string) => {
     if (album) {
       setAlbum({
@@ -131,7 +124,156 @@ const Album = () => {
     }
   };
 
-  // If album not found and not loading
+  const handleDeleteAlbum = async () => {
+    if (!album || !id || !user) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this album? This will also delete all associated tracks and remove them from any playlists. This action cannot be undone.");
+    
+    if (!confirmDelete) return;
+    
+    try {
+      setLoading(true);
+      
+      const { data: albumTracks, error: tracksError } = await supabase
+        .from('tracks')
+        .select('id, audio_path')
+        .eq('album_id', id);
+      
+      if (tracksError) throw tracksError;
+      
+      if (albumTracks && albumTracks.length > 0) {
+        const trackIds = albumTracks.map(track => track.id);
+        
+        const { error: playlistTracksError } = await supabase
+          .from('playlist_tracks')
+          .delete()
+          .in('track_id', trackIds);
+        
+        if (playlistTracksError) throw playlistTracksError;
+        
+        for (const track of albumTracks) {
+          if (track.audio_path) {
+            const { error: storageError } = await supabase.storage
+              .from('audio')
+              .remove([track.audio_path]);
+            
+            if (storageError) {
+              console.error(`Failed to delete audio file ${track.audio_path}:`, storageError);
+            }
+          }
+        }
+        
+        const { error: deleteTracksError } = await supabase
+          .from('tracks')
+          .delete()
+          .eq('album_id', id);
+        
+        if (deleteTracksError) throw deleteTracksError;
+      }
+      
+      if (album.image_url && album.image_url.includes('supabase.co/storage')) {
+        try {
+          const urlParts = album.image_url.split('/storage/v1/object/public/');
+          if (urlParts.length > 1) {
+            const pathPart = urlParts[1];
+            const [bucket, ...pathSegments] = pathPart.split('/');
+            const filePath = pathSegments.join('/');
+            
+            await supabase.storage
+              .from(bucket)
+              .remove([filePath]);
+          }
+        } catch (imageError) {
+          console.error('Error deleting album image:', imageError);
+        }
+      }
+      
+      const { error: deleteAlbumError } = await supabase
+        .from('albums')
+        .delete()
+        .eq('id', id);
+      
+      if (deleteAlbumError) throw deleteAlbumError;
+      
+      toast({
+        title: "Album deleted",
+        description: "The album and all its tracks have been deleted successfully."
+      });
+      
+      navigate('/');
+      
+    } catch (error) {
+      console.error('Error deleting album:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the album. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteTrack = async (trackId: string) => {
+    if (!trackId || !user) return;
+    
+    const track = tracks.find(t => t.id === trackId);
+    if (!track) return;
+    
+    const confirmDelete = window.confirm(`Are you sure you want to delete the track "${track.title}"? This will also remove it from any playlists. This action cannot be undone.`);
+    
+    if (!confirmDelete) return;
+    
+    try {
+      const { error: playlistTrackError } = await supabase
+        .from('playlist_tracks')
+        .delete()
+        .eq('track_id', trackId);
+      
+      if (playlistTrackError) throw playlistTrackError;
+      
+      if (track.audio_path) {
+        const { error: storageError } = await supabase.storage
+          .from('audio')
+          .remove([track.audio_path]);
+        
+        if (storageError) {
+          console.error(`Failed to delete audio file ${track.audio_path}:`, storageError);
+        }
+      }
+      
+      const { error: deleteTrackError } = await supabase
+        .from('tracks')
+        .delete()
+        .eq('id', trackId);
+      
+      if (deleteTrackError) throw deleteTrackError;
+      
+      setTracks(prevTracks => prevTracks.filter(t => t.id !== trackId));
+      
+      if (album) {
+        const newTrackCount = parseInt(album.track_count || '0', 10) - 1;
+        setAlbum({
+          ...album,
+          track_count: Math.max(0, newTrackCount).toString()
+        });
+      }
+      
+      toast({
+        title: "Track deleted",
+        description: `"${track.title}" has been deleted successfully.`
+      });
+      
+    } catch (error) {
+      console.error('Error deleting track:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the track. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (!album && !loading) {
     return <AlbumNotFound />;
   }
@@ -161,6 +303,7 @@ const Album = () => {
                 onImageUpdated={handleAlbumArtUpdated}
               />
             }
+            onDeleteAlbum={user ? handleDeleteAlbum : undefined}
           />
           
           <ScrollArea className="h-[calc(100vh-280px)]">
@@ -168,6 +311,7 @@ const Album = () => {
               tracks={tracks} 
               onToggleLike={handleToggleLike}
               albumName={album.title}
+              onDeleteTrack={user ? handleDeleteTrack : undefined}
             />
           </ScrollArea>
           

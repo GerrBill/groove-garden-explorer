@@ -1,23 +1,30 @@
 
 import React from 'react';
-import { Heart, MoreHorizontal } from 'lucide-react';
+import { Heart, MoreHorizontal, Trash2 } from 'lucide-react';
 import AddTrackDialog from './AddTrackDialog';
 import { Track } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components/ui/button';
 
 interface AlbumActionsProps {
   albumId?: string;
   onTrackAdded?: (track: Track) => void;
   updateAlbumArtDialog?: React.ReactNode;
+  onDeleteAlbum?: () => void;
 }
 
-const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded, updateAlbumArtDialog }) => {
+const AlbumActions: React.FC<AlbumActionsProps> = ({ 
+  albumId, 
+  onTrackAdded, 
+  updateAlbumArtDialog,
+  onDeleteAlbum
+}) => {
   const { user } = useAuth();
   const { colorTheme } = useTheme();
   
   return (
-    <div className="px-6 py-4 flex items-center gap-8">
+    <div className="px-6 py-4 flex items-center gap-4">
       <button 
         className="w-10 h-10 flex items-center justify-center border border-zinc-700 rounded-full hover:border-white hover:scale-105 transition text-theme-color"
         aria-label="Like album"
@@ -36,6 +43,18 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({ albumId, onTrackAdded, upda
           )}
           
           {updateAlbumArtDialog}
+
+          {onDeleteAlbum && (
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={onDeleteAlbum}
+              className="flex items-center gap-1"
+            >
+              <Trash2 size={16} />
+              Delete Album
+            </Button>
+          )}
         </div>
       )}
       
