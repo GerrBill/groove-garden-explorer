@@ -25,7 +25,7 @@ const PlayerContent: React.FC<PlayerContentProps> = ({ currentTrack }) => {
         )}
       </div>
       
-      <div className="flex justify-center items-center w-full">
+      <div className="flex justify-start items-center w-full">
         <AudioPlayer track={currentTrack} />
       </div>
       

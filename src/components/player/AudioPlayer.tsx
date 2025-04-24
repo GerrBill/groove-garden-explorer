@@ -175,8 +175,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const progress = trackDuration > 0 ? (currentTime / trackDuration) * 100 : 0;
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full max-w-[400px] mx-auto">
-      <div className="flex items-center gap-4 justify-center w-full">
+    <div className="flex flex-col items-start gap-2 w-full max-w-[400px]">
+      <div className="flex items-center gap-4 w-full">
         <button 
           className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white transition-colors"
           disabled={!hasAudio}

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -151,8 +150,8 @@ const TrackList: React.FC<TrackListProps> = ({
   };
   
   return (
-    <div className="w-full">
-      <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-spotify-text-secondary text-sm">
+    <div className="w-full pl-4">
+      <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 text-spotify-text-secondary text-sm">
         <div>#</div>
         <div>Title</div>
         <div className="hidden md:block">Plays</div>
@@ -167,7 +166,7 @@ const TrackList: React.FC<TrackListProps> = ({
           {tracks.map((track, index) => (
             <div 
               key={track.id || `track-${index}`}
-              className={`grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 px-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
+              className={`grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
                 track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'
               }`}
             >
