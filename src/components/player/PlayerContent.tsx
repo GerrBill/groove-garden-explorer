@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Volume2 } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
 import { Track } from '@/types/supabase';
 
