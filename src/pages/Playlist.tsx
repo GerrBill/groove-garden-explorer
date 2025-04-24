@@ -155,7 +155,7 @@ const Playlist = () => {
   return (
     <div className="flex-1 overflow-hidden w-full pb-24">
       {playlist && (
-        <>
+        <div className="container mx-auto px-4 md:px-0 md:max-w-none">
           <PlaylistHeader
             title={playlist.title}
             description={playlist.description}
@@ -180,12 +180,14 @@ const Playlist = () => {
             </button>
           </div>
           
-          <PlaylistTracklist 
-            tracks={tracks} 
-            isLoading={loading}
-            onRemoveTrack={handleRemoveTrack}
-          />
-        </>
+          <div className="md:pl-0 pl-4">
+            <PlaylistTracklist 
+              tracks={tracks} 
+              isLoading={loading}
+              onRemoveTrack={handleRemoveTrack}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -290,45 +290,49 @@ const Album = () => {
       
       {album && (
         <>
-          <AlbumHeader 
-            title={album.title}
-            artist={album.artist}
-            image={album.image_url}
-            year={album.year}
-            trackCount={album.track_count}
-            duration={album.duration}
-          />
-          
-          <AlbumActions 
-            albumId={id}
-            onTrackAdded={isAdmin ? handleTrackAdded : undefined}
-            updateAlbumArtDialog={
-              isAdmin ? (
-                <UpdateAlbumArtDialog 
-                  albumId={id}
-                  currentImage={album.image_url}
-                  onImageUpdated={handleAlbumArtUpdated}
+          <div className="container mx-auto px-4 md:px-0 md:max-w-none">
+            <AlbumHeader 
+              title={album.title}
+              artist={album.artist}
+              image={album.image_url}
+              year={album.year}
+              trackCount={album.track_count}
+              duration={album.duration}
+            />
+            
+            <AlbumActions 
+              albumId={id}
+              onTrackAdded={isAdmin ? handleTrackAdded : undefined}
+              updateAlbumArtDialog={
+                isAdmin ? (
+                  <UpdateAlbumArtDialog 
+                    albumId={id}
+                    currentImage={album.image_url}
+                    onImageUpdated={handleAlbumArtUpdated}
+                  />
+                ) : null
+              }
+              onDeleteAlbum={isAdmin ? handleDeleteAlbum : undefined}
+            />
+            
+            <ScrollArea className="h-[calc(100vh-280px)]">
+              <div className="md:pl-0 pl-4">
+                <TrackList 
+                  tracks={tracks} 
+                  onToggleLike={handleToggleLike}
+                  albumName={album.title}
+                  onDeleteTrack={isAdmin ? handleDeleteTrack : undefined}
                 />
-              ) : null
-            }
-            onDeleteAlbum={isAdmin ? handleDeleteAlbum : undefined}
-          />
-          
-          <ScrollArea className="h-[calc(100vh-280px)]">
-            <TrackList 
-              tracks={tracks} 
-              onToggleLike={handleToggleLike}
-              albumName={album.title}
-              onDeleteTrack={isAdmin ? handleDeleteTrack : undefined}
-            />
-          </ScrollArea>
-          
-          {isMobile !== undefined && (
-            <RelatedAlbums 
-              album={album}
-              isMobile={isMobile}
-            />
-          )}
+              </div>
+            </ScrollArea>
+            
+            {isMobile !== undefined && (
+              <RelatedAlbums 
+                album={album}
+                isMobile={isMobile}
+              />
+            )}
+          </div>
         </>
       )}
     </div>

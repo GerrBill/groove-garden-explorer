@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -131,6 +130,23 @@ const App = () => {
   }, []);
 
   console.log("App rendered, routes should be active");
+
+  // Update the useEffect for mobile view
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobileWidth = window.innerWidth < 700;
+      setSidebarOpen(!isMobileWidth);
+    };
+
+    // Initial check
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
