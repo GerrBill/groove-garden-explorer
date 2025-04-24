@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Track } from '@/types/supabase';
@@ -19,12 +18,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const { toast } = useToast();
   const playRequestPending = useRef<boolean>(false);
 
-  // Initialize audio element
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
       
-      // Add event listeners for audio debugging
       audioRef.current.addEventListener('canplaythrough', () => {
         console.log("Audio can play through");
       });
@@ -55,7 +52,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
     
-    // Listen for play track events
     const handlePlayTrack = (event: CustomEvent) => {
       const shouldPlayImmediately = event?.detail?.immediate === true;
       
@@ -80,31 +76,24 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     };
   }, [hasAudio]);
 
-  // Load new track when track prop changes
   useEffect(() => {
     if (track?.audio_path && audioRef.current) {
       console.log("Loading audio track:", track.title, track.audio_path);
       
-      // Get audio URL from Supabase Storage
       const url = getAudioUrl(track.audio_path);
       console.log("Audio URL:", url);
       setAudioUrl(url);
       
       if (url) {
-        // Stop current audio and load new one
         audioRef.current.pause();
         audioRef.current.src = url;
-        audioRef.current.crossOrigin = "anonymous"; // Add this for CORS issues
+        audioRef.current.crossOrigin = "anonymous";
         setHasAudio(true);
         
-        // Do NOT auto-play when a new track is loaded
-        // Instead, set isPlaying to false and let the user press play
         setIsPlaying(false);
         
-        // Load the audio but don't play it
         audioRef.current.load();
         
-        // Check if audio is actually loaded
         audioRef.current.addEventListener('loadeddata', function onLoaded() {
           console.log("Audio loaded successfully");
           this.removeEventListener('loadeddata', onLoaded);
@@ -127,7 +116,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     }
   }, [track, toast]);
 
-  // Play audio function that can be called from multiple places
   const playAudio = () => {
     if (!audioRef.current || !hasAudio || playRequestPending.current) return;
     
@@ -161,7 +149,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     }
   };
 
-  // Pause audio function
   const pauseAudio = () => {
     if (!audioRef.current || !hasAudio) return;
     console.log("Pausing audio");
@@ -170,7 +157,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     playRequestPending.current = false;
   };
 
-  // Effect to actually play or pause the audio when isPlaying changes
   useEffect(() => {
     if (!audioRef.current || !hasAudio) return;
     
@@ -186,58 +172,52 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
     setIsPlaying(!isPlaying);
   };
 
-  // Create a progress bar for audio playback
   const progress = trackDuration > 0 ? (currentTime / trackDuration) * 100 : 0;
 
   return (
-    <div className="flex items-center gap-3 bg-transparent">
-      <div className="flex items-center gap-1">
+    <div className="flex flex-col items-center gap-2 w-full max-w-[400px] mx-auto">
+      <div className="flex items-center gap-4 justify-center w-full">
         <button 
-          className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white"
+          className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white transition-colors"
           disabled={!hasAudio}
         >
-          <SkipBack size={16} />
+          <SkipBack className="w-5 h-5" />
         </button>
         
         <button 
-          className={`w-10 h-10 flex items-center justify-center rounded-full bg-white hover:scale-105 transition ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-10 h-10 flex items-center justify-center rounded-full bg-white hover:scale-105 transition-all ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={togglePlayPause}
           disabled={!hasAudio}
         >
-          {isPlaying ? 
-            <Pause size={20} className="text-black" fill="black" /> : 
-            <Play size={20} className="text-black ml-1" fill="black" />
-          }
+          {isPlaying ? (
+            <Pause className="w-5 h-5 text-black" />
+          ) : (
+            <Play className="w-5 h-5 text-black ml-1" />
+          )}
         </button>
         
         <button 
-          className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white"
+          className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white transition-colors"
           disabled={!hasAudio}
         >
-          <SkipForward size={16} />
+          <SkipForward className="w-5 h-5" />
         </button>
       </div>
       
-      <div className="flex flex-col min-w-0 flex-1 max-w-[160px]">
-        {track ? (
-          <>
-            <div className="text-xs font-medium truncate">{track.title}</div>
-            <div className="text-xs text-zinc-400 truncate">{track.artist}</div>
-            <div className="w-full bg-zinc-800 h-1 rounded-full mt-1">
-              <div 
-                className="bg-white h-1 rounded-full" 
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </>
-        ) : (
-          <div className="text-xs text-zinc-400">No track selected</div>
-        )}
-      </div>
-      
-      <div className="flex items-center gap-2">
-        <Volume2 size={18} className="text-zinc-400" />
-      </div>
+      {track && (
+        <div className="w-full flex flex-col gap-1">
+          <div className="w-full bg-zinc-800 h-1 rounded-full">
+            <div 
+              className="bg-white h-1 rounded-full transition-all duration-100"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between text-xs text-zinc-400">
+            <span>{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
+            <span>{Math.floor(trackDuration / 60)}:{Math.floor(trackDuration % 60).toString().padStart(2, '0')}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

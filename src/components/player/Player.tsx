@@ -8,11 +8,9 @@ const Player = () => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const location = useLocation();
   
-  // Check if we should hide the player (only on blog pages)
   const shouldHidePlayer = location.pathname.includes('/blog');
 
   useEffect(() => {
-    // Listen for track selection events
     const handleTrackSelected = (event: CustomEvent) => {
       const track = event.detail as Track;
       console.log("Player received track selection event:", track.title);
@@ -26,7 +24,6 @@ const Player = () => {
     };
   }, []);
 
-  // If we're on a blog page, don't render the player
   if (shouldHidePlayer) {
     return null;
   }
