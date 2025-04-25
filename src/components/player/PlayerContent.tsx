@@ -10,22 +10,22 @@ interface PlayerContentProps {
 
 const PlayerContent: React.FC<PlayerContentProps> = ({ currentTrack }) => {
   return (
-    <div className="grid grid-cols-3 h-full max-w-[1400px] mx-auto px-4">
-      <div className="flex items-center justify-start">
+    <div className="grid grid-cols-[300px_1fr_200px] gap-4 h-full items-center px-4">
+      <div className="flex items-center min-w-0">
         {currentTrack && (
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-zinc-800 rounded-sm flex items-center justify-center">
+            <div className="w-12 h-12 bg-zinc-800 rounded-sm flex items-center justify-center shrink-0">
               <span className="text-xs text-zinc-400">♪</span>
             </div>
-            <div className="hidden sm:block">
-              <div className="text-sm font-medium truncate max-w-[150px]">{currentTrack.title}</div>
-              <div className="text-xs text-zinc-400 truncate max-w-[150px]">{currentTrack.artist}</div>
+            <div className="min-w-0">
+              <div className="text-sm font-medium truncate max-w-[180px]">{currentTrack.title}</div>
+              <div className="text-xs text-zinc-400 truncate max-w-[180px]">{currentTrack.artist}</div>
             </div>
           </div>
         )}
       </div>
       
-      <div className="flex justify-center items-center w-full">
+      <div className="flex justify-center w-full">
         <AudioPlayer track={currentTrack} />
       </div>
       
