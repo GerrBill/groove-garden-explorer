@@ -150,8 +150,8 @@ const TrackList: React.FC<TrackListProps> = ({
   };
   
   return (
-    <div className="w-full">
-      <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 text-spotify-text-secondary text-sm">
+    <div className="w-full overflow-x-hidden">
+      <div className="grid grid-cols-[16px_4fr_2fr_2fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 text-spotify-text-secondary text-sm">
         <div>#</div>
         <div>Title</div>
         <div className="hidden md:block">Plays</div>
@@ -166,7 +166,7 @@ const TrackList: React.FC<TrackListProps> = ({
           {tracks.map((track, index) => (
             <div 
               key={track.id || `track-${index}`}
-              className={`grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
+              className={`grid grid-cols-[16px_4fr_2fr_2fr_1fr] gap-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
                 track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'
               }`}
             >
@@ -216,7 +216,7 @@ const TrackList: React.FC<TrackListProps> = ({
                 )}
               </div>
               
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between whitespace-nowrap">
                 <span>{track.duration}</span>
                 <button className="text-spotify-text-secondary opacity-0 group-hover:opacity-100 hover:text-white">
                   <MoreHorizontal size={16} />

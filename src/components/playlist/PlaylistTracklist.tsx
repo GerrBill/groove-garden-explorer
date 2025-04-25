@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -96,14 +95,11 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
         
         console.log("Dispatching playlist track for playback:", fullTrack);
         
-        // First dispatch track selected event to load the track
         window.dispatchEvent(new CustomEvent('trackSelected', { 
           detail: fullTrack 
         }));
         
-        // Add a small delay before triggering playback to ensure the track is loaded
         setTimeout(() => {
-          // Then trigger playback with a flag indicating immediate play
           window.dispatchEvent(new CustomEvent('playTrack', {
             detail: { immediate: true }
           }));
@@ -123,7 +119,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   
   return (
     <ScrollArea className="w-full h-[calc(100vh-400px)]">
-      <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-zinc-400 text-sm">
+      <div className="grid grid-cols-[16px_4fr_2fr_2fr_1fr] gap-4 border-b border-zinc-800 pb-2 mb-4 px-4 text-zinc-400 text-sm">
         <div>#</div>
         <div>Title</div>
         <div className="hidden md:block">Album</div>
@@ -136,7 +132,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
       {isLoading ? (
         <div className="space-y-1 mb-8">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 px-4 py-2 rounded-md text-sm">
+            <div key={i} className="grid grid-cols-[16px_4fr_2fr_2fr_1fr] gap-4 px-4 py-2 rounded-md text-sm">
               <div className="w-6 h-6 bg-zinc-800 animate-pulse rounded"></div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-zinc-800 animate-pulse rounded"></div>
@@ -157,7 +153,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
             tracks.map((track, index) => (
               <div 
                 key={track.id}
-                className={`grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 px-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
+                className={`grid grid-cols-[16px_4fr_2fr_2fr_1fr] gap-4 px-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
                   track.isPlaying ? 'text-orange-600' : 'text-white'
                 }`}
               >
@@ -181,7 +177,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                   </div>
                 </div>
                 
-                <div className="flex items-center text-zinc-400 hidden md:flex">
+                <div className="flex items-center text-zinc-400 hidden md:flex truncate">
                   {track.albumName || 'Unknown Album'}
                 </div>
                 
@@ -204,7 +200,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                   )}
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between whitespace-nowrap">
                   <span>{track.duration}</span>
                   <button className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white">
                     <MoreHorizontal size={16} />
