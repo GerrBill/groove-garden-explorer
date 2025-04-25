@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { Track as TrackType } from '@/types/supabase';
 
 interface PlaylistTrack {
@@ -119,104 +120,112 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   
   return (
     <ScrollArea className="w-full h-[calc(100vh-400px)]">
-      <div className="grid grid-cols-[40px_3fr_2fr_1fr_80px] gap-2 border-b border-zinc-800 pb-2 mb-4 px-4 text-zinc-400 text-sm">
-        <div>#</div>
-        <div>Title</div>
-        <div className="hidden md:block">Album</div>
-        <div className="flex items-center justify-start"></div>
-        <div className="flex justify-end">
-          <Clock size={16} />
-        </div>
+      <div className="w-full">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-[4%]">#</TableHead>
+              <TableHead className="w-[40%]">Title</TableHead>
+              <TableHead className="w-[30%] hidden md:table-cell">Album</TableHead>
+              <TableHead className="w-[16%]"></TableHead>
+              <TableHead className="w-[10%] text-right"><Clock size={16} /></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <TableRow key={i}>
+                  <td className="w-6 h-6 bg-zinc-800 animate-pulse rounded"></td>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-zinc-800 animate-pulse rounded"></div>
+                      <div className="space-y-2">
+                        <div className="w-24 h-4 bg-zinc-800 animate-pulse rounded"></div>
+                        <div className="w-16 h-3 bg-zinc-800 animate-pulse rounded"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="hidden md:table-cell">
+                    <div className="w-20 h-4 bg-zinc-800 animate-pulse rounded"></div>
+                  </td>
+                  <td></td>
+                  <td>
+                    <div className="w-10 h-4 bg-zinc-800 animate-pulse rounded ml-auto"></div>
+                  </td>
+                </TableRow>
+              ))
+            ) : tracks.length > 0 ? (
+              tracks.map((track) => (
+                <TableRow 
+                  key={track.id}
+                  className={`group ${track.isPlaying ? 'text-orange-600' : 'text-white'}`}
+                >
+                  <td className="w-[4%]">
+                    <div className="flex items-center">
+                      <span className="group-hover:hidden">{track.position}</span>
+                      <button 
+                        className="hidden group-hover:flex items-center justify-center"
+                        onClick={() => handlePlayClick(track)}
+                      >
+                        <Play size={14} />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="w-[40%]">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
+                        <Music size={16} className="text-zinc-400" />
+                      </div>
+                      <div className="min-w-0 truncate">
+                        <div className="font-medium truncate">{track.title}</div>
+                        <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="w-[30%] hidden md:table-cell text-zinc-400 truncate">
+                    {track.albumName || 'Unknown Album'}
+                  </td>
+                  <td className="w-[16%]">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className={`${track.isLiked ? 'text-orange-600' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
+                        onClick={() => handleToggleLike(track.trackId)}
+                      >
+                        <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
+                      </button>
+                      
+                      {onRemoveTrack && (
+                        <button 
+                          className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white"
+                          onClick={() => onRemoveTrack(track.id)}
+                          aria-label="Remove from playlist"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                  <td className="w-[10%] text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="whitespace-nowrap">{track.duration}</span>
+                      <button className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white">
+                        <MoreHorizontal size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <td colSpan={5} className="text-center text-zinc-400 py-8">
+                  This playlist doesn't have any tracks yet. Start adding some tracks!
+                </td>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <div className="h-32"></div>
       </div>
-      
-      {isLoading ? (
-        <div className="space-y-1 mb-8">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="grid grid-cols-[40px_3fr_2fr_1fr_80px] gap-2 px-4 py-2 rounded-md text-sm">
-              <div className="w-6 h-6 bg-zinc-800 animate-pulse rounded"></div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-zinc-800 animate-pulse rounded"></div>
-                <div className="space-y-2">
-                  <div className="w-24 h-4 bg-zinc-800 animate-pulse rounded"></div>
-                  <div className="w-16 h-3 bg-zinc-800 animate-pulse rounded"></div>
-                </div>
-              </div>
-              <div className="w-20 h-4 bg-zinc-800 animate-pulse rounded"></div>
-              <div></div>
-              <div className="w-10 h-4 bg-zinc-800 animate-pulse rounded ml-auto"></div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {tracks.length > 0 ? (
-            tracks.map((track, index) => (
-              <div 
-                key={track.id}
-                className={`grid grid-cols-[40px_3fr_2fr_1fr_80px] gap-2 px-4 py-2 rounded-md text-sm hover:bg-white/5 group ${
-                  track.isPlaying ? 'text-orange-600' : 'text-white'
-                }`}
-              >
-                <div className="flex items-center">
-                  <span className="group-hover:hidden">{track.position}</span>
-                  <button 
-                    className="hidden group-hover:flex items-center justify-center"
-                    onClick={() => handlePlayClick(track)}
-                  >
-                    <Play size={14} />
-                  </button>
-                </div>
-                
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded">
-                    <Music size={16} className="text-zinc-400" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-medium truncate">{track.title}</div>
-                    <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center text-zinc-400 hidden md:block truncate">
-                  {track.albumName || 'Unknown Album'}
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <button 
-                    className={`${track.isLiked ? 'text-orange-600' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
-                    onClick={() => handleToggleLike(track.trackId)}
-                  >
-                    <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
-                  </button>
-                  
-                  {onRemoveTrack && (
-                    <button 
-                      className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white"
-                      onClick={() => onRemoveTrack(track.id)}
-                      aria-label="Remove from playlist"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="whitespace-nowrap">{track.duration}</span>
-                  <button className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white">
-                    <MoreHorizontal size={16} />
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="py-8 text-center text-zinc-400 mb-16">
-              This playlist doesn't have any tracks yet. Start adding some tracks!
-            </div>
-          )}
-          
-          <div className="h-32"></div>
-        </div>
-      )}
     </ScrollArea>
   );
 };

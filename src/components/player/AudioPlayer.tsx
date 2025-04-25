@@ -175,10 +175,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
   const progress = trackDuration > 0 ? (currentTime / trackDuration) * 100 : 0;
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full max-w-[600px]">
-      <div className="flex items-center gap-4 justify-center">
+    <div className="flex flex-col items-center gap-2 w-full">
+      <div className="flex items-center gap-4">
         <button 
-          className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white transition-colors"
+          className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
           disabled={!hasAudio}
         >
           <SkipBack className="w-5 h-5" />
@@ -197,7 +197,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
         </button>
         
         <button 
-          className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-white transition-colors"
+          className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
           disabled={!hasAudio}
         >
           <SkipForward className="w-5 h-5" />
@@ -206,13 +206,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ track }) => {
       
       {track && (
         <div className="w-full flex flex-col gap-1">
-          <div className="w-full bg-zinc-800 h-1 rounded-full">
+          <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden">
             <div 
               className="bg-white h-1 rounded-full transition-all duration-100"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-xs text-zinc-400">
+          <div className="flex justify-between text-xs text-zinc-400">
             <span>{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
             <span>{Math.floor(trackDuration / 60)}:{Math.floor(trackDuration % 60).toString().padStart(2, '0')}</span>
           </div>
