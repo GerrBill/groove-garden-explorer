@@ -156,7 +156,7 @@ const TrackList: React.FC<TrackListProps> = ({
                   </div>
                 </td>
                 
-                <td className="flex items-center gap-2 max-w-[250px]">
+                <td className="flex items-center gap-2 max-w-[250px] my-[10px] py-[4px]">
                   <div className="flex items-center gap-2 max-w-[250px]">
                     <div className="min-w-0">
                       <div className="font-medium truncate text-sm">{track.title}</div>
