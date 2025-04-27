@@ -1,14 +1,17 @@
+
 import React from 'react';
 import { Volume2 } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
 import { Track } from '@/types/supabase';
+
 interface PlayerContentProps {
   currentTrack?: Track | null;
 }
+
 const PlayerContent: React.FC<PlayerContentProps> = ({
   currentTrack
 }) => {
-  return <div className="flex items-center justify-between h-full px-4 md:px-0">
+  return <div className="flex items-center h-full px-4 md:px-0 gap-4">
       <div className="w-[180px] flex-shrink-0">
         {currentTrack && <div className="flex items-center gap-2 min-w-0">
             <div className="w-10 h-10 bg-zinc-800 rounded-sm flex items-center justify-center shrink-0">
@@ -21,13 +24,14 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
           </div>}
       </div>
       
-      <div className="flex-grow flex justify-center items-center max-w-[600px] mx-0 px-0">
+      <div className="flex-grow flex justify-center items-center max-w-[500px]">
         <AudioPlayer track={currentTrack} />
       </div>
       
-      <div className="w-[120px] flex justify-end items-center">
+      <div className="w-[100px] flex justify-end items-center">
         <Volume2 className="w-4 h-4 text-zinc-400 hover:text-white transition-colors" />
       </div>
     </div>;
 };
+
 export default PlayerContent;

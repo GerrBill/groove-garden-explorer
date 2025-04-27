@@ -140,9 +140,9 @@ const TrackList: React.FC<TrackListProps> = ({
         <thead>
           <tr className="border-b border-zinc-800">
             <th className="pb-2 w-10 text-spotify-text-secondary text-sm font-normal">#</th>
-            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[180px]">Title</th>
-            <th className="pb-2 w-10 text-spotify-text-secondary text-sm font-normal"></th>
-            <th className="pb-2 w-16 text-right text-spotify-text-secondary text-sm font-normal">
+            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[300px]">Title</th>
+            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[120px]">Actions</th>
+            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[80px]">
               <Clock size={16} />
             </th>
           </tr>
@@ -158,7 +158,7 @@ const TrackList: React.FC<TrackListProps> = ({
                   </button>
                 </div>
               </td>
-              <td className="py-2 w-[180px]">
+              <td className="py-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="min-w-0">
                     <div className="font-medium truncate text-sm">{track.title}</div>
@@ -167,7 +167,7 @@ const TrackList: React.FC<TrackListProps> = ({
                 </div>
               </td>
               <td className="py-2 align-middle">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
                     <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                   </button>
@@ -179,13 +179,8 @@ const TrackList: React.FC<TrackListProps> = ({
                   </>}
                 </div>
               </td>
-              <td className="py-2 align-middle text-right pr-2">
-                <div className="py-2 align-middle">
-                  <span className="whitespace-nowrap">{track.duration}</span>
-                  <button className="text-spotify-text-secondary opacity-0 group-hover:opacity-100 hover:text-white">
-                    <MoreHorizontal size={16} />
-                  </button>
-                </div>
+              <td className="py-2 align-middle text-left">
+                <span className="whitespace-nowrap">{track.duration}</span>
               </td>
             </tr>
           )) : (
