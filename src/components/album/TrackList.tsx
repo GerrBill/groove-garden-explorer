@@ -7,7 +7,6 @@ import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 import { Track as TrackType } from '@/types/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
-
 interface Track {
   id: string;
   title: string;
@@ -19,7 +18,6 @@ interface Track {
   trackId: string;
   audio_path?: string;
 }
-
 interface TrackListProps {
   tracks: Track[];
   onToggleLike?: (trackId: string) => void;
@@ -27,7 +25,6 @@ interface TrackListProps {
   albumName?: string;
   onDeleteTrack?: (trackId: string) => void;
 }
-
 const TrackList: React.FC<TrackListProps> = ({
   tracks,
   onToggleLike,
@@ -41,7 +38,6 @@ const TrackList: React.FC<TrackListProps> = ({
   const {
     toast
   } = useToast();
-
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
       toast({
@@ -91,7 +87,6 @@ const TrackList: React.FC<TrackListProps> = ({
       });
     }
   };
-
   const handlePlayClick = (track: Track) => {
     const fetchTrackDetails = async (trackId: string) => {
       try {
@@ -112,11 +107,9 @@ const TrackList: React.FC<TrackListProps> = ({
           track_number: data.track_number
         };
         console.log("Dispatching track for playback:", fullTrack);
-
         window.dispatchEvent(new CustomEvent('trackSelected', {
           detail: fullTrack
         }));
-
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('playTrack', {
             detail: {
@@ -135,9 +128,7 @@ const TrackList: React.FC<TrackListProps> = ({
     };
     fetchTrackDetails(track.trackId);
   };
-
-  return (
-    <ScrollArea className="w-full h-[calc(100vh-400px)]">
+  return <ScrollArea className="w-full h-[calc(100vh-400px)]">
       <div className="w-full">
         <Table>
           <TableHeader>
@@ -150,18 +141,11 @@ const TrackList: React.FC<TrackListProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
-              <TableRow 
-                key={track.id || `track-${index}`} 
-                className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}
-              >
-                <td className="w-[4%]">
+            {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => <TableRow key={track.id || `track-${index}`} className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
+                <td className="w-[4%] px-[10px]">
                   <div className="flex items-center">
                     <span className="group-hover:hidden">{index + 1}</span>
-                    <button 
-                      className="hidden group-hover:flex items-center justify-center" 
-                      onClick={() => handlePlayClick(track)}
-                    >
+                    <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
                       <Play size={14} />
                     </button>
                   </div>
@@ -182,44 +166,30 @@ const TrackList: React.FC<TrackListProps> = ({
                 </td>
                 <td className="w-[16%]">
                   <div className="flex items-center gap-2">
-                    <button 
-                      className={`${track.isLiked ? 'text-spotify-accent' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
-                      onClick={() => track.trackId && handleToggleLike(track.trackId)}
-                    >
+                    <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
                       <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                     </button>
                     
                     {track.trackId && <>
                       <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
-                      {user && onDeleteTrack && (
-                        <button 
-                          className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400"
-                          onClick={() => track.trackId && onDeleteTrack(track.trackId)}
-                          aria-label="Delete track"
-                        >
+                      {user && onDeleteTrack && <button className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" onClick={() => track.trackId && onDeleteTrack(track.trackId)} aria-label="Delete track">
                           <Trash2 size={16} />
-                        </button>
-                      )}
+                        </button>}
                     </>}
                   </div>
                 </td>
                 <td className="w-[10%] text-right">
                   <span className="whitespace-nowrap">{track.duration}</span>
                 </td>
-              </TableRow>
-            )) : (
-              <TableRow>
+              </TableRow>) : <TableRow>
                 <td colSpan={5} className="text-center text-zinc-400 py-8">
                   No tracks available for this album. Add some tracks!
                 </td>
-              </TableRow>
-            )}
+              </TableRow>}
           </TableBody>
         </Table>
         <div className="h-32"></div>
       </div>
-    </ScrollArea>
-  );
+    </ScrollArea>;
 };
-
 export default TrackList;
