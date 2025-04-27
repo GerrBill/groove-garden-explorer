@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 import { Track as TrackType } from '@/types/supabase';
 import { Button } from '@/components/ui/button';
+
 interface Track {
   id: string;
   title: string;
@@ -17,6 +18,7 @@ interface Track {
   trackId: string;
   audio_path?: string;
 }
+
 interface TrackListProps {
   tracks: Track[];
   onToggleLike?: (trackId: string) => void;
@@ -24,6 +26,7 @@ interface TrackListProps {
   albumName?: string;
   onDeleteTrack?: (trackId: string) => void;
 }
+
 const TrackList: React.FC<TrackListProps> = ({
   tracks,
   onToggleLike,
@@ -37,6 +40,7 @@ const TrackList: React.FC<TrackListProps> = ({
   const {
     toast
   } = useToast();
+
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
       toast({
@@ -86,6 +90,7 @@ const TrackList: React.FC<TrackListProps> = ({
       });
     }
   };
+
   const handlePlayClick = (track: Track) => {
     const fetchTrackDetails = async (trackId: string) => {
       try {
@@ -107,14 +112,11 @@ const TrackList: React.FC<TrackListProps> = ({
         };
         console.log("Dispatching track for playback:", fullTrack);
 
-        // First dispatch track selected event to load the track
         window.dispatchEvent(new CustomEvent('trackSelected', {
           detail: fullTrack
         }));
 
-        // Add a small delay before triggering playback to ensure the track is loaded
         setTimeout(() => {
-          // Then trigger playback with a flag indicating immediate play
           window.dispatchEvent(new CustomEvent('playTrack', {
             detail: {
               immediate: true
@@ -132,13 +134,13 @@ const TrackList: React.FC<TrackListProps> = ({
     };
     fetchTrackDetails(track.trackId);
   };
+
   return <div className="w-full overflow-x-hidden">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-zinc-800">
-            <th className="pb-2 w-10 text-spotify-text-secondary text-sm font-normal">  #</th>
-            <th className="pb-2 text-spotify-text-secondary text-sm font-normal">Title</th>
-            
+            <th className="pb-2 w-10 text-spotify-text-secondary text-sm font-normal">#</th>
+            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[180px]">Title</th>
             <th className="pb-2 w-10 text-spotify-text-secondary text-sm font-normal"></th>
             <th className="pb-2 w-16 text-right text-spotify-text-secondary text-sm font-normal">
               <Clock size={16} />
@@ -146,59 +148,57 @@ const TrackList: React.FC<TrackListProps> = ({
           </tr>
         </thead>
         <tbody>
-          {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => <tr key={track.id || `track-${index}`} className={`group hover:bg-white/5 ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
-                <td className="py-2 align-middle px-[10px]">
-                  <div className="flex items-center">
-                    <span className="group-hover:hidden">{index + 1}</span>
-                    <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
-                      <Play size={14} />
-                    </button>
+          {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
+            <tr key={track.id || `track-${index}`} className={`group hover:bg-white/5 ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
+              <td className="py-2 align-middle px-[10px]">
+                <div className="flex items-center">
+                  <span className="group-hover:hidden">{index + 1}</span>
+                  <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
+                    <Play size={14} />
+                  </button>
+                </div>
+              </td>
+              <td className="py-2 w-[180px]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate text-sm">{track.title}</div>
+                    <div className="text-spotify-text-secondary text-xs truncate">{track.artist}</div>
                   </div>
-                </td>
-                
-                <td className="flex items-center gap-2 max-w-[250px] my-[10px] py-[4px]">
-                  <div className="flex items-center gap-2 max-w-[250px]">
-                    <div className="min-w-0">
-                      <div className="font-medium truncate text-sm">{track.title}</div>
-                      <div className="text-spotify-text-secondary text-xs truncate">{track.artist}</div>
-                    </div>
-                  </div>
-                </td>
-                
-                
-                
-                <td className="py-2 align-middle">
-                  <div className="flex items-center gap-1">
-                    <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
-                      <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
-                    </button>
-                    
-                    {track.trackId && <>
-                        <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
-                        
-                        {user && onDeleteTrack && <button className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" onClick={() => track.trackId && onDeleteTrack(track.trackId)} title="Delete track">
-                            <Trash2 size={16} />
-                          </button>}
-                      </>}
-                  </div>
-                </td>
-                
-                <td className="py-2 align-middle text-right pr-2">
-                  <div className="py-2 align-middle">
-                    <span className="whitespace-nowrap">{track.duration}</span>
-                    <button className="text-spotify-text-secondary opacity-0 group-hover:opacity-100 hover:text-white">
-                      <MoreHorizontal size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>) : <tr>
+                </div>
+              </td>
+              <td className="py-2 align-middle">
+                <div className="flex items-center gap-1">
+                  <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
+                    <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
+                  </button>
+                  {track.trackId && <>
+                    <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                    {user && onDeleteTrack && <button className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" onClick={() => track.trackId && onDeleteTrack(track.trackId)} title="Delete track">
+                      <Trash2 size={16} />
+                    </button>}
+                  </>}
+                </div>
+              </td>
+              <td className="py-2 align-middle text-right pr-2">
+                <div className="py-2 align-middle">
+                  <span className="whitespace-nowrap">{track.duration}</span>
+                  <button className="text-spotify-text-secondary opacity-0 group-hover:opacity-100 hover:text-white">
+                    <MoreHorizontal size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          )) : (
+            <tr>
               <td colSpan={5} className="py-8 text-center text-spotify-text-secondary">
                 No tracks available for this album. Add some tracks!
               </td>
-            </tr>}
+            </tr>
+          )}
         </tbody>
       </table>
       <div className="h-32"></div>
     </div>;
 };
+
 export default TrackList;
