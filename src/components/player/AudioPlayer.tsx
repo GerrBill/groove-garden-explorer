@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { Track } from '@/types/supabase';
 import { getAudioUrl } from '@/utils/fileUpload';
 import { useToast } from '@/hooks/use-toast';
+import { Slider } from '@/components/ui/slider';
 
 interface AudioPlayerProps {
   track?: Track | null;
@@ -153,35 +155,80 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (!audioRef.current || !hasAudio) return;
     setIsPlaying(!isPlaying);
   };
+  
+  const skipBackward = () => {
+    if (!audioRef.current || !hasAudio) return;
+    audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
+  };
+  
+  const skipForward = () => {
+    if (!audioRef.current || !hasAudio) return;
+    audioRef.current.currentTime = Math.min(
+      audioRef.current.duration,
+      audioRef.current.currentTime + 10
+    );
+  };
+  
+  const handleProgressChange = (value: number[]) => {
+    if (!audioRef.current || !hasAudio) return;
+    const newPosition = value[0];
+    const newTimeInSeconds = (newPosition / 100) * trackDuration;
+    audioRef.current.currentTime = newTimeInSeconds;
+    setCurrentTime(newTimeInSeconds);
+  };
 
-  const progress = trackDuration > 0 ? currentTime / trackDuration * 100 : 0;
+  const progress = trackDuration > 0 ? (currentTime / trackDuration) * 100 : 0;
+  
+  const formatTime = (timeInSeconds: number): string => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="flex flex-col items-start gap-2 w-full max-w-[400px]">
-      <div className="flex items-center gap-3">
-        <button className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" disabled={!hasAudio}>
-          <SkipBack className="w-4 h-4" />
+    <div className="flex flex-col items-center gap-1 w-full max-w-[300px]">
+      <div className="flex items-center justify-center gap-2 w-full">
+        <button 
+          className="w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" 
+          onClick={skipBackward}
+          disabled={!hasAudio}
+        >
+          <SkipBack className="w-3 h-3" />
         </button>
         
-        <button className={`w-8 h-8 flex items-center justify-center rounded-full bg-white hover:scale-105 transition-all ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={togglePlayPause} disabled={!hasAudio}>
-          {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
+        <button 
+          className={`w-7 h-7 flex items-center justify-center rounded-full bg-white hover:scale-105 transition-all ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`} 
+          onClick={togglePlayPause} 
+          disabled={!hasAudio}
+        >
+          {isPlaying ? 
+            <Pause className="w-3.5 h-3.5 text-black" /> : 
+            <Play className="w-3.5 h-3.5 text-black ml-0.5" />
+          }
         </button>
         
-        <button className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" disabled={!hasAudio}>
-          <SkipForward className="w-4 h-4" />
+        <button 
+          className="w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" 
+          onClick={skipForward}
+          disabled={!hasAudio}
+        >
+          <SkipForward className="w-3 h-3" />
         </button>
       </div>
       
       {track && (
         <div className="w-full flex flex-col gap-1">
-          <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden">
-            <div className="bg-white h-1 rounded-full transition-all duration-100" style={{
-              width: `${progress}%`
-            }} />
-          </div>
-          <div className="flex justify-between text-xs text-zinc-400">
-            <span>{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
-            <span>{Math.floor(trackDuration / 60)}:{Math.floor(trackDuration % 60).toString().padStart(2, '0')}</span>
+          <div className="flex w-full items-center gap-2">
+            <span className="text-xs text-zinc-400 w-8 text-right">{formatTime(currentTime)}</span>
+            <Slider 
+              value={[progress]} 
+              max={100} 
+              step={0.1}
+              onValueChange={handleProgressChange}
+              disabled={!hasAudio}
+              className="h-1 w-full"
+            />
+            <span className="text-xs text-zinc-400 w-8">{formatTime(trackDuration)}</span>
           </div>
         </div>
       )}
