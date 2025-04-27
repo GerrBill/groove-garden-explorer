@@ -165,7 +165,7 @@ const Blog = () => {
             )}
           </div>
           
-          {featuredPost && (
+         {/*} {featuredPost && (
             <HomeSection title="Featured Article">
               <FeaturedBlogPost
                 id={featuredPost.id}
@@ -177,7 +177,7 @@ const Blog = () => {
                 category={featuredPost.category}
               />
             </HomeSection>
-          )}
+          )} */}
 
           <HomeSection title="Latest Articles">
             {loading ? (
