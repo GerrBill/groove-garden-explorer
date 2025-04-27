@@ -84,7 +84,7 @@ const Playlists = () => {
               <div className="flex items-center ml-8 gap-6">
                 <Link to="/blog" className="flex items-center gap-2 text-theme-color hover:text-white transition-colors">
                   <BookOpen size={18} />
-                  <span>Blog</span>
+                  
                 </Link>
                 <Link to="/playlists" className="flex items-center gap-2 text-theme-color hover:text-white transition-colors">
                   <ListMusic size={18} />
