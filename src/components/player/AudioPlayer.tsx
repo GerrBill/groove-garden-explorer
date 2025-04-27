@@ -3,9 +3,11 @@ import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { Track } from '@/types/supabase';
 import { getAudioUrl } from '@/utils/fileUpload';
 import { useToast } from '@/hooks/use-toast';
+
 interface AudioPlayerProps {
   track?: Track | null;
 }
+
 const AudioPlayer: React.FC<AudioPlayerProps> = ({
   track
 }) => {
@@ -19,6 +21,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     toast
   } = useToast();
   const playRequestPending = useRef<boolean>(false);
+
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
@@ -66,6 +69,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       audio.pause();
     };
   }, [hasAudio]);
+
   useEffect(() => {
     if (track?.audio_path && audioRef.current) {
       console.log("Loading audio track:", track.title, track.audio_path);
@@ -100,6 +104,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       }
     }
   }, [track, toast]);
+
   const playAudio = () => {
     if (!audioRef.current || !hasAudio || playRequestPending.current) return;
     console.log("Attempting to play audio");
@@ -126,6 +131,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       playRequestPending.current = false;
     }
   };
+
   const pauseAudio = () => {
     if (!audioRef.current || !hasAudio) return;
     console.log("Pausing audio");
@@ -133,6 +139,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     setIsPlaying(false);
     playRequestPending.current = false;
   };
+
   useEffect(() => {
     if (!audioRef.current || !hasAudio) return;
     if (isPlaying) {
@@ -141,37 +148,45 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       pauseAudio();
     }
   }, [isPlaying, hasAudio]);
+
   const togglePlayPause = () => {
     if (!audioRef.current || !hasAudio) return;
     setIsPlaying(!isPlaying);
   };
+
   const progress = trackDuration > 0 ? currentTime / trackDuration * 100 : 0;
-  return <div className="flex flex-col items-left gap-2 w-full">
-      <div className="flex items-center gap-4">
-        <button className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" disabled={!hasAudio}>
-          <SkipBack className="w-5 h-5" />
+
+  return (
+    <div className="flex flex-col items-start gap-2 w-full max-w-[400px]">
+      <div className="flex items-center gap-3">
+        <button className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" disabled={!hasAudio}>
+          <SkipBack className="w-4 h-4" />
         </button>
         
-        <button className={`w-10 h-10 flex items-center justify-center rounded-full bg-white hover:scale-105 transition-all ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={togglePlayPause} disabled={!hasAudio}>
-          {isPlaying ? <Pause className="w-5 h-5 text-black" /> : <Play className="w-5 h-5 text-black ml-1" />}
+        <button className={`w-8 h-8 flex items-center justify-center rounded-full bg-white hover:scale-105 transition-all ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={togglePlayPause} disabled={!hasAudio}>
+          {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
         </button>
         
-        <button className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" disabled={!hasAudio}>
-          <SkipForward className="w-5 h-5" />
+        <button className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" disabled={!hasAudio}>
+          <SkipForward className="w-4 h-4" />
         </button>
       </div>
       
-      {track && <div className="w-full flex flex-col gap-1">
+      {track && (
+        <div className="w-full flex flex-col gap-1">
           <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden">
             <div className="bg-white h-1 rounded-full transition-all duration-100" style={{
-          width: `${progress}%`
-        }} />
+              width: `${progress}%`
+            }} />
           </div>
           <div className="flex justify-between text-xs text-zinc-400">
             <span>{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
             <span>{Math.floor(trackDuration / 60)}:{Math.floor(trackDuration % 60).toString().padStart(2, '0')}</span>
           </div>
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 };
+
 export default AudioPlayer;

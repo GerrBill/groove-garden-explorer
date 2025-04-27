@@ -10,27 +10,27 @@ interface PlayerContentProps {
 
 const PlayerContent: React.FC<PlayerContentProps> = ({ currentTrack }) => {
   return (
-    <div className="flex items-center justify-between h-full px-4 gap-4">
-      <div className="w-[30%] min-w-[200px] flex-shrink-0">
+    <div className="flex items-center h-full px-4 md:px-6">
+      <div className="w-[30%] max-w-[250px] min-w-[180px]">
         {currentTrack && (
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 bg-zinc-800 rounded-sm flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-10 h-10 bg-zinc-800 rounded-sm flex items-center justify-center shrink-0">
               <span className="text-xs text-zinc-400">♪</span>
             </div>
-            <div className="min-w-0">
-              <div className="text-sm font-medium truncate">{currentTrack.title}</div>
+            <div className="min-w-0 max-w-[150px]">
+              <div className="text-xs font-medium truncate">{currentTrack.title}</div>
               <div className="text-xs text-zinc-400 truncate">{currentTrack.artist}</div>
             </div>
           </div>
         )}
       </div>
       
-      <div className="flex-grow flex justify-center max-w-[600px]">
+      <div className="flex justify-start ml-4 md:ml-6 flex-grow">
         <AudioPlayer track={currentTrack} />
       </div>
       
-      <div className="w-[20%] min-w-[100px] flex justify-end flex-shrink-0">
-        <Volume2 className="w-5 h-5 text-zinc-400 hover:text-white transition-colors" />
+      <div className="w-[15%] min-w-[60px] flex justify-end ml-auto">
+        <Volume2 className="w-4 h-4 text-zinc-400 hover:text-white transition-colors" />
       </div>
     </div>
   );
