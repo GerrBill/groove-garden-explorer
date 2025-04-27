@@ -54,7 +54,7 @@ const AlbumHeader: React.FC<AlbumHeaderProps> = ({
     // Desktop layout - horizontal alignment with reduced height
     <div className="flex items-center gap-3 py-[10px] px-[10px]">
           <div>
-            <img src={image} alt={title} className="w-16 h-auto shadow-xl object-cover" />
+            <img src={image} alt={title} className="w-24 h-auto shadow-xl object-cover  " />
           </div>
           
           <div className="flex flex-col gap-0">
