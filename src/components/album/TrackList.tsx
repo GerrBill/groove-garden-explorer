@@ -1,11 +1,12 @@
 import React from 'react';
-import { Clock, MoreHorizontal, Heart, Play, Trash2 } from 'lucide-react';
+import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 import { Track as TrackType } from '@/types/supabase';
-import { Button } from '@/components/ui/button';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 
 interface Track {
   id: string;
@@ -135,65 +136,90 @@ const TrackList: React.FC<TrackListProps> = ({
     fetchTrackDetails(track.trackId);
   };
 
-  return <div className="w-full overflow-x-hidden">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-zinc-800">
-            <th className="pb-2 w-10 text-spotify-text-secondary text-sm font-normal">#</th>
-            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[300px]">Title</th>
-            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[120px]">Actions</th>
-            <th className="pb-2 text-spotify-text-secondary text-sm font-normal w-[80px]">
-              <Clock size={16} />
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
-            <tr key={track.id || `track-${index}`} className={`group hover:bg-white/5 ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
-              <td className="py-2 align-middle px-[10px]">
-                <div className="flex items-center">
-                  <span className="group-hover:hidden">{index + 1}</span>
-                  <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
-                    <Play size={14} />
-                  </button>
-                </div>
-              </td>
-              <td className="py-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="min-w-0">
-                    <div className="font-medium truncate text-sm">{track.title}</div>
-                    <div className="text-spotify-text-secondary text-xs truncate">{track.artist}</div>
+  return (
+    <ScrollArea className="w-full h-[calc(100vh-400px)]">
+      <div className="w-full">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-[4%]">#</TableHead>
+              <TableHead className="w-[40%]">Title</TableHead>
+              <TableHead className="w-[30%] hidden md:table-cell">Album</TableHead>
+              <TableHead className="w-[16%]"></TableHead>
+              <TableHead className="w-[10%] text-right"><Clock size={16} /></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
+              <TableRow 
+                key={track.id || `track-${index}`} 
+                className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}
+              >
+                <td className="w-[4%]">
+                  <div className="flex items-center">
+                    <span className="group-hover:hidden">{index + 1}</span>
+                    <button 
+                      className="hidden group-hover:flex items-center justify-center" 
+                      onClick={() => handlePlayClick(track)}
+                    >
+                      <Play size={14} />
+                    </button>
                   </div>
-                </div>
-              </td>
-              <td className="py-2 align-middle">
-                <div className="flex items-center gap-2">
-                  <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-spotify-text-secondary'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
-                    <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
-                  </button>
-                  {track.trackId && <>
-                    <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
-                    {user && onDeleteTrack && <button className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" onClick={() => track.trackId && onDeleteTrack(track.trackId)} title="Delete track">
-                      <Trash2 size={16} />
-                    </button>}
-                  </>}
-                </div>
-              </td>
-              <td className="py-2 align-middle text-left">
-                <span className="whitespace-nowrap">{track.duration}</span>
-              </td>
-            </tr>
-          )) : (
-            <tr>
-              <td colSpan={5} className="py-8 text-center text-spotify-text-secondary">
-                No tracks available for this album. Add some tracks!
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      <div className="h-32"></div>
-    </div>;
+                </td>
+                <td className="w-[40%]">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
+                      <Music size={16} className="text-zinc-400" />
+                    </div>
+                    <div className="min-w-0 truncate">
+                      <div className="font-medium truncate">{track.title}</div>
+                      <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="w-[30%] hidden md:table-cell text-zinc-400 truncate">
+                  {albumName || 'Unknown Album'}
+                </td>
+                <td className="w-[16%]">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      className={`${track.isLiked ? 'text-spotify-accent' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`}
+                      onClick={() => track.trackId && handleToggleLike(track.trackId)}
+                    >
+                      <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
+                    </button>
+                    
+                    {track.trackId && <>
+                      <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                      {user && onDeleteTrack && (
+                        <button 
+                          className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400"
+                          onClick={() => track.trackId && onDeleteTrack(track.trackId)}
+                          aria-label="Delete track"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </>}
+                  </div>
+                </td>
+                <td className="w-[10%] text-right">
+                  <span className="whitespace-nowrap">{track.duration}</span>
+                </td>
+              </TableRow>
+            )) : (
+              <TableRow>
+                <td colSpan={5} className="text-center text-zinc-400 py-8">
+                  No tracks available for this album. Add some tracks!
+                </td>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <div className="h-32"></div>
+      </div>
+    </ScrollArea>
+  );
 };
 
 export default TrackList;

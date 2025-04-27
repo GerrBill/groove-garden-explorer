@@ -18,7 +18,7 @@ const AlbumItem: React.FC<AlbumItemProps> = ({ album }) => {
   return (
     <Link to={`/album/${album.id}`} className="block">
       <div className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-900 cursor-pointer group">
-        <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden flex items-center justify-center bg-zinc-700">
+        <div className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden flex items-center justify-center bg-zinc-700">
           {album.image_url ? (
             <img src={album.image_url} alt={album.title} className="w-full h-full object-cover" />
           ) : (
