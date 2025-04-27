@@ -165,7 +165,7 @@ const Blog = () => {
             )}
           </div>
           
-         {/*} {featuredPost && (
+         {/* {featuredPost && (
             <HomeSection title="Featured Article">
               <FeaturedBlogPost
                 id={featuredPost.id}
