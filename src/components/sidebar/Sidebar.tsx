@@ -83,7 +83,7 @@ const Sidebar = () => {
   }], [activeSection]);
   return <div className="flex h-full">
       <div className="hidden md:flex flex-col gap-y-2 bg-black h-full w-[300px] p-2 px-0">
-        <div className="flex gap-2 px-5 py-4">
+        <div className="flex gap-2 px-5 py-[3px]">
           {routes.map(item => <SidebarItem key={item.label} {...item} />)}
         </div>
         <div className="overflow-y-auto h-full px-5 pt-4">
