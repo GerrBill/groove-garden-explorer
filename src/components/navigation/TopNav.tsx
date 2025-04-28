@@ -6,9 +6,11 @@ import { useSidebar } from "@/components/ui/sidebar";
 interface TopNavProps {
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
-const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
+const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, toggleSidebar }) => {
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
   const { open: sidebarOpen, isMobile } = useSidebar();

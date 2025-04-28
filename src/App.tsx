@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "./hooks/use-mobile";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -153,35 +155,37 @@ const App = () => {
       <AuthProvider>
         <ThemeProvider>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
-                <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-                <div className="flex flex-grow relative">
-                  {sidebarOpen && (
-                    <div className="transition-all duration-300">
-                      <Sidebar />
+            <SidebarProvider defaultOpen={sidebarOpen}>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground w-full">
+                  <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+                  <div className="flex flex-grow relative">
+                    {sidebarOpen && (
+                      <div className="transition-all duration-300">
+                        <Sidebar />
+                      </div>
+                    )}
+                    <div className="flex flex-col flex-grow w-full">
+                      <div className="flex-grow overflow-y-auto">
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/album/:id" element={<Album />} />
+                          <Route path="/playlists" element={<Playlists />} />
+                          <Route path="/playlist/:id" element={<Playlist />} />
+                          <Route path="/blog" element={<Blog />} />
+                          <Route path="/blog/:id" element={<BlogPost />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </div>
+                      {!window.location.pathname.includes('/blog') && <Player />}
                     </div>
-                  )}
-                  <div className="flex flex-col flex-grow w-full">
-                    <div className="flex-grow overflow-y-auto">
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/album/:id" element={<Album />} />
-                        <Route path="/playlists" element={<Playlists />} />
-                        <Route path="/playlist/:id" element={<Playlist />} />
-                        <Route path="/blog" element={<Blog />} />
-                        <Route path="/blog/:id" element={<BlogPost />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </div>
-                    {!window.location.pathname.includes('/blog') && <Player />}
                   </div>
                 </div>
-              </div>
-            </BrowserRouter>
+              </BrowserRouter>
+            </SidebarProvider>
           </TooltipProvider>
         </ThemeProvider>
       </AuthProvider>
