@@ -127,7 +127,7 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
           <ImageIcon size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Update Album Art</DialogTitle>
           <DialogDescription>
