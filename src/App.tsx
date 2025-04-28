@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -160,7 +159,7 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground w-full">
-                  <TopBar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+                  <TopBar />
                   <div className="flex flex-grow relative">
                     {sidebarOpen && (
                       <div className="transition-all duration-300">

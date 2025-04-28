@@ -11,6 +11,7 @@ import AlbumCard from '@/components/home/AlbumCard';
 import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
+
 interface Playlist {
   id: string;
   title: string;
@@ -19,9 +20,11 @@ interface Playlist {
   owner: string;
   created_at: string;
 }
+
 const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
+
 const Playlists = () => {
-  const [selectedTab, setSelectedTab] = useState('All');
+  const [selectedTab, setSelectedTab] = useState('Playlists');
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
   const {
@@ -35,6 +38,7 @@ const Playlists = () => {
   const {
     colorTheme
   } = useTheme();
+
   const fetchPlaylists = async () => {
     setLoading(true);
     try {
@@ -59,9 +63,11 @@ const Playlists = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchPlaylists();
   }, []);
+
   const handlePlaylistAdded = () => {
     console.log("Playlist added, refreshing list...");
     fetchPlaylists();
@@ -71,17 +77,21 @@ const Playlists = () => {
       variant: "default"
     });
   };
+
   const gridClass = isMobileView ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
-  return <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
-      <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+
+  return (
+    <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
+      <TopNav 
+        selectedTab={selectedTab} 
+        setSelectedTab={setSelectedTab}
+      />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full bg-black">
         <div className="px-4 py-4 max-w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
               <h2 className="text-2xl font-bold">Your Playlists</h2>
-              
-              
             </div>
             
             {user && <div className="ml-6">
@@ -94,7 +104,6 @@ const Playlists = () => {
               </div>}
           </div>
           
-          
           <div className={`grid ${gridClass} gap-4 py-4`}>
             {loading ? [...Array(10)].map((_, i) => <div key={i} className="w-full p-1 rounded-md">
                   <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
@@ -106,6 +115,8 @@ const Playlists = () => {
           </div>
         </div>
       </ScrollArea>
-    </div>;
+    </div>
+  );
 };
+
 export default Playlists;

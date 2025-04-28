@@ -6,11 +6,9 @@ import { useSidebar } from "@/components/ui/sidebar";
 interface TopNavProps {
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
-  sidebarOpen: boolean;
-  toggleSidebar: () => void;
 }
 
-const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, toggleSidebar }) => {
+const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
   const { open: sidebarOpen, isMobile } = useSidebar();
@@ -26,7 +24,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab, toggleSide
     }
   }, [location.pathname, setSelectedTab]);
 
-  // Only show nav when sidebar is closed or on mobile
+  // Show nav when sidebar is closed OR on mobile
   if (sidebarOpen && !isMobile) {
     return null;
   }

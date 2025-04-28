@@ -11,19 +11,18 @@ import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+
 const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
+
 const Index = () => {
-  const [selectedTab, setSelectedTab] = useState('All');
+  const [selectedTab, setSelectedTab] = useState('Albums');
   const [albums, setAlbums] = useState<AlbumType[]>([]);
   const [loading, setLoading] = useState(true);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
+
   const fetchAlbums = async () => {
     setLoading(true);
     try {
@@ -48,9 +47,11 @@ const Index = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchAlbums();
   }, []);
+
   const handleAlbumAdded = () => {
     console.log("Album added, refreshing list...");
     fetchAlbums();
@@ -60,38 +61,61 @@ const Index = () => {
       variant: "default"
     });
   };
-  const gridClass = isMobileView ? "grid-cols-1" // 1 column on mobile
-  : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; // Default grid for larger screens
 
-  return <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
+  const gridClass = isMobileView 
+    ? "grid-cols-1" // 1 column on mobile
+    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; // Default grid for larger screens
+
+  return (
+    <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
       <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full bg-black">
         <div className="px-4 py-4 max-w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Available Albums</h2>
-            {isAdmin && <div className="ml-6">
+            {isAdmin && (
+              <div className="ml-6">
                 <AddAlbumDialog onAlbumAdded={handleAlbumAdded}>
                   <Button size="sm" className="flex items-center gap-1 rounded-full">
                     <Plus size={16} />
                     Add Album
                   </Button>
                 </AddAlbumDialog>
-              </div>}
+              </div>
+            )}
           </div>
-           {/* 60px gap as requested */}
           
           <div className={`grid ${gridClass} gap-4 py-4`}>
-            {loading ? [...Array(10)].map((_, i) => <div key={i} className="w-full p-1 rounded-md">
-                  <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
-                  <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
-                  <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
-                </div>) : albums.length > 0 ? albums.map(album => <AlbumCard key={album.id} id={album.id} image={album.image_url} title={album.title} artist={album.artist} size="md" />) : <div className="col-span-full text-center py-8 text-zinc-400">
+            {loading ? (
+              [...Array(10)].map((_, i) => <div key={i} className="w-full p-1 rounded-md">
+                <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
+                <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
+                <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
+              </div>)
+            ) : (
+              albums.length > 0 ? (
+                albums.map(album => (
+                  <AlbumCard 
+                    key={album.id}
+                    id={album.id}
+                    image={album.image_url}
+                    title={album.title}
+                    artist={album.artist}
+                    size="md"
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-zinc-400">
                   No albums found. Click "Add Album" to create one.
-                </div>}
+                </div>
+              )
+            )}
           </div>
         </div>
       </ScrollArea>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
