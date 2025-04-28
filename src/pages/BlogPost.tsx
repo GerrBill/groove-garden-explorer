@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Facebook, Twitter, Linkedin, Instagram, Share2, Edit, Image } from 'lucide-react';
+import { ArrowLeft, Facebook, Twitter, Linkedin, Instagram, Share2, Edit, Image, Trash2 } from 'lucide-react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -35,6 +36,7 @@ const BlogPost = () => {
   const [newComment, setNewComment] = useState('');
   const [commentUsername, setCommentUsername] = useState('');
   const [isPostingComment, setIsPostingComment] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -264,6 +266,47 @@ const BlogPost = () => {
     }
   };
 
+  const handleDeleteArticle = async () => {
+    if (!blogPost?.id) return;
+
+    try {
+      setLoading(true);
+      
+      // First, delete any comments associated with the article
+      const { error: commentsError } = await supabase
+        .from('blog_comments')
+        .delete()
+        .eq('article_id', blogPost.id);
+      
+      if (commentsError) throw commentsError;
+      
+      // Then delete the article itself
+      const { error: articleError } = await supabase
+        .from('blog_articles')
+        .delete()
+        .eq('id', blogPost.id);
+      
+      if (articleError) throw articleError;
+      
+      toast({
+        title: "Article deleted",
+        description: "The article has been successfully deleted",
+      });
+      
+      navigate('/blog');
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the article",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-background dark:bg-black">
       <TopNav 
@@ -345,6 +388,33 @@ const BlogPost = () => {
                         <Edit size={16} /> Edit Post
                       </Button>
                     </EditArticleDialog>
+
+                    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="destructive" 
+                          className="flex items-center gap-1"
+                        >
+                          <Trash2 size={16} /> Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Article</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this article? This will also remove all comments.
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteArticle} className="bg-red-600 hover:bg-red-700">
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
               </div>

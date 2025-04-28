@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, MoreHorizontal, Trash2 } from 'lucide-react';
 import AddTrackDialog from './AddTrackDialog';
 import { Track } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface AlbumActionsProps {
   albumId?: string;
@@ -24,7 +25,15 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
 }) => {
   const { user } = useAuth();
   const { colorTheme } = useTheme();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
+
+  const handleDeleteClick = () => {
+    if (onDeleteAlbum) {
+      onDeleteAlbum();
+    }
+    setDeleteDialogOpen(false);
+  };
 
   return (
     <div className="flex items-center gap-4 mt-4 mb-6">
@@ -38,15 +47,33 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
           {updateAlbumArtDialog}
           
           {onDeleteAlbum && (
-            <Button 
-              variant="outline"
-              size="sm" 
-              className="w-10 h-10 p-0 rounded-full text-red-500 hover:text-red-600 hover:bg-red-100/10"
-              onClick={onDeleteAlbum}
-              aria-label="Delete Album"
-            >
-              <Trash2 size={16} />
-            </Button>
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="destructive"
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  aria-label="Delete Album"
+                >
+                  <Trash2 size={16} /> Delete Album
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Album</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this album? This will permanently remove all tracks and audio files.
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteClick} className="bg-red-600 hover:bg-red-700">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </>
       )}

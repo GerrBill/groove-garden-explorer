@@ -49,7 +49,7 @@ const SendEmailDialog = () => {
           <Mail size={18} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Send Email</DialogTitle>
         </DialogHeader>
