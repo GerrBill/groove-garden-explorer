@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -125,9 +126,11 @@ const App = () => {
     }
   };
 
-  // Force dark mode
+  // Always force dark mode - this will be applied immediately and doesn't rely on ThemeProvider
   useEffect(() => {
     document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
+    document.documentElement.setAttribute('data-color-theme', 'orange'); // Default color theme
   }, []);
 
   console.log("App rendered, routes should be active");

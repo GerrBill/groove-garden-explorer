@@ -15,19 +15,31 @@ interface AlbumItemProps {
 }
 
 const AlbumItem: React.FC<AlbumItemProps> = ({ album }) => {
+  // Clean image URL if it's a blob URL
+  const imageUrl = album.image_url && album.image_url.startsWith('blob:') 
+    ? '/placeholder.svg'  // Use placeholder if it's a blob URL
+    : album.image_url || '/placeholder.svg';  // Fallback to placeholder if null
+
   return (
     <Link to={`/album/${album.id}`} className="block">
       <div className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-900 cursor-pointer group">
         <div className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden flex items-center justify-center bg-zinc-700">
-          {album.image_url ? (
-            <img src={album.image_url} alt={album.title} className="w-full h-full object-cover" />
+          {imageUrl ? (
+            <img 
+              src={imageUrl} 
+              alt={album.title} 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.svg';
+              }}
+            />
           ) : (
             <span className="text-sm font-medium text-white">{album.title[0]}</span>
           )}
         </div>
         
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-medium text-white truncate group-hover:text-orange-600 transition-colors">
+          <span className="text-sm font-medium text-white truncate group-hover:text-theme-color transition-colors">
             {album.title}
           </span>
           <div className="flex items-center text-xs text-spotify-text-secondary">

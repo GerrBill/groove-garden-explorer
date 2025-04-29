@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -16,6 +15,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Always default to dark theme
   const [theme, setTheme] = useState<ThemeType>('dark');
   const [colorTheme, setColorTheme] = useState<ColorTheme>('orange');
   const [userId, setUserId] = useState<string | null>(null);
@@ -28,11 +28,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // Load theme preferences from localStorage first
+  // Load theme preferences from localStorage, but preserve dark theme as default
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme_preference');
-    if (storedTheme === 'light' || storedTheme === 'dark') {
+    // Only set if explicitly light, otherwise keep dark
+    if (storedTheme === 'light') {
       setTheme(storedTheme);
+    } else {
+      // Ensure dark theme is set in localStorage
+      localStorage.setItem('theme_preference', 'dark');
     }
     
     const storedColorTheme = localStorage.getItem('color_theme_preference');

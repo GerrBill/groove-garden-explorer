@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,6 +24,11 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   type = 'album'
 }) => {
   const navigate = useNavigate();
+
+  // Clean image URL if it's a blob URL
+  const imageUrl = image && image.startsWith('blob:') 
+    ? '/placeholder.svg'  // Use placeholder if it's a blob URL
+    : image || '/placeholder.svg';  // Fallback to placeholder if null
 
   // Responsive sizing for the card container
   const sizeClasses = {
@@ -67,13 +73,16 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
       <div className="relative mb-2 flex justify-center">
         <AspectRatio ratio={1/1} className="w-full overflow-hidden">
           <img 
-            src={image} 
+            src={imageUrl} 
             alt={title} 
             className={artworkSize}
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
           />
         </AspectRatio>
         <button 
-          className="absolute bottom-1 right-1 w-8 h-8 bg-orange-700 rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
+          className="absolute bottom-1 right-1 w-8 h-8 bg-theme-color rounded-full flex items-center justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-lg"
           onClick={handlePlayClick}
           aria-label={`Play ${type}`}
         >
