@@ -5,11 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Plus, BookOpen, ListMusic } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import AlbumCard from '@/components/home/AlbumCard';
 import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
-import { Link } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
 
 interface Playlist {
@@ -27,17 +26,11 @@ const Playlists = () => {
   const [selectedTab, setSelectedTab] = useState('Playlists');
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const isMobileView = useIsMobile(700);
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
-  const {
-    colorTheme
-  } = useTheme();
+  const { colorTheme } = useTheme();
 
   const fetchPlaylists = async () => {
     setLoading(true);
@@ -94,24 +87,44 @@ const Playlists = () => {
               <h2 className="text-2xl font-bold">Your Playlists</h2>
             </div>
             
-            {user && <div className="ml-6">
+            {user && (
+              <div className="ml-6">
                 <AddPlaylistDialog onPlaylistAdded={handlePlaylistAdded}>
                   <Button size="sm" className="flex items-center gap-1 rounded-full">
                     <Plus size={16} />
                     Add Playlist
                   </Button>
                 </AddPlaylistDialog>
-              </div>}
+              </div>
+            )}
           </div>
           
           <div className={`grid ${gridClass} gap-4 py-4`}>
-            {loading ? [...Array(10)].map((_, i) => <div key={i} className="w-full p-1 rounded-md">
+            {loading ? (
+              [...Array(10)].map((_, i) => (
+                <div key={i} className="w-full p-1 rounded-md">
                   <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
-                  <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
-                  <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
-                </div>) : playlists.length > 0 ? playlists.map(playlist => <AlbumCard key={playlist.id} id={playlist.id} image={playlist.image_url || '/placeholder.svg'} title={playlist.title} artist={playlist.owner} size="md" type="playlist" />) : <div className="col-span-full text-center py-8 text-zinc-400">
-                  No playlists found. Click "Add Playlist" to create one.
-                </div>}
+                  <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4 mx-auto"></div>
+                  <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2 mx-auto"></div>
+                </div>
+              ))
+            ) : playlists.length > 0 ? (
+              playlists.map(playlist => (
+                <AlbumCard 
+                  key={playlist.id} 
+                  id={playlist.id} 
+                  image={playlist.image_url || '/placeholder.svg'} 
+                  title={playlist.title} 
+                  artist={playlist.owner} 
+                  size="md" 
+                  type="playlist" 
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-zinc-400">
+                No playlists found. Click "Add Playlist" to create one.
+              </div>
+            )}
           </div>
         </div>
       </ScrollArea>

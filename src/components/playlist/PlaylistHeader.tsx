@@ -18,12 +18,15 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({
 }) => {
   return (
     <div className="px-4 pt-3 pb-2 flex items-end gap-4 bg-gradient-to-b from-orange-950/40 to-zinc-900">
-      <div className="w-28 h-28 shadow-lg flex-shrink-0">
+      <div className="w-28 h-28 shadow-lg flex-shrink-0 flex items-center justify-center">
         {imageUrl ? (
           <img 
             src={imageUrl} 
             alt={title} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
           />
         ) : (
           <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
