@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Heart, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Heart, MoreHorizontal, Trash2, FileImage } from 'lucide-react';
 import AddTrackDialog from './AddTrackDialog';
 import { Track } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -45,6 +45,15 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
           />
           
           {updateAlbumArtDialog}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+            aria-label="Replace Album Art"
+          >
+            <FileImage size={16} /> Replace Art
+          </Button>
           
           {onDeleteAlbum && (
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

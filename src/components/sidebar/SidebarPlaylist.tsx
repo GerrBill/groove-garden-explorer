@@ -19,9 +19,9 @@ const SidebarPlaylist: React.FC<SidebarPlaylistProps> = ({ playlists }) => {
   return (
     <div className="space-y-1">
       {playlists.map((playlist) => {
-        // Clean image URL if it's a blob URL
-        const imageUrl = playlist.image_url && playlist.image_url.startsWith('blob:') 
-          ? '/placeholder.svg'  // Use placeholder if it's a blob URL
+        // Clean image URL if it's a blob URL or invalid
+        const imageUrl = playlist.image_url && (playlist.image_url.startsWith('blob:') || !playlist.image_url.startsWith('http')) 
+          ? '/placeholder.svg'  // Use placeholder if it's a blob URL or doesn't start with http
           : playlist.image_url || '/placeholder.svg';  // Fallback to placeholder if null
         
         return (
@@ -34,6 +34,7 @@ const SidebarPlaylist: React.FC<SidebarPlaylistProps> = ({ playlists }) => {
                     alt={playlist.title} 
                     className="w-full h-full object-cover"
                     onError={(e) => {
+                      console.log("Error loading image:", imageUrl);
                       e.currentTarget.src = '/placeholder.svg';
                     }} 
                   />
