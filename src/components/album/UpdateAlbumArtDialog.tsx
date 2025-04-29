@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ImageIcon } from 'lucide-react';
+import { FileImage } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import ImageUpload from './components/ImageUpload';
@@ -123,8 +123,8 @@ const UpdateAlbumArtDialog: React.FC<UpdateAlbumArtDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-10 h-10 p-0 rounded-full" aria-label="Update Album Cover">
-          <ImageIcon size={16} />
+        <Button variant="outline" size="sm" className="flex items-center gap-1" aria-label="Replace Album Art">
+          <FileImage size={16} /> Replace Art
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">

@@ -46,15 +46,6 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
           
           {updateAlbumArtDialog}
           
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-1"
-            aria-label="Replace Album Art"
-          >
-            <FileImage size={16} /> Replace Art
-          </Button>
-          
           {onDeleteAlbum && (
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogTrigger asChild>

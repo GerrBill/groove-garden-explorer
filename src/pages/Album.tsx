@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -306,8 +307,8 @@ const Album = () => {
               updateAlbumArtDialog={
                 isAdmin ? (
                   <UpdateAlbumArtDialog 
-                    albumId={id}
-                    currentImage={album.image_url}
+                    albumId={id!}
+                    currentImage={album.image_url || ''}
                     onImageUpdated={handleAlbumArtUpdated}
                   />
                 ) : null
