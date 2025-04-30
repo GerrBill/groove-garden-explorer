@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 import { Track as TrackType } from '@/types/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
+
 interface Track {
   id: string;
   title: string;
@@ -18,6 +19,7 @@ interface Track {
   trackId: string;
   audio_path?: string;
 }
+
 interface TrackListProps {
   tracks: Track[];
   onToggleLike?: (trackId: string) => void;
@@ -25,6 +27,7 @@ interface TrackListProps {
   albumName?: string;
   onDeleteTrack?: (trackId: string) => void;
 }
+
 const TrackList: React.FC<TrackListProps> = ({
   tracks,
   onToggleLike,
@@ -32,12 +35,9 @@ const TrackList: React.FC<TrackListProps> = ({
   albumName,
   onDeleteTrack
 }) => {
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
       toast({
@@ -87,6 +87,7 @@ const TrackList: React.FC<TrackListProps> = ({
       });
     }
   };
+
   const handlePlayClick = (track: Track) => {
     const fetchTrackDetails = async (trackId: string) => {
       try {
@@ -128,20 +129,22 @@ const TrackList: React.FC<TrackListProps> = ({
     };
     fetchTrackDetails(track.trackId);
   };
-  return <ScrollArea className="w-full h-[calc(100vh-400px)]">
-      <div className="w-full">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[4%]">#</TableHead>
-              <TableHead className="w-[40%]">Title</TableHead>
-              <TableHead className="w-[30%] hidden md:table-cell">Album</TableHead>
-              <TableHead className="w-[16%]"></TableHead>
-              <TableHead className="w-[10%] text-right"><Clock size={16} /></TableHead>
-            </TableRow>
-          </TableHeader>
+
+  return (
+    <div className="w-full relative">
+      <Table>
+        <TableHeader className="sticky top-0 bg-zinc-900 z-10">
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-[4%]">#</TableHead>
+            <TableHead className="w-[50%]">Title</TableHead>
+            <TableHead className="w-[30%] hidden md:table-cell">Album</TableHead>
+            <TableHead className="w-[16%]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <ScrollArea className="h-[calc(100vh-350px)]">
           <TableBody>
-            {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => <TableRow key={track.id || `track-${index}`} className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
+            {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
+              <TableRow key={track.id || `track-${index}`} className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
                 <td className="w-[4%] px-[10px]">
                   <div className="flex items-center">
                     <span className="group-hover:hidden">{index + 1}</span>
@@ -150,7 +153,7 @@ const TrackList: React.FC<TrackListProps> = ({
                     </button>
                   </div>
                 </td>
-                <td className="w-[40%]">
+                <td className="w-[50%]">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
                       <Music size={16} className="text-zinc-400" />
@@ -170,26 +173,36 @@ const TrackList: React.FC<TrackListProps> = ({
                       <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                     </button>
                     
-                    {track.trackId && <>
-                      <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
-                      {user && onDeleteTrack && <button className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" onClick={() => track.trackId && onDeleteTrack(track.trackId)} aria-label="Delete track">
-                          <Trash2 size={16} />
-                        </button>}
-                    </>}
+                    {track.trackId && (
+                      <>
+                        <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                        {user && onDeleteTrack && (
+                          <button 
+                            className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" 
+                            onClick={() => track.trackId && onDeleteTrack(track.trackId)} 
+                            aria-label="Delete track"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </td>
-                <td className="w-[10%] text-right">
-                  <span className="whitespace-nowrap">{track.duration}</span>
-                </td>
-              </TableRow>) : <TableRow>
-                <td colSpan={5} className="text-center text-zinc-400 py-8">
+              </TableRow>
+            )) : (
+              <TableRow>
+                <td colSpan={4} className="text-center text-zinc-400 py-8">
                   No tracks available for this album. Add some tracks!
                 </td>
-              </TableRow>}
+              </TableRow>
+            )}
           </TableBody>
-        </Table>
-        <div className="h-32"></div>
-      </div>
-    </ScrollArea>;
+        </ScrollArea>
+      </Table>
+      <div className="h-4"></div>
+    </div>
+  );
 };
+
 export default TrackList;

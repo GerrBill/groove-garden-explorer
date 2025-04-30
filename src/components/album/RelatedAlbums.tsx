@@ -13,8 +13,8 @@ const RelatedAlbums: React.FC<RelatedAlbumsProps> = ({ album, isMobile }) => {
   if (!album) return null;
 
   return (
-    <div className="w-full px-6 py-4">
-      <h3 className="text-xl font-bold mb-4">More by {album.artist}</h3>
+    <div className="w-full px-6 pt-1 pb-2">
+      <h3 className="text-xl font-bold mb-3">More by {album.artist}</h3>
       <ScrollArea className="w-full">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-2">
           {[1, 2, 3, 4].map((i) => (

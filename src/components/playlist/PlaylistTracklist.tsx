@@ -1,11 +1,12 @@
 import React from 'react';
-import { Clock, MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { Track as TrackType } from '@/types/supabase';
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 interface PlaylistTrack {
   id: string;
   title: string;
@@ -18,22 +19,21 @@ interface PlaylistTrack {
   albumName?: string | null;
   position: number;
 }
+
 interface PlaylistTracklistProps {
   tracks: PlaylistTrack[];
   isLoading: boolean;
   onRemoveTrack?: (trackId: string) => void;
 }
+
 const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   tracks,
   isLoading,
   onRemoveTrack
 }) => {
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
       toast({
@@ -66,6 +66,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
       });
     }
   };
+
   const handlePlayClick = (track: PlaylistTrack) => {
     const fetchTrackDetails = async (trackId: string) => {
       try {
@@ -107,20 +108,23 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
     };
     fetchTrackDetails(track.trackId);
   };
-  return <ScrollArea className="w-full h-[calc(100vh-400px)]">
-      <div className="w-full">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[4%]">#</TableHead>
-              <TableHead className="w-[40%]">Title</TableHead>
-              <TableHead className="w-[30%] hidden md:table-cell">Album</TableHead>
-              <TableHead className="w-[16%]"></TableHead>
-              <TableHead className="w-[10%] text-right"><Clock size={16} /></TableHead>
-            </TableRow>
-          </TableHeader>
+
+  return (
+    <div className="w-full relative">
+      <Table>
+        <TableHeader className="sticky top-0 bg-zinc-900 z-10">
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-[4%]">#</TableHead>
+            <TableHead className="w-[50%]">Title</TableHead>
+            <TableHead className="w-[30%] hidden md:table-cell">Album</TableHead>
+            <TableHead className="w-[16%]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <ScrollArea className="h-[calc(100vh-350px)]">
           <TableBody>
-            {isLoading ? [...Array(5)].map((_, i) => <TableRow key={i}>
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <TableRow key={i}>
                   <td className="w-6 h-6 bg-zinc-800 animate-pulse rounded"></td>
                   <td>
                     <div className="flex items-center gap-3">
@@ -135,10 +139,11 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                     <div className="w-20 h-4 bg-zinc-800 animate-pulse rounded"></div>
                   </td>
                   <td></td>
-                  <td>
-                    <div className="w-10 h-4 bg-zinc-800 animate-pulse rounded ml-auto"></div>
-                  </td>
-                </TableRow>) : tracks.length > 0 ? tracks.map(track => <TableRow key={track.id} className={`group ${track.isPlaying ? 'text-orange-600' : 'text-white'}`}>
+                </TableRow>
+              ))
+            ) : tracks.length > 0 ? (
+              tracks.map(track => (
+                <TableRow key={track.id} className={`group ${track.isPlaying ? 'text-orange-600' : 'text-white'}`}>
                   <td className="w-[4%] px-[10px]">
                     <div className="flex items-center">
                       <span className="group-hover:hidden">{track.position}</span>
@@ -147,7 +152,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                       </button>
                     </div>
                   </td>
-                  <td className="w-[40%]">
+                  <td className="w-[50%]">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
                         <Music size={16} className="text-zinc-400" />
@@ -163,32 +168,43 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                   </td>
                   <td className="w-[16%]">
                     <div className="flex items-center gap-2">
-                      <button className={`${track.isLiked ? 'text-orange-600' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => handleToggleLike(track.trackId)}>
+                      <button 
+                        className={`${track.isLiked ? 'text-orange-600' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} 
+                        onClick={() => handleToggleLike(track.trackId)}
+                      >
                         <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
                       </button>
                       
-                      {onRemoveTrack && <button className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white" onClick={() => onRemoveTrack(track.id)} aria-label="Remove from playlist">
+                      {onRemoveTrack && (
+                        <button 
+                          className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white" 
+                          onClick={() => onRemoveTrack(track.id)} 
+                          aria-label="Remove from playlist"
+                        >
                           <Trash2 size={16} />
-                        </button>}
-                    </div>
-                  </td>
-                  <td className="w-[10%] text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="whitespace-nowrap">{track.duration}</span>
+                        </button>
+                      )}
+                      
                       <button className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white">
                         <MoreHorizontal size={16} />
                       </button>
                     </div>
                   </td>
-                </TableRow>) : <TableRow>
-                <td colSpan={5} className="text-center text-zinc-400 py-8">
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <td colSpan={4} className="text-center text-zinc-400 py-8">
                   This playlist doesn't have any tracks yet. Start adding some tracks!
                 </td>
-              </TableRow>}
+              </TableRow>
+            )}
           </TableBody>
-        </Table>
-        <div className="h-32"></div>
-      </div>
-    </ScrollArea>;
+        </ScrollArea>
+      </Table>
+      <div className="h-4"></div>
+    </div>
+  );
 };
+
 export default PlaylistTracklist;
