@@ -141,64 +141,62 @@ const TrackList: React.FC<TrackListProps> = ({
             <TableHead className="w-[15%] px-4 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
-        <ScrollArea className="h-[calc(100vh-350px)]">
-          <TableBody>
-            {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
-              <TableRow key={track.id || `track-${index}`} className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
-                <TableCell className="w-[5%] px-4">
-                  <div className="flex items-center">
-                    <span className="group-hover:hidden">{index + 1}</span>
-                    <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
-                      <Play size={14} />
-                    </button>
+        <TableBody>
+          {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
+            <TableRow key={track.id || `track-${index}`} className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
+              <TableCell className="w-[5%] px-4">
+                <div className="flex items-center">
+                  <span className="group-hover:hidden">{index + 1}</span>
+                  <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
+                    <Play size={14} />
+                  </button>
+                </div>
+              </TableCell>
+              <TableCell className="w-[55%] px-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
+                    <Music size={16} className="text-zinc-400" />
                   </div>
-                </TableCell>
-                <TableCell className="w-[55%] px-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
-                      <Music size={16} className="text-zinc-400" />
-                    </div>
-                    <div className="min-w-0 truncate">
-                      <div className="font-medium truncate">{track.title}</div>
-                      <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
-                    </div>
+                  <div className="min-w-0 truncate">
+                    <div className="font-medium truncate">{track.title}</div>
+                    <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
                   </div>
-                </TableCell>
-                <TableCell className="w-[25%] hidden md:table-cell text-zinc-400 truncate px-4">
-                  {albumName || 'Unknown Album'}
-                </TableCell>
-                <TableCell className="w-[15%] px-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
-                      <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
-                    </button>
-                    
-                    {track.trackId && (
-                      <>
-                        <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
-                        {user && onDeleteTrack && (
-                          <button 
-                            className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" 
-                            onClick={() => track.trackId && onDeleteTrack(track.trackId)} 
-                            aria-label="Delete track"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            )) : (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-zinc-400 py-8">
-                  No tracks available for this album. Add some tracks!
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </ScrollArea>
+                </div>
+              </TableCell>
+              <TableCell className="w-[25%] hidden md:table-cell text-zinc-400 truncate px-4">
+                {albumName || 'Unknown Album'}
+              </TableCell>
+              <TableCell className="w-[15%] px-4 text-right">
+                <div className="flex items-center justify-end gap-2">
+                  <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
+                    <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
+                  </button>
+                  
+                  {track.trackId && (
+                    <>
+                      <AddToPlaylistButton trackId={track.trackId} albumName={albumName} />
+                      {user && onDeleteTrack && (
+                        <button 
+                          className="text-red-500 opacity-0 group-hover:opacity-100 hover:text-red-400" 
+                          onClick={() => track.trackId && onDeleteTrack(track.trackId)} 
+                          aria-label="Delete track"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          )) : (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center text-zinc-400 py-8">
+                No tracks available for this album. Add some tracks!
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
       <div className="h-4"></div>
     </div>
