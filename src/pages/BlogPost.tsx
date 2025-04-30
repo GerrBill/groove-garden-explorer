@@ -283,37 +283,40 @@ const BlogPost = () => {
       
       // Delete the image from storage if it exists
       if (blogPost.image_url) {
-        // Extract the file path from the URL
-        const urlPath = new URL(blogPost.image_url);
-        const pathParts = urlPath.pathname.split('/');
-        
-        // Format: /storage/v1/object/public/images/blog/filename.jpg
-        // We need to extract just the path after "public/"
-        if (pathParts.includes('public')) {
-          const publicIndex = pathParts.indexOf('public');
-          if (publicIndex >= 0 && publicIndex < pathParts.length - 1) {
-            // Get the bucket and file path
-            const bucket = pathParts[publicIndex + 1]; // Usually "images"
-            const filePath = pathParts.slice(publicIndex + 2).join('/'); // The rest of the path
+        try {
+          // Extract bucket and file path from the image URL
+          const imageUrl = new URL(blogPost.image_url);
+          
+          // Parse the storage URL structure
+          // Format is typically: https://[project-ref].supabase.co/storage/v1/object/public/[bucket]/[filepath]
+          const pathSegments = imageUrl.pathname.split('/');
+          const publicIndex = pathSegments.indexOf('public');
+          
+          if (publicIndex !== -1 && publicIndex < pathSegments.length - 1) {
+            const bucket = pathSegments[publicIndex + 1]; // Get bucket name
+            const filePath = pathSegments.slice(publicIndex + 2).join('/'); // Get file path
+            
+            console.log(`Attempting to delete image - Bucket: ${bucket}, Path: ${filePath}`);
             
             if (bucket && filePath) {
-              console.log(`Attempting to delete image from bucket: ${bucket}, path: ${filePath}`);
               const { error: storageError } = await supabase.storage
                 .from(bucket)
                 .remove([filePath]);
-                
+              
               if (storageError) {
                 console.error('Error deleting image from storage:', storageError);
-                // Continue with deletion of the article even if image delete fails
               } else {
                 console.log('Successfully deleted image from storage');
               }
             }
           }
+        } catch (imageError) {
+          console.error('Error parsing image URL:', imageError);
+          // Continue with article deletion even if image deletion fails
         }
       }
       
-      // Then delete the article itself
+      // Delete the article itself
       const { error: articleError } = await supabase
         .from('blog_articles')
         .delete()
