@@ -35,11 +35,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!window.confirm(`Are you sure you want to delete "${article.title}"?`)) {
-      return;
-    }
-    
-    // Delete the article and its comments
+    // Delete the article and its comments without confirmation
     await deleteBlogArticle(
       article.id,
       null, // Not using the image URL parameter

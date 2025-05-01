@@ -16,7 +16,6 @@ import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { deleteBlogArticle } from '@/utils/blogUtils';
 
 const ADMIN_EMAILS = [
@@ -37,7 +36,6 @@ const BlogPost = () => {
   const [newComment, setNewComment] = useState('');
   const [commentUsername, setCommentUsername] = useState('');
   const [isPostingComment, setIsPostingComment] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -267,25 +265,14 @@ const BlogPost = () => {
     }
   };
 
-  // Updated handleDeleteArticle function
-  const handleDeleteArticle = async () => {
+  // Direct delete without confirmation
+  const handleDeleteArticle = () => {
     if (!blogPost?.id) return;
 
-    try {
-      setLoading(true);
-      const success = await deleteBlogArticle(blogPost.id, null, () => {
-        navigate('/blog');
-      });
-      
-      if (!success) {
-        setLoading(false);
-      }
-      // Note: no need to set loading to false on success as we'll navigate away
-    } catch (error) {
-      console.error('Error in handleDeleteArticle:', error);
-      setLoading(false);
-      setDeleteDialogOpen(false);
-    }
+    setLoading(true);
+    deleteBlogArticle(blogPost.id, null, () => {
+      navigate('/blog');
+    });
   };
 
   return (
@@ -370,32 +357,14 @@ const BlogPost = () => {
                       </Button>
                     </EditArticleDialog>
 
-                    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          className="flex items-center gap-1"
-                        >
-                          <Trash2 size={16} /> Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Article</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this article? This will also remove all comments.
-                            This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleDeleteArticle} className="bg-red-600 hover:bg-red-700">
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button 
+                      size="sm" 
+                      variant="destructive" 
+                      className="flex items-center gap-1"
+                      onClick={handleDeleteArticle}
+                    >
+                      <Trash2 size={16} /> Delete
+                    </Button>
                   </div>
                 )}
               </div>
