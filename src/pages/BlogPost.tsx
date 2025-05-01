@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -351,7 +350,7 @@ const BlogPost = () => {
       />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
-        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
+        <div className="max-w-[90%] mx-auto bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
           {loading ? (
             <div className="space-y-4">
               <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>
