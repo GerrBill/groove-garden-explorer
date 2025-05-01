@@ -41,33 +41,50 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
     }
     
     try {
+      console.log("Starting delete operation for article:", article.id);
+      
       // Delete the comments first
       const { error: commentsError } = await supabase
         .from('blog_comments')
         .delete()
         .eq('article_id', article.id);
       
-      if (commentsError) throw commentsError;
+      if (commentsError) {
+        console.error("Error deleting comments:", commentsError);
+        throw commentsError;
+      }
+      
+      console.log("Comments deleted successfully");
       
       // Delete the image from storage if it exists
-      if (article.image_url) {
+      if (article.image_url && article.image_url.includes('supabase.co')) {
         try {
-          const imageUrl = new URL(article.image_url);
-          const pathSegments = imageUrl.pathname.split('/');
-          const publicIndex = pathSegments.indexOf('public');
+          console.log("Attempting to delete image:", article.image_url);
           
-          if (publicIndex !== -1 && publicIndex < pathSegments.length - 1) {
-            const bucket = pathSegments[publicIndex + 1]; 
-            const filePath = pathSegments.slice(publicIndex + 2).join('/');
+          // Extract the bucket name and file path from the URL
+          const urlParts = article.image_url.split('/storage/v1/object/public/');
+          if (urlParts.length > 1) {
+            const pathParts = urlParts[1].split('/', 1);
+            const bucket = pathParts[0];
+            const filePath = urlParts[1].substring(bucket.length + 1);
+            
+            console.log("Parsed image data:", { bucket, filePath });
             
             if (bucket && filePath) {
-              await supabase.storage
+              const { error: storageError, data } = await supabase.storage
                 .from(bucket)
                 .remove([filePath]);
+              
+              if (storageError) {
+                console.error("Error deleting image from storage:", storageError);
+              } else {
+                console.log("Image deleted successfully:", data);
+              }
             }
           }
         } catch (imageError) {
-          console.error('Error parsing image URL:', imageError);
+          console.error('Error parsing or deleting image:', imageError);
+          // Continue with article deletion even if image deletion fails
         }
       }
       
@@ -77,7 +94,12 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
         .delete()
         .eq('id', article.id);
       
-      if (articleError) throw articleError;
+      if (articleError) {
+        console.error("Error deleting article:", articleError);
+        throw articleError;
+      }
+      
+      console.log("Article deleted successfully");
       
       toast({
         title: "Article deleted",

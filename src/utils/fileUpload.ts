@@ -22,6 +22,8 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
   const filePath = `${folder}/${fileName}`;
   
   try {
+    console.log(`Uploading file to ${folder}/${fileName}`);
+    
     // Check if the images bucket exists, if not create it
     const { data: buckets } = await supabase.storage.listBuckets();
     if (!buckets?.find(bucket => bucket.name === 'images')) {
@@ -29,6 +31,7 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
         public: true,
         fileSizeLimit: 5242880, // 5MB
       });
+      console.log("Created 'images' bucket");
     }
 
     // Upload the image file to Supabase Storage
@@ -44,6 +47,8 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
       console.error('Error uploading image:', error);
       throw error;
     }
+    
+    console.log("File uploaded successfully:", data);
 
     // Get the public URL for the uploaded image
     const { data: urlData } = supabase.storage

@@ -271,6 +271,7 @@ const BlogPost = () => {
 
     try {
       setLoading(true);
+      console.log("Starting delete operation for blog post:", blogPost.id);
       
       // First, delete any comments associated with the article
       const { error: commentsError } = await supabase
@@ -278,39 +279,41 @@ const BlogPost = () => {
         .delete()
         .eq('article_id', blogPost.id);
       
-      if (commentsError) throw commentsError;
+      if (commentsError) {
+        console.error("Error deleting comments:", commentsError);
+        throw commentsError;
+      }
+      
+      console.log("Comments deleted successfully");
       
       // Delete the image from storage if it exists
-      if (blogPost.image_url) {
+      if (blogPost.image_url && blogPost.image_url.includes('supabase.co')) {
         try {
-          // Extract bucket and file path from the image URL
-          const imageUrl = new URL(blogPost.image_url);
+          console.log("Attempting to delete image:", blogPost.image_url);
           
-          // Parse the storage URL structure
-          // Format is typically: https://[project-ref].supabase.co/storage/v1/object/public/[bucket]/[filepath]
-          const pathSegments = imageUrl.pathname.split('/');
-          const publicIndex = pathSegments.indexOf('public');
-          
-          if (publicIndex !== -1 && publicIndex < pathSegments.length - 1) {
-            const bucket = pathSegments[publicIndex + 1]; // Get bucket name
-            const filePath = pathSegments.slice(publicIndex + 2).join('/'); // Get file path
+          // Extract the bucket name and file path from the URL
+          const urlParts = blogPost.image_url.split('/storage/v1/object/public/');
+          if (urlParts.length > 1) {
+            const pathParts = urlParts[1].split('/', 1);
+            const bucket = pathParts[0];
+            const filePath = urlParts[1].substring(bucket.length + 1);
             
-            console.log(`Attempting to delete image - Bucket: ${bucket}, Path: ${filePath}`);
+            console.log("Parsed image data:", { bucket, filePath });
             
             if (bucket && filePath) {
-              const { error: storageError } = await supabase.storage
+              const { error: storageError, data } = await supabase.storage
                 .from(bucket)
                 .remove([filePath]);
               
               if (storageError) {
-                console.error('Error deleting image from storage:', storageError);
+                console.error("Error deleting image from storage:", storageError);
               } else {
-                console.log('Successfully deleted image from storage');
+                console.log("Image deleted successfully:", data);
               }
             }
           }
         } catch (imageError) {
-          console.error('Error parsing image URL:', imageError);
+          console.error('Error parsing or deleting image:', imageError);
           // Continue with article deletion even if image deletion fails
         }
       }
@@ -321,7 +324,12 @@ const BlogPost = () => {
         .delete()
         .eq('id', blogPost.id);
       
-      if (articleError) throw articleError;
+      if (articleError) {
+        console.error("Error deleting article:", articleError);
+        throw articleError;
+      }
+      
+      console.log("Article deleted successfully");
       
       toast({
         title: "Article deleted",
