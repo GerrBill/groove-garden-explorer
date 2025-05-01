@@ -267,12 +267,13 @@ const BlogPost = () => {
     }
   };
 
+  // Updated handleDeleteArticle function
   const handleDeleteArticle = async () => {
     if (!blogPost?.id) return;
 
     try {
       setLoading(true);
-      const success = await deleteBlogArticle(blogPost.id, blogPost.image_url, () => {
+      const success = await deleteBlogArticle(blogPost.id, null, () => {
         navigate('/blog');
       });
       

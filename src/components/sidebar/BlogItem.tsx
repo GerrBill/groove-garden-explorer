@@ -39,10 +39,10 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
       return;
     }
     
-    // Use the utility function to delete the article
+    // Delete the article and its comments
     await deleteBlogArticle(
-      article.id, 
-      article.image_url,
+      article.id,
+      null, // Not using the image URL parameter
       () => {
         // Force sidebar refresh by reloading the page
         window.location.href = '/blog';
