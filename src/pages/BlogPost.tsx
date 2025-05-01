@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { deleteBlogArticle } from '@/utils/blogUtils';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -271,80 +272,16 @@ const BlogPost = () => {
 
     try {
       setLoading(true);
-      console.log("Starting delete operation for blog post:", blogPost.id);
-      
-      // First, delete any comments associated with the article
-      const { error: commentsError } = await supabase
-        .from('blog_comments')
-        .delete()
-        .eq('article_id', blogPost.id);
-      
-      if (commentsError) {
-        console.error("Error deleting comments:", commentsError);
-        throw commentsError;
-      }
-      
-      console.log("Comments deleted successfully");
-      
-      // Delete the image from storage if it exists
-      if (blogPost.image_url && blogPost.image_url.includes('supabase.co')) {
-        try {
-          console.log("Attempting to delete image:", blogPost.image_url);
-          
-          // Extract the bucket name and file path from the URL
-          const urlParts = blogPost.image_url.split('/storage/v1/object/public/');
-          if (urlParts.length > 1) {
-            const pathParts = urlParts[1].split('/', 1);
-            const bucket = pathParts[0];
-            const filePath = urlParts[1].substring(bucket.length + 1);
-            
-            console.log("Parsed image data:", { bucket, filePath });
-            
-            if (bucket && filePath) {
-              const { error: storageError, data } = await supabase.storage
-                .from(bucket)
-                .remove([filePath]);
-              
-              if (storageError) {
-                console.error("Error deleting image from storage:", storageError);
-              } else {
-                console.log("Image deleted successfully:", data);
-              }
-            }
-          }
-        } catch (imageError) {
-          console.error('Error parsing or deleting image:', imageError);
-          // Continue with article deletion even if image deletion fails
-        }
-      }
-      
-      // Delete the article itself
-      const { error: articleError } = await supabase
-        .from('blog_articles')
-        .delete()
-        .eq('id', blogPost.id);
-      
-      if (articleError) {
-        console.error("Error deleting article:", articleError);
-        throw articleError;
-      }
-      
-      console.log("Article deleted successfully");
-      
-      toast({
-        title: "Article deleted",
-        description: "The article has been successfully deleted",
+      const success = await deleteBlogArticle(blogPost.id, blogPost.image_url, () => {
+        navigate('/blog');
       });
       
-      navigate('/blog');
+      if (!success) {
+        setLoading(false);
+      }
+      // Note: no need to set loading to false on success as we'll navigate away
     } catch (error) {
-      console.error('Error deleting article:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the article",
-        variant: "destructive"
-      });
-    } finally {
+      console.error('Error in handleDeleteArticle:', error);
       setLoading(false);
       setDeleteDialogOpen(false);
     }

@@ -3,9 +3,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { deleteBlogArticle } from '@/utils/blogUtils';
 
 interface BlogArticle {
   id: string;
@@ -40,82 +39,15 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
       return;
     }
     
-    try {
-      console.log("Starting delete operation for article:", article.id);
-      
-      // Delete the comments first
-      const { error: commentsError } = await supabase
-        .from('blog_comments')
-        .delete()
-        .eq('article_id', article.id);
-      
-      if (commentsError) {
-        console.error("Error deleting comments:", commentsError);
-        throw commentsError;
+    // Use the utility function to delete the article
+    await deleteBlogArticle(
+      article.id, 
+      article.image_url,
+      () => {
+        // Force sidebar refresh by reloading the page
+        window.location.href = '/blog';
       }
-      
-      console.log("Comments deleted successfully");
-      
-      // Delete the image from storage if it exists
-      if (article.image_url && article.image_url.includes('supabase.co')) {
-        try {
-          console.log("Attempting to delete image:", article.image_url);
-          
-          // Extract the bucket name and file path from the URL
-          const urlParts = article.image_url.split('/storage/v1/object/public/');
-          if (urlParts.length > 1) {
-            const pathParts = urlParts[1].split('/', 1);
-            const bucket = pathParts[0];
-            const filePath = urlParts[1].substring(bucket.length + 1);
-            
-            console.log("Parsed image data:", { bucket, filePath });
-            
-            if (bucket && filePath) {
-              const { error: storageError, data } = await supabase.storage
-                .from(bucket)
-                .remove([filePath]);
-              
-              if (storageError) {
-                console.error("Error deleting image from storage:", storageError);
-              } else {
-                console.log("Image deleted successfully:", data);
-              }
-            }
-          }
-        } catch (imageError) {
-          console.error('Error parsing or deleting image:', imageError);
-          // Continue with article deletion even if image deletion fails
-        }
-      }
-      
-      // Delete the article itself
-      const { error: articleError } = await supabase
-        .from('blog_articles')
-        .delete()
-        .eq('id', article.id);
-      
-      if (articleError) {
-        console.error("Error deleting article:", articleError);
-        throw articleError;
-      }
-      
-      console.log("Article deleted successfully");
-      
-      toast({
-        title: "Article deleted",
-        description: "The article has been successfully deleted",
-      });
-      
-      // Force sidebar refresh by reloading the page
-      window.location.href = '/blog';
-    } catch (error) {
-      console.error('Error deleting article:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the article",
-        variant: "destructive"
-      });
-    }
+    );
   };
   
   return (
@@ -123,7 +55,14 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
       <div className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-900 cursor-pointer group relative">
         <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden flex items-center justify-center bg-zinc-700">
           {article.image_url ? (
-            <img src={article.image_url} alt={article.title} className="w-full h-full object-cover" />
+            <img 
+              src={article.image_url} 
+              alt={article.title} 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+              }}
+            />
           ) : (
             <span className="text-sm font-medium text-white">{article.title[0]}</span>
           )}
