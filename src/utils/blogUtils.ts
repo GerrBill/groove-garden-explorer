@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 /**
  * Deletes a blog article and its associated comments
  * @param articleId The ID of the article to delete
+ * @param imageUrl Unused parameter, kept for backward compatibility
  * @param onSuccess Callback function to execute upon successful deletion
  */
 export const deleteBlogArticle = async (
@@ -16,7 +17,7 @@ export const deleteBlogArticle = async (
     console.log("Starting delete operation for article:", articleId);
     
     // Delete the comments first
-    const { error: commentsError } = await supabase
+    const { data: commentDeleteData, error: commentsError } = await supabase
       .from('blog_comments')
       .delete()
       .eq('article_id', articleId);
@@ -26,10 +27,10 @@ export const deleteBlogArticle = async (
       throw commentsError;
     }
     
-    console.log("Comments deleted successfully");
+    console.log("Comments deleted successfully", commentDeleteData);
     
     // Delete the article itself
-    const { error: articleError } = await supabase
+    const { data: articleDeleteData, error: articleError } = await supabase
       .from('blog_articles')
       .delete()
       .eq('id', articleId);
@@ -39,7 +40,7 @@ export const deleteBlogArticle = async (
       throw articleError;
     }
     
-    console.log("Article deleted successfully");
+    console.log("Article deleted successfully", articleDeleteData);
     
     toast({
       title: "Article deleted",

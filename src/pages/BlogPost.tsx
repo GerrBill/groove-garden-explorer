@@ -269,10 +269,17 @@ const BlogPost = () => {
   const handleDeleteArticle = () => {
     if (!blogPost?.id) return;
 
+    console.log("Delete button clicked for blog post:", blogPost.id);
+    
     setLoading(true);
-    deleteBlogArticle(blogPost.id, null, () => {
-      navigate('/blog');
-    });
+    deleteBlogArticle(
+      blogPost.id, 
+      null, 
+      () => {
+        console.log("Delete success callback triggered in BlogPost");
+        navigate('/blog');
+      }
+    );
   };
 
   return (

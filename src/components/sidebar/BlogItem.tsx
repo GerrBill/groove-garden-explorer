@@ -35,12 +35,15 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Delete the article and its comments without confirmation
+    console.log("Delete clicked for article:", article.id);
+    
+    // Delete the article and refresh the page afterward
     await deleteBlogArticle(
       article.id,
-      null, // Not using the image URL parameter
+      null,
       () => {
-        // Force sidebar refresh by reloading the page
+        console.log("Delete success callback triggered");
+        // Force a hard refresh of the page to update the sidebar
         window.location.href = '/blog';
       }
     );
