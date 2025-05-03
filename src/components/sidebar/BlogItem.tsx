@@ -36,6 +36,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
+  const [imageError, setImageError] = useState(false);
   
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -70,17 +71,21 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
     setIsDeleting(false);
   };
   
+  // Placeholder image URL
+  const placeholderImage = '/placeholder.svg';
+  
   return (
     <Link to={`/blog/${article.id}`} className="block">
       <div className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-900 cursor-pointer group relative">
         <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden flex items-center justify-center bg-zinc-700">
-          {article.image_url ? (
+          {article.image_url && !imageError ? (
             <img 
               src={article.image_url} 
               alt={article.title} 
               className="w-full h-full object-cover" 
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                console.error("Error loading image:", article.image_url);
+                setImageError(true);
               }}
             />
           ) : (

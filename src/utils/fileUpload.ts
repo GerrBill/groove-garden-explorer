@@ -18,7 +18,7 @@ export const fileToBase64 = (file: File): Promise<string> => {
 export const uploadImageFile = async (file: File, folder: string): Promise<string> => {
   if (!file) {
     console.error('No file provided for upload');
-    return '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+    return '/placeholder.svg';
   }
 
   // Validate file type
@@ -77,7 +77,7 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
   } catch (error) {
     console.error('Error in uploadImageFile:', error);
     // Return a placeholder image URL if upload fails
-    return '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+    return '/placeholder.svg';
   }
 };
 

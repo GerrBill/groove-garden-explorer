@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
@@ -41,6 +41,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const [isDeleting, setIsDeleting] = React.useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [imageError, setImageError] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,14 +81,15 @@ const BlogCard: React.FC<BlogCardProps> = ({
       <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
         <div className="relative">
           {/* Card image */}
-          <div className="aspect-video w-full overflow-hidden">
-            {image ? (
+          <div className="aspect-video w-full overflow-hidden bg-zinc-800">
+            {image && !imageError ? (
               <img 
                 src={image} 
                 alt={title} 
                 className="w-full h-full object-cover transition-transform hover:scale-105 duration-300" 
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                  console.error("Error loading image:", image);
+                  setImageError(true);
                 }}
               />
             ) : (

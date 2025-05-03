@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Upload } from 'lucide-react';
 
@@ -12,6 +12,13 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
   imagePreview, 
   handleFileChange 
 }) => {
+  const [hasError, setHasError] = useState(false);
+
+  // Reset error state when imagePreview changes
+  useEffect(() => {
+    setHasError(false);
+  }, [imagePreview]);
+
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium">Featured Image</label>
@@ -21,19 +28,22 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
             <Input
               type="file"
               accept="image/*"
-              onChange={handleFileChange}
+              onChange={(e) => {
+                handleFileChange(e);
+                setHasError(false);
+              }}
               className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
               key={imagePreview || 'upload-key'} // Force input to reset when preview changes
               data-testid="image-upload-input"
             />
-            {imagePreview ? (
+            {imagePreview && !hasError ? (
               <img 
                 src={imagePreview}
                 alt="Article preview" 
                 className="w-full h-full object-cover" 
                 onError={(e) => {
                   console.error('Error loading image preview');
-                  (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                  setHasError(true);
                 }}
               />
             ) : (
@@ -44,7 +54,7 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
               </div>
             )}
           </div>
-          {imagePreview && (
+          {imagePreview && !hasError && (
             <p className="text-xs text-gray-500 mt-1">Click on the image to replace it</p>
           )}
         </div>
