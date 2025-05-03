@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import ArticleImageUpload from './ArticleImageUpload';
 import RichTextEditor from './RichTextEditor';
 import { useToast } from '@/hooks/use-toast';
+import { Spinner } from "@/components/ui/spinner";
 
 interface ArticleFormValues {
   title: string;
@@ -42,6 +44,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
 }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(imageUrl || null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<ArticleFormValues>({
@@ -54,14 +57,25 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
     }
   });
 
+  // Update form values when initialValues change
+  useEffect(() => {
+    if (initialValues) {
+      console.log('Setting form values:', initialValues);
+      form.reset(initialValues);
+    }
+  }, [initialValues, form]);
+  
   // Update image preview when imageUrl prop changes
   useEffect(() => {
     if (imageUrl) {
+      console.log('Setting image preview from URL:', imageUrl);
       setImagePreview(imageUrl);
     }
   }, [imageUrl]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsImageUploading(true);
+    
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
@@ -72,6 +86,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
           description: "Please select a valid image file",
           variant: "destructive"
         });
+        setIsImageUploading(false);
         return;
       }
       
@@ -82,6 +97,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
           description: "Maximum file size is 5MB",
           variant: "destructive"
         });
+        setIsImageUploading(false);
         return;
       }
       
@@ -92,11 +108,22 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result as string);
+        setIsImageUploading(false);
+      };
+      reader.onerror = () => {
+        toast({
+          title: "Error",
+          description: "Failed to preview image",
+          variant: "destructive"
+        });
+        setIsImageUploading(false);
       };
       reader.readAsDataURL(file);
 
       // Log file details
       console.log('Image file selected:', file.name, 'Size:', file.size, 'Type:', file.type);
+    } else {
+      setIsImageUploading(false);
     }
   };
 
@@ -119,12 +146,14 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
         <ArticleImageUpload 
           imagePreview={imagePreview} 
-          handleFileChange={handleImageChange} 
+          handleFileChange={handleImageChange}
+          isLoading={isImageUploading}
         />
 
         <FormField
           control={form.control}
           name="title"
+          rules={{ required: "Title is required" }}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium">Article Title</FormLabel>
@@ -155,6 +184,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
           <FormField
             control={form.control}
             name="content"
+            rules={{ required: "Content is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -188,6 +218,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
           <FormField
             control={form.control}
             name="author"
+            rules={{ required: "Author is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium">Author</FormLabel>
@@ -217,7 +248,14 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
             type="submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Article' : 'Create Article')}
+            {isSubmitting ? (
+              <>
+                <Spinner size="sm" className="mr-2" />
+                {isEditing ? 'Updating...' : 'Creating...'}
+              </>
+            ) : (
+              isEditing ? 'Update Article' : 'Create Article'
+            )}
           </Button>
         </div>
       </form>

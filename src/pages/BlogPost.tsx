@@ -18,6 +18,7 @@ import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { useQueryClient } from '@tanstack/react-query';
+import { Spinner } from "@/components/ui/spinner";
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -60,6 +61,11 @@ const BlogPost = () => {
 
       console.log('Fetched blog post:', data);
       setBlogPost(data as BlogArticle);
+      
+      // Set image preview if image exists
+      if (data?.image_url) {
+        setImagePreview(data.image_url);
+      }
       
       // Fetch comments for this post
       fetchComments();
@@ -325,6 +331,19 @@ const BlogPost = () => {
     }
   };
 
+  // Handle article update callback
+  const handleArticleUpdated = () => {
+    console.log("Article updated, refreshing data...");
+    fetchBlogPost();
+    queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+    queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+    
+    toast({
+      title: "Article updated",
+      description: "The article has been successfully updated"
+    });
+  };
+
   // Modified delete handler without confirmation that doesn't use window.location.reload()
   const handleDeleteArticle = async () => {
     if (!blogPost?.id || isDeleting) return;
@@ -422,7 +441,12 @@ const BlogPost = () => {
                               onClick={handleReplaceImage}
                               disabled={!imageFile || isReplacing}
                             >
-                              {isReplacing ? 'Updating...' : 'Update Image'}
+                              {isReplacing ? (
+                                <>
+                                  <Spinner size="sm" className="mr-2" />
+                                  Updating...
+                                </>
+                              ) : 'Update Image'}
                             </Button>
                           </div>
                         </div>
@@ -431,7 +455,7 @@ const BlogPost = () => {
                     
                     <EditArticleDialog 
                       article={blogPost}
-                      onArticleUpdated={fetchBlogPost}
+                      onArticleUpdated={handleArticleUpdated}
                     >
                       <Button 
                         size="sm" 

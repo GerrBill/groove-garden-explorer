@@ -8,6 +8,7 @@ import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { BlogArticle } from '@/types/supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { Spinner } from "@/components/ui/spinner";
 
 interface EditArticleDialogProps {
   children: React.ReactNode;
@@ -62,6 +63,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       
       // Generate excerpt if content changed (use first 150 chars of content)
       const excerpt = values.content
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
@@ -70,6 +72,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         .substring(0, 150) + '...';
       
       console.log('Updating article with image URL:', imageUrl);
+      console.log('Generated excerpt:', excerpt);
       
       // Create the update object with all fields
       const updateData = {
@@ -148,14 +151,21 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
             Make changes to your article below. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <ArticleForm 
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          onCancel={() => setOpen(false)}
-          initialValues={articleToFormValues()}
-          imageUrl={article.image_url}
-          isEditing={true}
-        />
+        {isSubmitting ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <Spinner size="lg" className="mb-4" />
+            <p className="text-center text-muted-foreground">Saving your changes...</p>
+          </div>
+        ) : (
+          <ArticleForm 
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+            onCancel={() => setOpen(false)}
+            initialValues={articleToFormValues()}
+            imageUrl={article.image_url}
+            isEditing={true}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
