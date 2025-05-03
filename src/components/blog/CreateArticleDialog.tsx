@@ -39,8 +39,23 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       // Upload image if provided
       if (values.imageFile) {
         console.log('Uploading image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
+        
+        // Validate file type
+        if (!values.imageFile.type.startsWith('image/')) {
+          throw new Error('Invalid file type. Only images are allowed.');
+        }
+        
+        // Validate file size (max 5MB)
+        if (values.imageFile.size > 5 * 1024 * 1024) {
+          throw new Error('File too large. Maximum size is 5MB.');
+        }
+        
         imageUrl = await uploadImageFile(values.imageFile, 'blog');
         console.log('Image uploaded successfully:', imageUrl);
+        
+        if (!imageUrl) {
+          throw new Error('Failed to upload image');
+        }
       } else {
         console.log('No image file provided, using default');
       }
@@ -68,6 +83,7 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       }).select('id').single();
       
       if (error) {
+        console.error('Supabase insert error:', error);
         throw error;
       }
       
@@ -93,7 +109,7 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       console.error('Error creating article:', error);
       toast({
         title: "Error",
-        description: "Failed to create article. Please try again.",
+        description: `Failed to create article: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     } finally {

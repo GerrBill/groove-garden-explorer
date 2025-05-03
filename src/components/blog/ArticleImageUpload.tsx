@@ -24,12 +24,17 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
               key={imagePreview || 'upload-key'} // Force input to reset when preview changes
+              data-testid="image-upload-input"
             />
             {imagePreview ? (
               <img 
                 src={imagePreview}
                 alt="Article preview" 
                 className="w-full h-full object-cover" 
+                onError={(e) => {
+                  console.error('Error loading image preview');
+                  (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                }}
               />
             ) : (
               <div className="flex flex-col items-center justify-center">

@@ -15,7 +15,7 @@ import { useAuth } from '@/context/AuthContext';
 import EditArticleDialog from '@/components/blog/EditArticleDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
-import { uploadImageFile } from '@/utils/fileUpload';
+import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -176,44 +176,91 @@ const BlogPost = () => {
     return formatted;
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log('File selected for replacement:', file.name, 'Size:', file.size, 'Type:', file.type);
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        console.log('File selected for replacement:', file.name, 'Size:', file.size, 'Type:', file.type);
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: "Invalid file type",
+            description: "Please select an image file",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "File too large",
+            description: "Image must be smaller than 5MB",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        setImageFile(file);
+        
+        // Generate preview
+        const base64 = await fileToBase64(file);
+        setImagePreview(base64);
+        
+        console.log('Image preview generated successfully');
+      } catch (error) {
+        console.error('Error handling file selection:', error);
+        toast({
+          title: "Error",
+          description: "Failed to process the selected image",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   const handleReplaceImage = async () => {
-    if (!imageFile || !blogPost) return;
+    if (!imageFile || !blogPost) {
+      console.error('No image file selected or blog post not loaded');
+      return;
+    }
     
     try {
       setIsReplacing(true);
       
       console.log('Replacing image with file:', imageFile.name, 'Size:', imageFile.size, 'Type:', imageFile.type);
+      
+      // Upload the new image to Supabase storage
       const imageUrl = await uploadImageFile(imageFile, 'blog');
       console.log('New image uploaded to:', imageUrl);
       
-      const { error } = await supabase
+      if (!imageUrl) {
+        throw new Error('Failed to upload image');
+      }
+      
+      // Update the blog post with the new image URL
+      const { data, error } = await supabase
         .from('blog_articles')
         .update({ image_url: imageUrl })
-        .eq('id', blogPost.id);
+        .eq('id', blogPost.id)
+        .select();
         
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
       
-      console.log('Database updated with new image URL');
+      console.log('Database updated with new image URL:', imageUrl);
+      console.log('Update response:', data);
       
+      // Update local state with the new image URL
       setBlogPost({
         ...blogPost,
         image_url: imageUrl
       });
 
-      // Invalidate queries to refresh data
+      // Invalidate queries to refresh data across the app
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
       
@@ -222,6 +269,7 @@ const BlogPost = () => {
         description: "Image has been replaced.",
       });
       
+      // Close the dialog
       setOpenImageDialog(false);
     } catch (error) {
       console.error('Error replacing image:', error);
@@ -232,8 +280,6 @@ const BlogPost = () => {
       });
     } finally {
       setIsReplacing(false);
-      setImageFile(null);
-      setImagePreview(null);
     }
   };
   
@@ -354,13 +400,17 @@ const BlogPost = () => {
                         </DialogHeader>
                         <div className="space-y-4">
                           <ArticleImageUpload 
-                            imagePreview={imagePreview} 
+                            imagePreview={imagePreview || blogPost.image_url} 
                             handleFileChange={handleFileChange} 
                           />
                           <div className="flex justify-end gap-2">
                             <Button 
                               variant="outline" 
-                              onClick={() => setOpenImageDialog(false)}
+                              onClick={() => {
+                                setOpenImageDialog(false);
+                                setImageFile(null);
+                                setImagePreview(null);
+                              }}
                             >
                               Cancel
                             </Button>

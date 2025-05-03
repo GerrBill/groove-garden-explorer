@@ -21,6 +21,12 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
     return '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
   }
 
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    console.error('Invalid file type:', file.type);
+    throw new Error('Invalid file type. Only images are allowed.');
+  }
+
   // Generate a unique filename for storage
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
@@ -59,6 +65,10 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
     const { data: urlData } = supabase.storage
       .from('images')
       .getPublicUrl(filePath);
+    
+    if (!urlData || !urlData.publicUrl) {
+      throw new Error('Failed to get public URL for uploaded file');
+    }
     
     // Log the URL to help with debugging
     console.log('Generated public URL:', urlData.publicUrl);
