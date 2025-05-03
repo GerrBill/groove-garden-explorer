@@ -89,7 +89,9 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
               }}
             />
           ) : (
-            <span className="text-sm font-medium text-white">{article.title[0]}</span>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-sm font-medium text-white">{article.title[0].toUpperCase()}</span>
+            </div>
           )}
         </div>
         

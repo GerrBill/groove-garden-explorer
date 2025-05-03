@@ -94,7 +94,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-                <span className="text-2xl font-medium text-white">{title[0]}</span>
+                <span className="text-2xl font-medium text-white">{title[0].toUpperCase()}</span>
               </div>
             )}
           </div>

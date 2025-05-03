@@ -13,10 +13,12 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
   handleFileChange 
 }) => {
   const [hasError, setHasError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Reset error state when imagePreview changes
   useEffect(() => {
     setHasError(false);
+    setLoading(true);
   }, [imagePreview]);
 
   return (
@@ -29,11 +31,15 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
               type="file"
               accept="image/*"
               onChange={(e) => {
-                handleFileChange(e);
-                setHasError(false);
+                if (e.target.files && e.target.files.length > 0) {
+                  console.log("File selected:", e.target.files[0].name);
+                  handleFileChange(e);
+                  setHasError(false);
+                  setLoading(true);
+                }
               }}
               className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
-              key={imagePreview || 'upload-key'} // Force input to reset when preview changes
+              key={imagePreview ? `upload-${Date.now()}` : 'upload-key'} // Better key to force input reset
               data-testid="image-upload-input"
             />
             {imagePreview && !hasError ? (
@@ -42,15 +48,24 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
                 alt="Article preview" 
                 className="w-full h-full object-cover" 
                 onError={(e) => {
-                  console.error('Error loading image preview');
+                  console.error('Error loading image preview:', imagePreview);
                   setHasError(true);
                 }}
+                onLoad={() => setLoading(false)}
+                style={{ display: loading ? 'none' : 'block' }}
               />
             ) : (
               <div className="flex flex-col items-center justify-center">
                 <Upload className="w-6 h-6 text-gray-500" />
-                <span className="mt-2 text-sm text-gray-500">Upload featured image</span>
+                <span className="mt-2 text-sm text-gray-500">
+                  {hasError ? 'Error loading image - Click to select a new one' : 'Upload featured image'}
+                </span>
                 <span className="mt-1 text-xs text-gray-400">Recommended size: 1200 x 800px</span>
+              </div>
+            )}
+            {loading && imagePreview && !hasError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="animate-pulse text-sm text-gray-500">Loading image...</div>
               </div>
             )}
           </div>

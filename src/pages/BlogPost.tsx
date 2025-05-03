@@ -271,6 +271,10 @@ const BlogPost = () => {
       
       // Close the dialog
       setOpenImageDialog(false);
+      
+      // Reset the image file and preview
+      setImageFile(null);
+      setImagePreview(null);
     } catch (error) {
       console.error('Error replacing image:', error);
       toast({

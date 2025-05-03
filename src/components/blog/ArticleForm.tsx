@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import ArticleImageUpload from './ArticleImageUpload';
 import RichTextEditor from './RichTextEditor';
+import { toast } from 'react-toastify';
 
 interface ArticleFormValues {
   title: string;
@@ -64,6 +64,26 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select a valid image file",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Maximum file size is 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
       
       const reader = new FileReader();
       reader.onload = () => {
