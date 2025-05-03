@@ -16,26 +16,7 @@ export const deleteBlogArticle = async (
   try {
     console.log("Starting delete operation for article ID:", articleId);
     
-    // First verify that the article exists before attempting deletion
-    let { data: articleBefore, error: fetchError } = await supabase
-      .from('blog_articles')
-      .select('*')
-      .eq('id', articleId)
-      .single();
-      
-    if (fetchError) {
-      console.error("Error finding article:", fetchError);
-      toast({
-        title: "Error",
-        description: "Could not find the article to delete",
-        variant: "destructive"
-      });
-      return false;
-    }
-    
-    console.log("Found article to delete:", articleBefore);
-    
-    // Delete the comments first
+    // Delete the comments first to avoid foreign key constraints
     const { error: commentsError } = await supabase
       .from('blog_comments')
       .delete()
@@ -53,7 +34,7 @@ export const deleteBlogArticle = async (
     
     console.log("Comments deleted successfully");
     
-    // Delete the article
+    // Delete the article with proper error handling
     const { error: deleteError } = await supabase
       .from('blog_articles')
       .delete()
@@ -63,34 +44,14 @@ export const deleteBlogArticle = async (
       console.error("Error deleting article:", deleteError);
       toast({
         title: "Error",
-        description: "Failed to delete the article",
+        description: `Failed to delete the article: ${deleteError.message}`,
         variant: "destructive"
       });
       return false;
-    }
-    
-    // Verify that the article was actually deleted
-    const { data: articleAfter, error: verifyError } = await supabase
-      .from('blog_articles')
-      .select('*')
-      .eq('id', articleId)
-      .maybeSingle();
-    
-    if (verifyError) {
-      console.error("Error verifying deletion:", verifyError);
-    } else if (articleAfter) {
-      console.error("Article still exists after deletion attempt:", articleAfter);
-      toast({
-        title: "Error",
-        description: "Article deletion failed - article still exists",
-        variant: "destructive"
-      });
-      return false;
-    } else {
-      console.log("Article deletion verified - article no longer exists in database");
     }
     
     // Successfully deleted
+    console.log("Article deleted successfully");
     toast({
       title: "Article deleted",
       description: "The article has been successfully deleted",

@@ -38,28 +38,22 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
     
     console.log("Delete clicked for article:", article.id);
     
-    if (confirm(`Are you sure you want to delete "${article.title}"? This cannot be undone.`)) {
-      toast({
-        title: "Deleting article...",
-        description: "Please wait while we delete this article"
-      });
-      
-      const success = await deleteBlogArticle(
-        article.id,
-        null,
-        () => {
-          console.log("Delete success callback triggered");
-          // Use a short delay to allow the toast to be visible
-          setTimeout(() => {
-            console.log("Reloading page to reflect deletion");
-            window.location.reload();
-          }, 800);
-        }
-      );
-      
-      if (!success) {
-        console.error("Failed to delete article, see logs for details");
+    toast({
+      title: "Deleting article...",
+      description: "Please wait while we delete this article"
+    });
+    
+    const success = await deleteBlogArticle(
+      article.id,
+      article.image_url,
+      () => {
+        // Force page reload after deletion
+        window.location.reload();
       }
+    );
+    
+    if (!success) {
+      console.error("Failed to delete article, see logs for details");
     }
   };
   
