@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
-import { uploadImageFile } from '@/utils/fileUpload';
+import { uploadImageFile, imageToBase64 } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,11 +34,11 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
   const handleSubmit = async (values: ArticleFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png'; // Default image
+      let imageUrl = '/placeholder.svg'; // Default image
 
       // Upload image if provided
       if (values.imageFile) {
-        console.log('Uploading image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
+        console.log('Processing image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
         
         // Validate file type
         if (!values.imageFile.type.startsWith('image/')) {
@@ -50,11 +50,18 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
           throw new Error('File too large. Maximum size is 5MB.');
         }
         
-        imageUrl = await uploadImageFile(values.imageFile, 'blog');
-        console.log('Image uploaded successfully:', imageUrl);
-        
-        if (!imageUrl) {
-          throw new Error('Failed to upload image');
+        try {
+          // Upload to Supabase Storage and get URL
+          imageUrl = await uploadImageFile(values.imageFile, 'blog');
+          console.log('Image uploaded successfully:', imageUrl);
+        } catch (error) {
+          console.error('Failed to upload image to storage:', error);
+          toast({
+            title: "Image Upload Issue",
+            description: "Continuing with placeholder image",
+            variant: "destructive"
+          });
+          imageUrl = '/placeholder.svg';
         }
       } else {
         console.log('No image file provided, using default');

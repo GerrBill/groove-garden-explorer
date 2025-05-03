@@ -233,7 +233,7 @@ const BlogPost = () => {
       
       // Upload the new image to Supabase storage
       const imageUrl = await uploadImageFile(imageFile, 'blog');
-      console.log('New image uploaded to:', imageUrl);
+      console.log('New image uploaded successfully to:', imageUrl);
       
       if (!imageUrl) {
         throw new Error('Failed to upload image');

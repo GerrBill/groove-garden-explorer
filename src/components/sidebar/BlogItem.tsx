@@ -71,9 +71,6 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
     setIsDeleting(false);
   };
   
-  // Placeholder image URL
-  const placeholderImage = '/placeholder.svg';
-  
   return (
     <Link to={`/blog/${article.id}`} className="block">
       <div className="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-900 cursor-pointer group relative">
@@ -90,7 +87,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-sm font-medium text-white">{article.title[0].toUpperCase()}</span>
+              <span className="text-sm font-medium text-white">{article.title[0]?.toUpperCase() || 'B'}</span>
             </div>
           )}
         </div>

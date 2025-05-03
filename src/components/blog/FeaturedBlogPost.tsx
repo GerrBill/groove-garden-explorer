@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight } from 'lucide-react';
@@ -28,19 +28,24 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
   const formattedDate = formatDistanceToNow(new Date(date), {
     addSuffix: true
   });
-
+  
+  const [imageError, setImageError] = useState(false);
+  
+  // Placeholder image URL
+  const placeholderImage = '/placeholder.svg';
+  
   return (
     <div className="bg-zinc-900 rounded-lg overflow-hidden w-full mb-8">
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/3">
           <div className="h-full">
             <img 
-              src={image} 
+              src={imageError ? placeholderImage : image} 
               alt={title} 
               className="w-full h-full object-cover object-center" 
-              onError={e => {
-                // Fallback to default image if loading fails
-                (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+              onError={() => {
+                console.error("Error loading featured blog image:", image);
+                setImageError(true);
               }} 
             />
           </div>

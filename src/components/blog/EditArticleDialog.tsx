@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
-import { uploadImageFile } from '@/utils/fileUpload';
+import { uploadImageFile, imageToBase64 } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { BlogArticle } from '@/types/supabase';
 import { useQueryClient } from '@tanstack/react-query';
@@ -38,13 +38,24 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
   const handleSubmit = async (values: ArticleFormValues) => {
     setIsSubmitting(true);
     try {
-      let imageUrl = article.image_url; // Keep existing image by default
+      let imageUrl = article.image_url || '/placeholder.svg'; // Keep existing image by default
       
       // Upload new image if provided
       if (values.imageFile) {
-        console.log('Uploading new image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
-        imageUrl = await uploadImageFile(values.imageFile, 'blog');
-        console.log('Image uploaded successfully:', imageUrl);
+        console.log('Processing new image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
+        
+        try {
+          // Upload to Supabase Storage and get URL
+          imageUrl = await uploadImageFile(values.imageFile, 'blog');
+          console.log('New image uploaded successfully:', imageUrl);
+        } catch (error) {
+          console.error('Failed to upload new image:', error);
+          toast({
+            title: "Image Upload Issue",
+            description: "Keeping existing image",
+            variant: "destructive"
+          });
+        }
       } else {
         console.log('No new image file provided, keeping existing image:', imageUrl);
       }
@@ -58,7 +69,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
         .substring(0, 150) + '...';
       
-      console.log('Submitting article update with image:', imageUrl);
+      console.log('Updating article with image URL:', imageUrl);
       
       // Create the update object with all fields
       const updateData = {
@@ -118,7 +129,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
     return {
       title: article.title,
       subtitle: article.subtitle || '',
-      content: article.content,
+      content: article.content || '',
       category: article.category || 'General',
       author: article.author,
       imageFile: null,

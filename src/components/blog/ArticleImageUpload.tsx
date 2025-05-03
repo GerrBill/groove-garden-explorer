@@ -17,8 +17,10 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
 
   // Reset error state when imagePreview changes
   useEffect(() => {
-    setHasError(false);
-    setLoading(true);
+    if (imagePreview) {
+      setHasError(false);
+      setLoading(true);
+    }
   }, [imagePreview]);
 
   return (
@@ -32,14 +34,14 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
               accept="image/*"
               onChange={(e) => {
                 if (e.target.files && e.target.files.length > 0) {
-                  console.log("File selected:", e.target.files[0].name);
+                  console.log("File selected for upload:", e.target.files[0].name);
                   handleFileChange(e);
                   setHasError(false);
                   setLoading(true);
                 }
               }}
               className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
-              key={imagePreview ? `upload-${Date.now()}` : 'upload-key'} // Better key to force input reset
+              key={imagePreview ? `upload-${Date.now()}` : 'upload-key'} // Force input reset on preview change
               data-testid="image-upload-input"
             />
             {imagePreview && !hasError ? (

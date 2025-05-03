@@ -35,7 +35,7 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
   try {
     console.log(`Uploading file to ${folder}/${fileName}, file size: ${file.size} bytes, type: ${file.type}`);
     
-    // Check if the images bucket exists, if not create it
+    // Create images bucket if it doesn't exist
     const { data: buckets } = await supabase.storage.listBuckets();
     if (!buckets?.find(bucket => bucket.name === 'images')) {
       await supabase.storage.createBucket('images', {
@@ -70,15 +70,27 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
       throw new Error('Failed to get public URL for uploaded file');
     }
     
-    // Log the URL to help with debugging
     console.log('Generated public URL:', urlData.publicUrl);
     
     return urlData.publicUrl;
   } catch (error) {
     console.error('Error in uploadImageFile:', error);
-    // Return a placeholder image URL if upload fails
-    return '/placeholder.svg';
+    throw new Error(`Image upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+};
+
+// Convert image to base64 for direct storage in the database
+export const imageToBase64 = async (imageFile: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = (error) => {
+      reject(error);
+    };
+    reader.readAsDataURL(imageFile);
+  });
 };
 
 // Function to upload an audio file to Supabase Storage
