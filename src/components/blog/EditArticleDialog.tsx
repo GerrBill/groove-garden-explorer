@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
-import { uploadImageFile, imageToBase64 } from '@/utils/fileUpload';
+import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { BlogArticle } from '@/types/supabase';
 import { useQueryClient } from '@tanstack/react-query';
