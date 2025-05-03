@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import ArticleImageUpload from './ArticleImageUpload';
 import RichTextEditor from './RichTextEditor';
-import { toast } from 'react-toastify';
+import { toast } from '@/hooks/use-toast';
 
 interface ArticleFormValues {
   title: string;
