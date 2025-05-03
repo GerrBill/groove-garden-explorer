@@ -274,6 +274,12 @@ const BlogPost = () => {
     console.log("Delete button clicked for blog post:", blogPost.id);
     setIsDeleting(true);
     
+    const confirmed = window.confirm("Are you sure you want to delete this article?");
+    if (!confirmed) {
+      setIsDeleting(false);
+      return;
+    }
+    
     toast({
       title: "Deleting article...",
       description: "Please wait while we delete this article"

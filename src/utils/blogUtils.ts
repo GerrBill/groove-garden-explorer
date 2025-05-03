@@ -16,6 +16,23 @@ export const deleteBlogArticle = async (
   try {
     console.log("Starting delete operation for article ID:", articleId);
     
+    // First, verify that the article actually exists before attempting deletion
+    const { data: articleExists, error: checkError } = await supabase
+      .from('blog_articles')
+      .select('id')
+      .eq('id', articleId)
+      .single();
+    
+    if (checkError || !articleExists) {
+      console.error("Article not found or error checking existence:", checkError);
+      toast({
+        title: "Error",
+        description: "Article could not be found. It may no longer exist.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
     // Check if comments exist before attempting to delete them
     const { data: comments, error: commentsCheckError } = await supabase
       .from('blog_comments')
@@ -47,27 +64,16 @@ export const deleteBlogArticle = async (
     }
     
     // Delete the article with proper error handling
-    const { error: deleteError, data: deleteData } = await supabase
+    const { error: deleteError } = await supabase
       .from('blog_articles')
       .delete()
-      .eq('id', articleId)
-      .select();
+      .eq('id', articleId);
     
     if (deleteError) {
       console.error("Error deleting article:", deleteError);
       toast({
         title: "Error",
         description: `Failed to delete the article: ${deleteError.message}`,
-        variant: "destructive"
-      });
-      return false;
-    }
-    
-    if (!deleteData || deleteData.length === 0) {
-      console.error("No article was deleted, possibly didn't exist or permission denied");
-      toast({
-        title: "Error",
-        description: "Article could not be deleted. It may no longer exist.",
         variant: "destructive"
       });
       return false;

@@ -46,6 +46,12 @@ const BlogCard: React.FC<BlogCardProps> = ({
     if (isDeleting) return;
     setIsDeleting(true);
     
+    const confirmed = window.confirm("Are you sure you want to delete this article?");
+    if (!confirmed) {
+      setIsDeleting(false);
+      return;
+    }
+    
     console.log("Delete clicked for article:", id);
     
     toast({

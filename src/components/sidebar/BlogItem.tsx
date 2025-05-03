@@ -44,6 +44,12 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
     console.log("Delete clicked for article:", article.id);
     setIsDeleting(true);
     
+    const confirmed = window.confirm("Are you sure you want to delete this article?");
+    if (!confirmed) {
+      setIsDeleting(false);
+      return;
+    }
+    
     toast({
       title: "Deleting article...",
       description: "Please wait while we delete this article"
