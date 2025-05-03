@@ -1,14 +1,17 @@
+
 import { useMemo, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarPlaylist from "./SidebarPlaylist";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AlbumItem from "./AlbumItem";
 import BlogItem from "./BlogItem";
+
 const Sidebar = () => {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState<'albums' | 'blogs' | 'playlists'>('albums');
+  const queryClient = useQueryClient();
 
   // Set active section based on location
   useEffect(() => {
@@ -53,9 +56,10 @@ const Sidebar = () => {
     enabled: activeSection === 'albums'
   });
 
-  // Get blog articles for the sidebar
+  // Get blog articles for the sidebar with automatic refetching
   const {
-    data: blogArticles
+    data: blogArticles,
+    refetch: refetchBlogArticles
   } = useQuery({
     queryKey: ['sidebar-blogs'],
     queryFn: async () => {
@@ -68,6 +72,13 @@ const Sidebar = () => {
     },
     enabled: activeSection === 'blogs'
   });
+  
+  // Handle blog article deletion
+  const handleBlogItemDeleted = () => {
+    queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+    refetchBlogArticles();
+  };
+
   const routes = useMemo(() => [{
     label: 'Albums',
     active: activeSection === 'albums',
@@ -81,6 +92,7 @@ const Sidebar = () => {
     active: activeSection === 'playlists',
     href: '/playlists'
   }], [activeSection]);
+  
   return <div className="flex h-full">
       <div className="hidden md:flex flex-col gap-y-2 bg-black h-full w-[300px] p-2 px-0">
         <div className="flex gap-2 px-5 py-[3px]">
@@ -110,11 +122,16 @@ const Sidebar = () => {
                 Recent Articles
               </div>
               <div className="space-y-1">
-                {blogArticles?.map(article => <BlogItem key={article.id} article={article} />)}
+                {blogArticles?.map(article => <BlogItem 
+                  key={article.id} 
+                  article={article} 
+                  onDeleted={handleBlogItemDeleted}
+                />)}
               </div>
             </>}
         </div>
       </div>
     </div>;
 };
+
 export default Sidebar;

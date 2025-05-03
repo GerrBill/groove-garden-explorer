@@ -6,6 +6,7 @@ import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface BlogArticle {
   id: string;
@@ -34,6 +35,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
   
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,12 +46,6 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
     console.log("Delete clicked for article:", article.id);
     setIsDeleting(true);
     
-    const confirmed = window.confirm("Are you sure you want to delete this article?");
-    if (!confirmed) {
-      setIsDeleting(false);
-      return;
-    }
-    
     toast({
       title: "Deleting article...",
       description: "Please wait while we delete this article"
@@ -59,6 +55,10 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
       article.id,
       article.image_url,
       () => {
+        // Invalidate both queries to refresh sidebar and main blog list
+        queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+        queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+        
         // Ensure onDeleted callback is called to refresh the sidebar list
         if (onDeleted) {
           console.log("Calling onDeleted callback for sidebar refresh");

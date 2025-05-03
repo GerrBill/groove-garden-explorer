@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import ArticleImageUpload from '@/components/blog/ArticleImageUpload';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { deleteBlogArticle } from '@/utils/blogUtils';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -42,6 +43,7 @@ const BlogPost = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
+  const queryClient = useQueryClient();
 
   const fetchBlogPost = async () => {
     setLoading(true);
@@ -267,18 +269,12 @@ const BlogPost = () => {
     }
   };
 
-  // Modified delete handler that doesn't use window.location.reload()
+  // Modified delete handler without confirmation that doesn't use window.location.reload()
   const handleDeleteArticle = async () => {
     if (!blogPost?.id || isDeleting) return;
 
     console.log("Delete button clicked for blog post:", blogPost.id);
     setIsDeleting(true);
-    
-    const confirmed = window.confirm("Are you sure you want to delete this article?");
-    if (!confirmed) {
-      setIsDeleting(false);
-      return;
-    }
     
     toast({
       title: "Deleting article...",
@@ -289,7 +285,11 @@ const BlogPost = () => {
       blogPost.id, 
       blogPost.image_url, 
       () => {
-        // Use navigate instead of window.location.reload()
+        // Invalidate both queries to refresh sidebar and blog list
+        queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+        queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+        
+        // Navigate back to the blog page
         console.log("Delete success callback triggered in BlogPost");
         navigate('/blog', { replace: true });
       }
@@ -308,7 +308,7 @@ const BlogPost = () => {
       />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
-        <div className="max-w-[90%] mx-auto bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
+        <div className="max-w-[600px] mx-auto bg-white dark:bg-gray-900 shadow-sm p-4 sm:p-8">
           {loading ? (
             <div className="space-y-4">
               <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>

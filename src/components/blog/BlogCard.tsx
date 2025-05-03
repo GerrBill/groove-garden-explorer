@@ -7,6 +7,7 @@ import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -39,6 +40,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const [isDeleting, setIsDeleting] = React.useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,12 +48,6 @@ const BlogCard: React.FC<BlogCardProps> = ({
     
     if (isDeleting) return;
     setIsDeleting(true);
-    
-    const confirmed = window.confirm("Are you sure you want to delete this article?");
-    if (!confirmed) {
-      setIsDeleting(false);
-      return;
-    }
     
     console.log("Delete clicked for article:", id);
     
@@ -64,7 +60,11 @@ const BlogCard: React.FC<BlogCardProps> = ({
       id,
       image,
       () => {
-        // Call onDeleted callback to refresh the parent component's list
+        // Invalidate both queries to refresh sidebar and main blog list
+        queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+        queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+        
+        // Call onDeleted callback to refresh the main blog list
         if (onDeleted) {
           console.log("Calling onDeleted callback for main blog list refresh");
           onDeleted();

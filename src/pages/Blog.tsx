@@ -13,6 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import CreateArticleDialog from '@/components/blog/CreateArticleDialog';
 import { BlogArticle } from '@/types/supabase';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -21,13 +22,12 @@ const ADMIN_EMAILS = [
 
 const Blog = () => {
   const [selectedTab, setSelectedTab] = useState('Blogs');
-  const [blogPosts, setBlogPosts] = useState<BlogArticle[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const sampleBlogPosts: BlogArticle[] = [
     {
@@ -98,55 +98,52 @@ const Blog = () => {
     }
   ];
 
-  const fetchBlogPosts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('blog_articles')
-        .select('id, title, excerpt, image_url, author, published_at, category, created_at')
-        .order('published_at', { ascending: false });
+  // Use Tanstack Query for blog posts
+  const { data: blogPosts = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['blog-posts'],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('blog_articles')
+          .select('id, title, excerpt, image_url, author, published_at, category, created_at')
+          .order('published_at', { ascending: false });
 
-      if (error) {
-        throw error;
-      }
+        if (error) {
+          throw error;
+        }
 
-      if (data && data.length > 0) {
-        console.log('Loaded blog posts:', data);
-        setBlogPosts(data as BlogArticle[]);
-      } else {
-        console.log('No blog posts found, using sample data');
-        setBlogPosts(sampleBlogPosts);
+        if (data && data.length > 0) {
+          console.log('Loaded blog posts:', data);
+          return data as BlogArticle[];
+        } else {
+          console.log('No blog posts found, using sample data');
+          return sampleBlogPosts;
+        }
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load blog posts. Using sample data instead.",
+          variant: "destructive"
+        });
+        return sampleBlogPosts;
       }
-      
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching blog posts:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load blog posts. Using sample data instead.",
-        variant: "destructive"
-      });
-      setBlogPosts(sampleBlogPosts);
-      setLoading(false);
     }
-  }, [toast]);
+  });
 
   // Handle article deletion locally without page reload
   const handleArticleDeleted = useCallback(() => {
     console.log("handleArticleDeleted called - refreshing blog posts");
-    fetchBlogPosts();
-  }, [fetchBlogPosts]);
-
-  useEffect(() => {
-    fetchBlogPosts();
-  }, [location.search, fetchBlogPosts]);
+    // Invalidate both queries
+    queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+    queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+    // Then refetch
+    refetch();
+  }, [refetch, queryClient]);
 
   const gridClass = isMobileView 
     ? "grid-cols-1"
     : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3";
-
-  const featuredPost = blogPosts.length > 0 ? blogPosts[0] : null;
-  const remainingPosts = blogPosts.length > 0 ? blogPosts.slice(1) : [];
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24">
@@ -171,7 +168,7 @@ const Blog = () => {
             )}
           </div>
           
-         {/* {featuredPost && (
+          {/* {featuredPost && (
             <HomeSection title="Featured Article">
               <FeaturedBlogPost
                 id={featuredPost.id}
