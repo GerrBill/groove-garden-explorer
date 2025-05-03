@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
+import { toast } from '@/hooks/use-toast';
 
 interface BlogArticle {
   id: string;
@@ -37,18 +38,28 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
     
     console.log("Delete clicked for article:", article.id);
     
-    if (confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
-      await deleteBlogArticle(
+    if (confirm(`Are you sure you want to delete "${article.title}"? This cannot be undone.`)) {
+      toast({
+        title: "Deleting article...",
+        description: "Please wait while we delete this article"
+      });
+      
+      const success = await deleteBlogArticle(
         article.id,
         null,
         () => {
           console.log("Delete success callback triggered");
+          // Use a short delay to allow the toast to be visible
           setTimeout(() => {
-            // Force a hard refresh of the page to update the sidebar
+            console.log("Reloading page to reflect deletion");
             window.location.reload();
-          }, 500);
+          }, 800);
         }
       );
+      
+      if (!success) {
+        console.error("Failed to delete article, see logs for details");
+      }
     }
   };
   

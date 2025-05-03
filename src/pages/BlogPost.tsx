@@ -271,16 +271,23 @@ const BlogPost = () => {
 
     console.log("Delete button clicked for blog post:", blogPost.id);
     
-    if (confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
+    if (confirm(`Are you sure you want to delete "${blogPost.title}"? This cannot be undone.`)) {
       setLoading(true);
+      toast({
+        title: "Deleting article...",
+        description: "Please wait while we delete this article"
+      });
+      
       deleteBlogArticle(
         blogPost.id, 
         null, 
         () => {
           console.log("Delete success callback triggered in BlogPost");
+          // Use a short delay to allow the toast to be visible
           setTimeout(() => {
+            console.log("Navigating to blog list");
             navigate('/blog');
-          }, 500);
+          }, 800);
         }
       );
     }
