@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -19,6 +19,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Add a ref to track if this is the initial auth check
+  const isInitialAuthCheck = useRef(true);
+  // Track the last sign-in time to avoid duplicate toasts
+  const lastSignInTime = useRef<number | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -27,18 +32,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in.",
-          });
-        }
+        // Only show toast notifications for explicit user actions, not automatic session refreshes
+        // And don't show during initial auth check
+        const currentTime = Date.now();
         
-        if (event === 'SIGNED_OUT') {
-          toast({
-            title: "Signed out",
-            description: "You have been signed out successfully.",
-          });
+        if (!isInitialAuthCheck.current) {
+          if (event === 'SIGNED_IN') {
+            // Avoid duplicate sign-in notifications within a short timeframe
+            if (!lastSignInTime.current || currentTime - lastSignInTime.current > 5000) {
+              toast({
+                title: "Welcome back!",
+                description: "You have successfully signed in.",
+              });
+              lastSignInTime.current = currentTime;
+            }
+          }
+          
+          if (event === 'SIGNED_OUT') {
+            toast({
+              title: "Signed out",
+              description: "You have been signed out successfully.",
+            });
+          }
         }
       }
     );
@@ -48,6 +63,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      // Mark initial auth check as complete
+      isInitialAuthCheck.current = false;
     });
 
     return () => {

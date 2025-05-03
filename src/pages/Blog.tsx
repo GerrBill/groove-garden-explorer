@@ -131,6 +131,11 @@ const Blog = () => {
     }
   };
 
+  // Handle article deletion locally without page reload
+  const handleArticleDeleted = () => {
+    fetchBlogPosts();
+  };
+
   useEffect(() => {
     fetchBlogPosts();
   }, [location.search]);
@@ -192,8 +197,8 @@ const Blog = () => {
               </div>
             ) : (
               <div className={`grid ${gridClass} gap-6`}>
-                {remainingPosts.length > 0 ? (
-                  remainingPosts.map((post) => (
+                {blogPosts.length > 0 ? (
+                  blogPosts.map((post) => (
                     <BlogCard 
                       key={post.id}
                       id={post.id}
@@ -203,6 +208,7 @@ const Blog = () => {
                       author={post.author}
                       date={post.published_at}
                       category={post.category}
+                      onDeleted={handleArticleDeleted}
                     />
                   ))
                 ) : (

@@ -36,6 +36,8 @@ const BlogPost = () => {
   const [newComment, setNewComment] = useState('');
   const [commentUsername, setCommentUsername] = useState('');
   const [isPostingComment, setIsPostingComment] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -265,26 +267,31 @@ const BlogPost = () => {
     }
   };
 
-  // Direct delete without confirmation
-  const handleDeleteArticle = () => {
-    if (!blogPost?.id) return;
+  // Modified delete handler that doesn't use window.location.reload()
+  const handleDeleteArticle = async () => {
+    if (!blogPost?.id || isDeleting) return;
 
     console.log("Delete button clicked for blog post:", blogPost.id);
+    setIsDeleting(true);
     
-    setLoading(true);
     toast({
       title: "Deleting article...",
       description: "Please wait while we delete this article"
     });
     
-    deleteBlogArticle(
+    const success = await deleteBlogArticle(
       blogPost.id, 
       blogPost.image_url, 
       () => {
+        // Use navigate instead of window.location.reload()
         console.log("Delete success callback triggered in BlogPost");
-        navigate('/blog');
+        navigate('/blog', { replace: true });
       }
     );
+    
+    if (!success) {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -374,6 +381,7 @@ const BlogPost = () => {
                       variant="destructive" 
                       className="flex items-center gap-1"
                       onClick={handleDeleteArticle}
+                      disabled={isDeleting}
                     >
                       <Trash2 size={16} /> Delete
                     </Button>

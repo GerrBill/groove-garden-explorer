@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -19,6 +19,7 @@ interface BlogArticle {
 
 interface BlogItemProps {
   article: BlogArticle;
+  onDeleted?: () => void; // Added callback for parent components to refresh
 }
 
 const ADMIN_EMAILS = [
@@ -26,17 +27,22 @@ const ADMIN_EMAILS = [
   "ghodgett59@gmail.com"
 ];
 
-const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
+const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
   // Format the date as "X days ago"
   const formattedDate = formatDistanceToNow(new Date(article.published_at), { addSuffix: true });
   const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
+  const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
+    if (isDeleting) return; // Prevent multiple deletion attempts
+    
     console.log("Delete clicked for article:", article.id);
+    setIsDeleting(true);
     
     toast({
       title: "Deleting article...",
@@ -47,14 +53,18 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
       article.id,
       article.image_url,
       () => {
-        // Force page reload after deletion
-        window.location.reload();
+        // Instead of reloading the page, call the onDeleted callback
+        if (onDeleted) {
+          onDeleted();
+        }
       }
     );
     
     if (!success) {
       console.error("Failed to delete article, see logs for details");
     }
+    
+    setIsDeleting(false);
   };
   
   return (
@@ -91,6 +101,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
             onClick={handleDelete}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full opacity-100 hover:bg-red-600 transition-opacity"
             aria-label="Delete article"
+            disabled={isDeleting}
           >
             <Trash2 size={16} className="text-white" />
           </button>

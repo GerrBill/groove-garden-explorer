@@ -1,16 +1,27 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
+import { Trash2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { deleteBlogArticle } from '@/utils/blogUtils';
+import { toast } from '@/hooks/use-toast';
+
+const ADMIN_EMAILS = [
+  "wjparker@outlook.com",
+  "ghodgett59@gmail.com"
+];
 
 interface BlogCardProps {
   id: string;
-  image: string;
+  image?: string | null;
   title: string;
-  excerpt: string;
+  excerpt?: string;
   author: string;
   date: string;
-  category: string;
+  category?: string;
+  onDeleted?: () => void;
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({
@@ -20,42 +31,102 @@ const BlogCard: React.FC<BlogCardProps> = ({
   excerpt,
   author,
   date,
-  category
+  category,
+  onDeleted
 }) => {
   const formattedDate = formatDistanceToNow(new Date(date), { addSuffix: true });
-  const imgSrc = image || '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+  const { user } = useAuth();
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
-  // Responsive: proper sizing and margin for blog cards
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isDeleting) return;
+    setIsDeleting(true);
+    
+    console.log("Delete clicked for article:", id);
+    
+    toast({
+      title: "Deleting article...",
+      description: "Please wait while we delete this article"
+    });
+    
+    const success = await deleteBlogArticle(
+      id,
+      image,
+      () => {
+        // Call onDeleted callback if provided
+        if (onDeleted) {
+          onDeleted();
+        }
+      }
+    );
+    
+    if (!success) {
+      console.error("Failed to delete article, see logs for details");
+    }
+    
+    setIsDeleting(false);
+  };
+
   return (
-    <Link to={`/blog/${id}`} className="group mx-auto my-4 min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-xs block">
-      <div className="bg-zinc-900 rounded-lg overflow-hidden h-full transition-all duration-300 hover:bg-zinc-800">
-        <div className="relative aspect-[16/8] overflow-hidden" style={{ maxHeight: '100px' }}>
-          <img 
-            src={imgSrc} 
-            alt={title} 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-            onError={(e) => {
-              console.error("Error loading image in BlogCard:", imgSrc);
-              (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
-            }}
-          />
-          <div className="absolute top-2 left-2 bg-theme-color text-white text-xs px-2 py-1 rounded-full">
-            {category}
+    <Link to={`/blog/${id}`} className="block">
+      <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="relative">
+          {/* Card image */}
+          <div className="aspect-video w-full overflow-hidden">
+            {image ? (
+              <img 
+                src={image} 
+                alt={title} 
+                className="w-full h-full object-cover transition-transform hover:scale-105 duration-300" 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-zinc-800">
+                <span className="text-2xl font-medium text-white">{title[0]}</span>
+              </div>
+            )}
           </div>
+          
+          {/* Category tag */}
+          {category && (
+            <div className="absolute top-2 left-2 bg-zinc-900/80 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
+              {category}
+            </div>
+          )}
+          
+          {/* Admin delete button */}
+          {isAdmin && (
+            <button 
+              onClick={handleDelete}
+              className="absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-700 text-white"
+              disabled={isDeleting}
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
         </div>
-        <div className="p-3">
-          <h3 className="text-base font-semibold text-white mb-1 group-hover:text-theme-color transition-colors">
-            {title}
-          </h3>
-          <p className="text-xs text-zinc-400 mb-2 line-clamp-2">
-            {excerpt}
-          </p>
+        
+        <CardContent className="p-4">
+          <h3 className="font-semibold text-base mb-1 line-clamp-2">{title}</h3>
+          
+          {excerpt && (
+            <p className="text-sm text-zinc-400 mb-2 line-clamp-2">
+              {excerpt.replace(/<[^>]*>/g, '')}
+            </p>
+          )}
+          
           <div className="flex items-center justify-between text-xs text-zinc-500">
             <span>{author}</span>
             <span>{formattedDate}</span>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 };
