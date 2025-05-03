@@ -265,21 +265,25 @@ const BlogPost = () => {
     }
   };
 
-  // Direct delete without confirmation
+  // Direct delete with confirmation
   const handleDeleteArticle = () => {
     if (!blogPost?.id) return;
 
     console.log("Delete button clicked for blog post:", blogPost.id);
     
-    setLoading(true);
-    deleteBlogArticle(
-      blogPost.id, 
-      null, 
-      () => {
-        console.log("Delete success callback triggered in BlogPost");
-        navigate('/blog');
-      }
-    );
+    if (confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
+      setLoading(true);
+      deleteBlogArticle(
+        blogPost.id, 
+        null, 
+        () => {
+          console.log("Delete success callback triggered in BlogPost");
+          setTimeout(() => {
+            navigate('/blog');
+          }, 500);
+        }
+      );
+    }
   };
 
   return (

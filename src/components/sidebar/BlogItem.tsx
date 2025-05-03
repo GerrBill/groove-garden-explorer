@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -37,16 +37,19 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
     
     console.log("Delete clicked for article:", article.id);
     
-    // Delete the article and refresh the page afterward
-    await deleteBlogArticle(
-      article.id,
-      null,
-      () => {
-        console.log("Delete success callback triggered");
-        // Force a hard refresh of the page to update the sidebar
-        window.location.href = '/blog';
-      }
-    );
+    if (confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
+      await deleteBlogArticle(
+        article.id,
+        null,
+        () => {
+          console.log("Delete success callback triggered");
+          setTimeout(() => {
+            // Force a hard refresh of the page to update the sidebar
+            window.location.reload();
+          }, 500);
+        }
+      );
+    }
   };
   
   return (
@@ -81,7 +84,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article }) => {
         {isAdmin && (
           <button 
             onClick={handleDelete}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-opacity"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full opacity-100 hover:bg-red-600 transition-opacity"
             aria-label="Delete article"
           >
             <Trash2 size={16} className="text-white" />
