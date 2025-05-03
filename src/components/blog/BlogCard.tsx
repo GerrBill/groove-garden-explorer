@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
@@ -38,6 +38,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();

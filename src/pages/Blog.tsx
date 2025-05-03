@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import TopNav from '@/components/navigation/TopNav';
 import HomeSection from '@/components/home/HomeSection';
@@ -98,7 +98,7 @@ const Blog = () => {
     }
   ];
 
-  const fetchBlogPosts = async () => {
+  const fetchBlogPosts = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -129,16 +129,17 @@ const Blog = () => {
       setBlogPosts(sampleBlogPosts);
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   // Handle article deletion locally without page reload
-  const handleArticleDeleted = () => {
+  const handleArticleDeleted = useCallback(() => {
+    console.log("handleArticleDeleted called - refreshing blog posts");
     fetchBlogPosts();
-  };
+  }, [fetchBlogPosts]);
 
   useEffect(() => {
     fetchBlogPosts();
-  }, [location.search]);
+  }, [location.search, fetchBlogPosts]);
 
   const gridClass = isMobileView 
     ? "grid-cols-1"
@@ -186,7 +187,7 @@ const Blog = () => {
 
           <HomeSection title="Latest Articles">
             {loading ? (
-              <div className={`grid ${gridClass} gap-6`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="w-full p-1 rounded-md">
                     <div className="aspect-video bg-zinc-800 rounded animate-pulse mb-2"></div>
