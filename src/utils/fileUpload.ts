@@ -45,7 +45,10 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
       console.log("Created 'images' bucket");
     }
 
-    // Upload the image file to Supabase Storage
+    // Directly convert to base64 as a fallback strategy
+    const base64Data = await fileToBase64(file);
+    
+    // Try uploading to storage
     const { data, error } = await supabase.storage
       .from('images')
       .upload(filePath, file, {
@@ -55,8 +58,10 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
       });
 
     if (error) {
-      console.error('Error uploading image:', error);
-      throw error;
+      console.error('Error uploading image to storage:', error);
+      // Return the base64 data as fallback
+      console.log('Using base64 fallback for image');
+      return base64Data;
     }
     
     console.log("File uploaded successfully:", data);
@@ -67,15 +72,21 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
       .getPublicUrl(filePath);
     
     if (!urlData || !urlData.publicUrl) {
-      throw new Error('Failed to get public URL for uploaded file');
+      console.log('Failed to get public URL - using base64 fallback');
+      return base64Data;
     }
     
     console.log('Generated public URL:', urlData.publicUrl);
-    
     return urlData.publicUrl;
   } catch (error) {
     console.error('Error in uploadImageFile:', error);
-    throw new Error(`Image upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    // Try to get base64 as fallback
+    try {
+      return await fileToBase64(file);
+    } catch (innerError) {
+      console.error('Failed to create base64 fallback:', innerError);
+      return '/placeholder.svg';
+    }
   }
 };
 

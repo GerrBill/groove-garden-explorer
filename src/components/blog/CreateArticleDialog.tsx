@@ -51,11 +51,14 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
         }
         
         try {
-          // Upload to Supabase Storage and get URL
+          // First convert to base64 as a fallback
+          const base64Image = await imageToBase64(values.imageFile);
+          
+          // Try to upload to Supabase Storage and get URL
           imageUrl = await uploadImageFile(values.imageFile, 'blog');
-          console.log('Image uploaded successfully:', imageUrl);
+          console.log('Image processed successfully:', imageUrl);
         } catch (error) {
-          console.error('Failed to upload image to storage:', error);
+          console.error('Failed to process image:', error);
           toast({
             title: "Image Upload Issue",
             description: "Continuing with placeholder image",
@@ -130,6 +133,9 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
         {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle>Create New Blog Post</DialogTitle>
+        </DialogHeader>
         <ScrollArea className="max-h-[calc(80vh-120px)] overflow-auto pr-4">
           <ArticleForm 
             isSubmitting={isSubmitting} 

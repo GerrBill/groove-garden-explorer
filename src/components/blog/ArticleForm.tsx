@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import ArticleImageUpload from './ArticleImageUpload';
 import RichTextEditor from './RichTextEditor';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ArticleFormValues {
   title: string;
@@ -43,6 +42,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
 }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(imageUrl || null);
+  const { toast } = useToast();
   
   const form = useForm<ArticleFormValues>({
     defaultValues: initialValues || {
@@ -64,7 +64,6 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setImageFile(file);
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
@@ -86,6 +85,10 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
         return;
       }
       
+      // Set the file for upload
+      setImageFile(file);
+      
+      // Create preview
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result as string);
