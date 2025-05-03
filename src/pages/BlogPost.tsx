@@ -179,6 +179,7 @@ const BlogPost = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('File selected for replacement:', file.name, 'Size:', file.size, 'Type:', file.type);
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -194,6 +195,7 @@ const BlogPost = () => {
     try {
       setIsReplacing(true);
       
+      console.log('Replacing image with file:', imageFile.name, 'Size:', imageFile.size, 'Type:', imageFile.type);
       const imageUrl = await uploadImageFile(imageFile, 'blog');
       console.log('New image uploaded to:', imageUrl);
       
@@ -210,6 +212,10 @@ const BlogPost = () => {
         ...blogPost,
         image_url: imageUrl
       });
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
       
       toast({
         title: "Success!",

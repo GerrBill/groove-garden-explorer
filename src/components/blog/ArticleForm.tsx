@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +53,13 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
     }
   });
 
+  // Update image preview when imageUrl prop changes
+  useEffect(() => {
+    if (imageUrl) {
+      setImagePreview(imageUrl);
+    }
+  }, [imageUrl]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -62,12 +70,29 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Log file details
+      console.log('Image file selected:', file.name, 'Size:', file.size, 'Type:', file.type);
     }
+  };
+
+  const handleFormSubmit = (values: ArticleFormValues) => {
+    // Add the selected image file to the form values
+    const formData = {
+      ...values,
+      imageFile: imageFile
+    };
+    
+    // Log the data being submitted
+    console.log('Submitting form with values:', formData);
+    console.log('Image file included:', imageFile ? imageFile.name : 'No file');
+    
+    onSubmit(formData);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
         <ArticleImageUpload 
           imagePreview={imagePreview} 
           handleFileChange={handleImageChange} 

@@ -16,13 +16,18 @@ export const fileToBase64 = (file: File): Promise<string> => {
 
 // Function to upload an image file to Supabase Storage
 export const uploadImageFile = async (file: File, folder: string): Promise<string> => {
+  if (!file) {
+    console.error('No file provided for upload');
+    return '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+  }
+
   // Generate a unique filename for storage
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
   const filePath = `${folder}/${fileName}`;
   
   try {
-    console.log(`Uploading file to ${folder}/${fileName}`);
+    console.log(`Uploading file to ${folder}/${fileName}, file size: ${file.size} bytes, type: ${file.type}`);
     
     // Check if the images bucket exists, if not create it
     const { data: buckets } = await supabase.storage.listBuckets();

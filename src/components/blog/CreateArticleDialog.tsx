@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -6,9 +7,12 @@ import ArticleForm from './ArticleForm';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useQueryClient } from '@tanstack/react-query';
+
 interface CreateArticleDialogProps {
   children: React.ReactNode;
 }
+
 interface ArticleFormValues {
   title: string;
   subtitle: string;
@@ -17,15 +21,16 @@ interface ArticleFormValues {
   author: string;
   imageFile?: File | null;
 }
+
 const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
   children
 }) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const handleSubmit = async (values: ArticleFormValues) => {
     setIsSubmitting(true);
     try {
@@ -33,34 +38,48 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
 
       // Upload image if provided
       if (values.imageFile) {
-        console.log('Uploading image file:', values.imageFile.name);
+        console.log('Uploading image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
         imageUrl = await uploadImageFile(values.imageFile, 'blog');
         console.log('Image uploaded successfully:', imageUrl);
+      } else {
+        console.log('No image file provided, using default');
       }
 
       // Generate excerpt if not provided (use first 150 chars of content)
-      const excerpt = values.content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/\[(.*?)\]\((.*?)\)/g, '$1').replace(/!\[(.*?)\]\((.*?)\)/g, '').replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2').substring(0, 150) + '...';
+      const excerpt = values.content
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+        .replace(/!\[(.*?)\]\((.*?)\)/g, '')
+        .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
+        .substring(0, 150) + '...';
+
+      console.log('Creating article with image URL:', imageUrl);
 
       // Insert article into database
-      const {
-        data,
-        error
-      } = await supabase.from('blog_articles').insert({
+      const { data, error } = await supabase.from('blog_articles').insert({
         title: values.title,
         subtitle: values.subtitle || null,
         content: values.content,
         excerpt: excerpt,
         image_url: imageUrl,
-        author: values.author,
+        author: values.author || 'Anonymous',
         category: values.category
       }).select('id').single();
+      
       if (error) {
         throw error;
       }
+      
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+      
       toast({
         title: "Success!",
         description: "Your article has been published."
       });
+      
       setOpen(false);
 
       // Navigate to the newly created article
@@ -81,16 +100,23 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       setIsSubmitting(false);
     }
   };
-  return <Dialog open={open} onOpenChange={setOpen}>
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl max-h-[80vh]">
-        
         <ScrollArea className="max-h-[calc(80vh-120px)] overflow-auto pr-4">
-          <ArticleForm isSubmitting={isSubmitting} onSubmit={handleSubmit} onCancel={() => setOpen(false)} />
+          <ArticleForm 
+            isSubmitting={isSubmitting} 
+            onSubmit={handleSubmit} 
+            onCancel={() => setOpen(false)} 
+          />
         </ScrollArea>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default CreateArticleDialog;

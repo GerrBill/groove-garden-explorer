@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +7,7 @@ import ArticleForm from './ArticleForm';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { BlogArticle } from '@/types/supabase';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface EditArticleDialogProps {
   children: React.ReactNode;
@@ -32,6 +33,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (values: ArticleFormValues) => {
     setIsSubmitting(true);
@@ -40,9 +42,11 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       
       // Upload new image if provided
       if (values.imageFile) {
-        console.log('Uploading new image file:', values.imageFile.name);
+        console.log('Uploading new image file:', values.imageFile.name, 'Size:', values.imageFile.size, 'Type:', values.imageFile.type);
         imageUrl = await uploadImageFile(values.imageFile, 'blog');
         console.log('Image uploaded successfully:', imageUrl);
+      } else {
+        console.log('No new image file provided, keeping existing image:', imageUrl);
       }
       
       // Generate excerpt if content changed (use first 150 chars of content)
@@ -54,14 +58,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
         .substring(0, 150) + '...';
       
-      console.log('Submitting article update with values:', {
-        title: values.title,
-        subtitle: values.subtitle,
-        content: values.content,
-        excerpt: excerpt,
-        imageUrl: imageUrl,
-        category: values.category
-      });
+      console.log('Submitting article update with image:', imageUrl);
       
       // Create the update object with all fields
       const updateData = {
@@ -88,6 +85,10 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       }
       
       console.log('Article updated successfully, response:', data);
+      
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
       
       toast({
         title: "Success!",
@@ -118,7 +119,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       title: article.title,
       subtitle: article.subtitle || '',
       content: article.content,
-      category: article.category,
+      category: article.category || 'General',
       author: article.author,
       imageFile: null,
     };

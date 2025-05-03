@@ -23,6 +23,7 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
               accept="image/*"
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
+              key={imagePreview || 'upload-key'} // Force input to reset when preview changes
             />
             {imagePreview ? (
               <img 
@@ -38,6 +39,9 @@ const ArticleImageUpload: React.FC<ArticleImageUploadProps> = ({
               </div>
             )}
           </div>
+          {imagePreview && (
+            <p className="text-xs text-gray-500 mt-1">Click on the image to replace it</p>
+          )}
         </div>
       </div>
     </div>
