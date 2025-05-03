@@ -103,15 +103,7 @@ export type Database = {
           id?: string
           user_name?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_article_id_fkey"
-            columns: ["article_id"]
-            isOneToOne: false
-            referencedRelation: "blog_articles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       playlist_tracks: {
         Row: {
@@ -271,6 +263,10 @@ export type Database = {
           content_param: string
         }
         Returns: Json
+      }
+      delete_blog_article: {
+        Args: { article_id_param: string }
+        Returns: boolean
       }
       get_comments_for_article: {
         Args: { article_id_param: string }
