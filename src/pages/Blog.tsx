@@ -145,7 +145,7 @@ const Blog = () => {
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full">
         <div className="px-4 py-4 max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 bg-slate-950">
             <h2 className="text-2xl font-bold">Latest Articles</h2>
             {isAdmin && <div className="ml-6">
                 <CreateArticleDialog>
