@@ -53,16 +53,13 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
       article.id,
       article.image_url,
       () => {
-        // Instead of reloading the page, call the onDeleted callback
+        // Ensure onDeleted callback is called to refresh the sidebar list
         if (onDeleted) {
+          console.log("Calling onDeleted callback for sidebar refresh");
           onDeleted();
         }
       }
     );
-    
-    if (!success) {
-      console.error("Failed to delete article, see logs for details");
-    }
     
     setIsDeleting(false);
   };
@@ -103,7 +100,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
             aria-label="Delete article"
             disabled={isDeleting}
           >
-            <Trash2 size={16} className="text-white" />
+            <Trash2 size={16} className={`text-white ${isDeleting ? 'opacity-50' : ''}`} />
           </button>
         )}
       </div>

@@ -57,16 +57,13 @@ const BlogCard: React.FC<BlogCardProps> = ({
       id,
       image,
       () => {
-        // Call onDeleted callback if provided
+        // Call onDeleted callback to refresh the parent component's list
         if (onDeleted) {
+          console.log("Calling onDeleted callback for main blog list refresh");
           onDeleted();
         }
       }
     );
-    
-    if (!success) {
-      console.error("Failed to delete article, see logs for details");
-    }
     
     setIsDeleting(false);
   };
@@ -107,7 +104,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
               className="absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-700 text-white"
               disabled={isDeleting}
             >
-              <Trash2 size={16} />
+              <Trash2 size={16} className={isDeleting ? 'opacity-50' : ''} />
             </button>
           )}
         </div>

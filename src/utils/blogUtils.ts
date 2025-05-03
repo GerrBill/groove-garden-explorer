@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 /**
  * Deletes a blog article and its associated comments
  * @param articleId The ID of the article to delete
- * @param imageUrl Unused parameter, kept for backward compatibility
+ * @param imageUrl Optional image URL associated with the article
  * @param onSuccess Callback function to execute upon successful deletion
  */
 export const deleteBlogArticle = async (
@@ -16,35 +16,58 @@ export const deleteBlogArticle = async (
   try {
     console.log("Starting delete operation for article ID:", articleId);
     
-    // Delete the comments first to avoid foreign key constraints
-    const { error: commentsError } = await supabase
+    // Check if comments exist before attempting to delete them
+    const { data: comments, error: commentsCheckError } = await supabase
       .from('blog_comments')
-      .delete()
+      .select('id')
       .eq('article_id', articleId);
-    
-    if (commentsError) {
-      console.error("Error deleting comments:", commentsError);
-      toast({
-        title: "Error",
-        description: "Failed to delete associated comments",
-        variant: "destructive"
-      });
-      return false;
+      
+    if (commentsCheckError) {
+      console.error("Error checking for comments:", commentsCheckError);
+      // Continue with article deletion even if comment check fails
     }
     
-    console.log("Comments deleted successfully");
+    // Only try to delete comments if they exist
+    if (comments && comments.length > 0) {
+      console.log(`Found ${comments.length} comments to delete`);
+      
+      const { error: commentsError } = await supabase
+        .from('blog_comments')
+        .delete()
+        .eq('article_id', articleId);
+      
+      if (commentsError) {
+        console.error("Error deleting comments:", commentsError);
+        // Log the error but continue with article deletion
+      } else {
+        console.log("Comments deleted successfully");
+      }
+    } else {
+      console.log("No comments found for this article");
+    }
     
     // Delete the article with proper error handling
-    const { error: deleteError } = await supabase
+    const { error: deleteError, data: deleteData } = await supabase
       .from('blog_articles')
       .delete()
-      .eq('id', articleId);
+      .eq('id', articleId)
+      .select();
     
     if (deleteError) {
       console.error("Error deleting article:", deleteError);
       toast({
         title: "Error",
         description: `Failed to delete the article: ${deleteError.message}`,
+        variant: "destructive"
+      });
+      return false;
+    }
+    
+    if (!deleteData || deleteData.length === 0) {
+      console.error("No article was deleted, possibly didn't exist or permission denied");
+      toast({
+        title: "Error",
+        description: "Article could not be deleted. It may no longer exist.",
         variant: "destructive"
       });
       return false;
@@ -58,7 +81,7 @@ export const deleteBlogArticle = async (
     });
     
     // Execute success callback if provided
-    if (onSuccess) {
+    if (onSuccess && typeof onSuccess === 'function') {
       console.log("Executing onSuccess callback");
       onSuccess();
     }
@@ -69,7 +92,7 @@ export const deleteBlogArticle = async (
     console.error('Error deleting article:', error);
     toast({
       title: "Error",
-      description: "Failed to delete the article",
+      description: "Failed to delete the article due to an unexpected error",
       variant: "destructive"
     });
     return false;
