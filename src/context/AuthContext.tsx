@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
@@ -45,6 +45,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 description: "You have successfully signed in.",
               });
               lastSignInTime.current = currentTime;
+              
+              // Log login activity
+              try {
+                // Get IP address (in a real app this would come from a service)
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                
+                // Insert login record
+                await supabase.from('login_audit').insert({
+                  email: newSession?.user?.email || '',
+                  user_id: newSession?.user?.id,
+                  ip_address: ipData.ip,
+                  user_agent: navigator.userAgent
+                });
+              } catch (error) {
+                console.error('Error logging login activity:', error);
+              }
             }
           }
           

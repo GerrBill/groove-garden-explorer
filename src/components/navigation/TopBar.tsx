@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import AccountButton from '@/components/auth/AccountButton';
 import { Link } from "react-router-dom";
+import SendEmailDialog from '@/components/email/SendEmailDialog';
 
 interface TopBarProps {}
 
@@ -39,9 +40,7 @@ const TopBar: React.FC<TopBarProps> = () => {
             <a href="/settings" className="text-theme-color hover:text-white transition-colors">
               <Settings size={18} />
             </a>
-            <Link to="/mail" className="text-theme-color hover:text-white transition-colors">
-              <Mail size={18} />
-            </Link>
+            <SendEmailDialog />
           </>
         )}
         

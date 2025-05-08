@@ -12,6 +12,7 @@ interface UserData {
   id: string;
   email: string;
   created_at: string;
+  last_login?: string;
 }
 
 const UserManagement = () => {
@@ -48,84 +49,65 @@ const UserManagement = () => {
         return;
       }
       
-      console.log("Fetching users...");
+      console.log("Fetching registered users...");
       
-      // In a real production environment, this would be done through an edge function
-      // with proper admin privileges. For demonstration purposes, we're using the client.
-      const { data: { users: authUsers }, error } = await supabase.auth.admin.listUsers();
+      // Fetch users from the registered_users table
+      const { data: registeredUsers, error } = await supabase
+        .from('registered_users')
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error("Error fetching users:", error);
         toast({
           title: "Error",
-          description: "Failed to fetch users due to insufficient permissions. In production, this would be handled by an edge function.",
+          description: "Failed to fetch users. Please try again.",
           variant: "destructive",
         });
         
-        // Provide dummy data for demonstration purposes
-        const dummyUsers: UserData[] = [
-          {
-            id: "1",
-            email: "user1@example.com",
-            created_at: new Date().toLocaleDateString()
-          },
-          {
-            id: "2",
-            email: "user2@example.com",
-            created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString()
-          }
-        ];
-        
+        // Provide fallback data
         if (user) {
-          // Add the current user
-          dummyUsers.push({
-            id: user.id,
-            email: user.email || 'Current User',
-            created_at: new Date().toLocaleDateString()
-          });
+          setUsers([
+            {
+              id: user.id,
+              email: user.email || 'Current User',
+              created_at: new Date().toLocaleDateString(),
+              last_login: new Date().toLocaleDateString()
+            }
+          ]);
         }
-        
-        setUsers(dummyUsers);
         setIsLoading(false);
         return;
       }
       
-      if (authUsers) {
-        console.log("Users found:", authUsers.length);
+      if (registeredUsers && registeredUsers.length > 0) {
+        console.log("Users found:", registeredUsers.length);
         
-        // Transform the response to match our UserData interface
-        const formattedUsers = authUsers.map(user => ({
+        // Format the date for display
+        const formattedUsers = registeredUsers.map(user => ({
           id: user.id,
-          email: user.email || 'No email',
-          created_at: new Date(user.created_at || '').toLocaleDateString()
+          email: user.email,
+          created_at: new Date(user.created_at).toLocaleDateString(),
+          last_login: user.last_login ? new Date(user.last_login).toLocaleDateString() : undefined
         }));
         
         setUsers(formattedUsers);
       } else {
-        console.log("No users found or error accessing auth users");
+        console.log("No registered users found");
         
-        // Provide fallback data in case users cannot be fetched
-        const fallbackUsers: UserData[] = [];
-        
+        // If no users are found, show the current user if they exist
         if (user) {
-          // Add the current user
-          fallbackUsers.push({
-            id: user.id,
-            email: user.email || 'Current User',
-            created_at: new Date().toLocaleDateString()
-          });
+          setUsers([
+            {
+              id: user.id,
+              email: user.email || 'Current User',
+              created_at: new Date().toLocaleDateString(),
+              last_login: new Date().toLocaleDateString()
+            }
+          ]);
+        } else {
+          setUsers([]);
         }
-        
-        // Add some example users
-        fallbackUsers.push(
-          {
-            id: "example-1",
-            email: "registered-user@example.com",
-            created_at: new Date().toLocaleDateString()
-          }
-        );
-        
-        setUsers(fallbackUsers);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -237,6 +219,7 @@ const UserManagement = () => {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Created</TableHead>
+              <TableHead>Last Login</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -251,6 +234,7 @@ const UserManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>{user.created_at}</TableCell>
+                  <TableCell>{user.last_login || 'Never'}</TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -265,7 +249,7 @@ const UserManagement = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-4">
+                <TableCell colSpan={4} className="text-center py-4">
                   No registered users found. Users who sign up will appear here.
                 </TableCell>
               </TableRow>

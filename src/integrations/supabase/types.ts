@@ -105,6 +105,33 @@ export type Database = {
         }
         Relationships: []
       }
+      login_audit: {
+        Row: {
+          email: string
+          id: string
+          ip_address: string | null
+          login_timestamp: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          ip_address?: string | null
+          login_timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          ip_address?: string | null
+          login_timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       playlist_tracks: {
         Row: {
           added_at: string
@@ -171,6 +198,27 @@ export type Database = {
           image_url?: string | null
           owner?: string
           title?: string
+        }
+        Relationships: []
+      }
+      registered_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          last_login?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
         }
         Relationships: []
       }
