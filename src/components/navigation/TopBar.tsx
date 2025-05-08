@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, Mail } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import AccountButton from '@/components/auth/AccountButton';
@@ -35,9 +35,14 @@ const TopBar: React.FC<TopBarProps> = () => {
       
       <div className="flex items-center gap-4">
         {user && (
-          <a href="/settings" className="text-theme-color hover:text-white transition-colors">
-            <Settings size={18} />
-          </a>
+          <>
+            <a href="/settings" className="text-theme-color hover:text-white transition-colors">
+              <Settings size={18} />
+            </a>
+            <Link to="/mail" className="text-theme-color hover:text-white transition-colors">
+              <Mail size={18} />
+            </Link>
+          </>
         )}
         
         <div className="text-white">
