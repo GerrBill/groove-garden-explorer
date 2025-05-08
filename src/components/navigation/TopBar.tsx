@@ -1,11 +1,10 @@
 
 import React, { useEffect } from 'react';
-import { Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import AccountButton from '@/components/auth/AccountButton';
 import SendEmailDialog from '@/components/email/SendEmailDialog';
-import { useSidebar } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
 
 interface TopBarProps {}
@@ -13,7 +12,6 @@ interface TopBarProps {}
 const TopBar: React.FC<TopBarProps> = () => {
   const { user } = useAuth();
   const { colorTheme } = useTheme();
-  const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
   // Add meta viewport tag for better fullscreen control
   useEffect(() => {
@@ -38,14 +36,6 @@ const TopBar: React.FC<TopBarProps> = () => {
       
       <div className="flex items-center gap-4">
         <SendEmailDialog />
-
-        <button 
-          onClick={toggleSidebar} 
-          className="text-theme-color hover:text-white transition-colors" 
-          aria-label={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
-        >
-          {sidebarOpen ? <ChevronLeft size={18} className="mx-[20px]" /> : <ChevronRight size={18} />}
-        </button>
         
         {user && (
           <a href="/settings" className="text-theme-color hover:text-white transition-colors">
