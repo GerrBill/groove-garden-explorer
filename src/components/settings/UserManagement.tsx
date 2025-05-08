@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2, User, UserX } from "lucide-react";
+import { Trash2, User, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -46,8 +46,7 @@ const UserManagement = () => {
         return;
       }
       
-      // Fetch users with admin key - this would normally be done via an edge function
-      // For now, we're simulating the response for demonstration
+      // Fetch users directly from Supabase Auth API
       const { data, error } = await supabase.auth.admin.listUsers();
       
       if (error) {
@@ -172,7 +171,7 @@ const UserManagement = () => {
                 <TableRow key={user.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <User size={16} />
+                      <Mail size={16} className="text-muted-foreground" />
                       <span className="truncate max-w-[200px]">{user.email}</span>
                     </div>
                   </TableCell>
