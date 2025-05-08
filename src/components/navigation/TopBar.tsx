@@ -4,7 +4,6 @@ import { Settings } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import AccountButton from '@/components/auth/AccountButton';
-import SendEmailDialog from '@/components/email/SendEmailDialog';
 import { Link } from "react-router-dom";
 
 interface TopBarProps {}
@@ -35,8 +34,6 @@ const TopBar: React.FC<TopBarProps> = () => {
       </div>
       
       <div className="flex items-center gap-4">
-        <SendEmailDialog />
-        
         {user && (
           <a href="/settings" className="text-theme-color hover:text-white transition-colors">
             <Settings size={18} />
