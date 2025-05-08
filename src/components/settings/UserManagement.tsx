@@ -6,6 +6,7 @@ import { Trash2, User, UserX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useAuth } from '@/context/AuthContext';
 
 interface UserData {
   id: string;
@@ -19,16 +20,27 @@ const UserManagement = () => {
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // List of admin emails that can see this component
   const allowedEmails = ['wjparker@outlook.com', 'ghodgett59@gmail.com'];
   
+  // Get authenticated user from AuthContext
+  const { user } = useAuth();
+  
+  useEffect(() => {
+    // Check if current user is an admin
+    if (user && allowedEmails.includes(user.email || '')) {
+      setIsAdmin(true);
+      fetchUsers();
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
+  
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      
-      // Get authenticated user
-      const { data: { user } } = await supabase.auth.getUser();
       
       if (!user || !allowedEmails.includes(user.email || '')) {
         return;
@@ -63,10 +75,6 @@ const UserManagement = () => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   const handleDeleteUser = async () => {
     if (!deleteUserId) return;
@@ -124,9 +132,6 @@ const UserManagement = () => {
     setUserToDelete(user);
     setShowDeleteConfirmation(true);
   };
-  
-  const { data: { user } } = supabase.auth.getUser();
-  const isAdmin = user && allowedEmails.includes(user.email || '');
   
   if (!isAdmin) {
     return (
