@@ -14,18 +14,27 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hashParams, setHashParams] = useState<URLSearchParams | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn } = useAuth();
   const [email, setEmail] = useState<string | null>(null);
 
-  // Extract the access token from the URL hash
+  // Extract parameters from the URL hash
   useEffect(() => {
     const hash = location.hash.substring(1); // Remove the leading #
     const params = new URLSearchParams(hash);
     setHashParams(params);
     
-    // Try to extract email from the token
+    // Check for error in the hash
+    const errorParam = params.get('error');
+    const errorDescription = params.get('error_description');
+    if (errorParam) {
+      setError(errorDescription || errorParam);
+      return;
+    }
+    
+    // Try to extract email from the token if no error
     const extractEmailFromToken = async () => {
       try {
         const accessToken = params.get('access_token');
@@ -40,7 +49,9 @@ const ResetPassword = () => {
       }
     };
     
-    extractEmailFromToken();
+    if (!errorParam) {
+      extractEmailFromToken();
+    }
   }, [location.hash]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,8 +87,7 @@ const ResetPassword = () => {
         throw new Error('No access token found in URL');
       }
       
-      // Fix: Use the correct approach to update user password with the access token
-      // The headers option is not available in the type definition, so we need to use the token directly
+      // Use the correct approach to update user password with the access token
       const { error } = await supabase.auth.updateUser(
         { password: newPassword },
       );
@@ -110,8 +120,31 @@ const ResetPassword = () => {
     }
   };
 
-  // If no token is found, show an error
-  if (!hashParams?.get('access_token')) {
+  // If there's an error parameter in the URL hash, show an error message
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
+        <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-center">Reset Link Expired</h1>
+          <p className="text-center text-muted-foreground">
+            {error.replace(/\+/g, ' ')}
+          </p>
+          <p className="text-center text-muted-foreground">
+            Please request a new password reset link.
+          </p>
+          <Button 
+            onClick={() => navigate('/')} 
+            className="w-full"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Return to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // If no token is found and no error is found, show an error
+  if (!hashParams?.get('access_token') && !error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
         <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
@@ -130,6 +163,7 @@ const ResetPassword = () => {
     );
   }
 
+  // Default view: Show reset password form if access_token is present
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
       <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
