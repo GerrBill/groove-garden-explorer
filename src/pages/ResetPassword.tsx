@@ -76,10 +76,10 @@ const ResetPassword = () => {
         throw new Error('No access token found in URL');
       }
       
-      // Use the updateUser method correctly with the access token
+      // Fix: Use the correct approach to update user password with the access token
       const { error } = await supabase.auth.updateUser(
         { password: newPassword },
-        { accessToken }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       
       if (error) {
