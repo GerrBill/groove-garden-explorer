@@ -1,5 +1,5 @@
 
--- Fix the login trigger function to correctly reference email field
+-- Fix the login trigger function to correctly reference user_id field
 CREATE OR REPLACE FUNCTION public.handle_user_login()
 RETURNS TRIGGER AS $$
 BEGIN

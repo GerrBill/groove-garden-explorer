@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Send, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 
@@ -16,7 +16,7 @@ const SendEmailDialog = () => {
   const [body, setBody] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   const resetForm = () => {
     setTo("");
@@ -27,14 +27,21 @@ const SendEmailDialog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      toast.error("You must be logged in to send emails");
+    if (!user || !session) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to send emails.",
+        variant: "destructive"
+      });
       return;
     }
     
     try {
       setIsSending(true);
-      toast.loading("Sending email...");
+      toast({
+        title: "Sending email...",
+        description: "Your email is being processed."
+      });
 
       const { data, error } = await supabase.functions.invoke('send-email', {
         body: {
@@ -43,18 +50,28 @@ const SendEmailDialog = () => {
           subject,
           html: body
         },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
       });
 
       if (error) throw error;
 
-      toast.dismiss();
-      toast.success("Email sent successfully!");
+      toast({
+        title: "Email sent successfully!",
+        description: "Your message has been delivered.",
+        variant: "default"
+      });
+      
       setIsOpen(false);
       resetForm();
     } catch (error: any) {
       console.error('Error sending email:', error);
-      toast.dismiss();
-      toast.error(error.message || "Failed to send email");
+      toast({
+        title: "Failed to send email",
+        description: error.message || "Please try again later.",
+        variant: "destructive"
+      });
     } finally {
       setIsSending(false);
     }
