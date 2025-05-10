@@ -38,11 +38,16 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
     try {
       if (isSignUp) {
         await signUp(email, password);
+        toast({
+          title: "Sign up successful",
+          description: "Your account has been created. You may need to verify your email before signing in.",
+        });
       } else {
         await signIn(email, password);
         onOpenChange(false);
       }
     } catch (error) {
+      console.error('Authentication error:', error);
       // Error is handled in the auth context
     } finally {
       setIsSubmitting(false);
