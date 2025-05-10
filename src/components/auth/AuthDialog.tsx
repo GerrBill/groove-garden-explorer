@@ -18,13 +18,14 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const { signIn, signUp, resetPassword } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!email) {
       toast({
         title: "Missing fields",
         description: "Please fill in all the required fields.",
@@ -36,13 +37,38 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
     setIsSubmitting(true);
     
     try {
-      if (isSignUp) {
+      if (isForgotPassword) {
+        await resetPassword(email);
+        toast({
+          title: "Password reset email sent",
+          description: "Please check your email for instructions to reset your password.",
+        });
+        setIsForgotPassword(false);
+      } else if (isSignUp) {
+        if (!password) {
+          toast({
+            title: "Missing fields",
+            description: "Please enter a password.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
         await signUp(email, password);
         toast({
           title: "Sign up successful",
           description: "Your account has been created. You may need to verify your email before signing in.",
         });
       } else {
+        if (!password) {
+          toast({
+            title: "Missing fields",
+            description: "Please enter a password.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
         await signIn(email, password);
         onOpenChange(false);
       }
@@ -54,12 +80,22 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
     }
   };
 
+  const switchToForgotPassword = () => {
+    setIsForgotPassword(true);
+    setPassword('');
+  };
+
+  const switchToSignIn = () => {
+    setIsForgotPassword(false);
+    setIsSignUp(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px] dark:bg-gray-900">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            {isSignUp ? "Create an account" : "Sign in to your account"}
+            {isForgotPassword ? "Reset Password" : isSignUp ? "Create an account" : "Sign in to your account"}
           </DialogTitle>
         </DialogHeader>
         
@@ -79,27 +115,29 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                className="pl-10 text-foreground dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                 required
               />
             </div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 text-black dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-                required
-              />
+          {!isForgotPassword && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 text-foreground dark:text-white bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                  required={!isForgotPassword}
+                />
+              </div>
             </div>
-          </div>
+          )}
           
           <div className="flex flex-col gap-2 pt-2">
             <Button 
@@ -108,7 +146,11 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
               disabled={isSubmitting}
             >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Create Account" : "Sign In"}
+              {isForgotPassword 
+                ? "Send Reset Instructions" 
+                : isSignUp 
+                  ? "Create Account" 
+                  : "Sign In"}
             </Button>
             
             <Button 
@@ -122,7 +164,18 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
           </div>
           
           <div className="text-center text-sm">
-            {isSignUp ? (
+            {isForgotPassword ? (
+              <p>
+                Remember your password?{" "}
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto font-semibold"
+                  onClick={switchToSignIn}
+                >
+                  Sign In
+                </Button>
+              </p>
+            ) : isSignUp ? (
               <p>
                 Already have an account?{" "}
                 <Button 
@@ -134,16 +187,22 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
                 </Button>
               </p>
             ) : (
-              <p>
-                Don't have an account?{" "}
+              <div className="flex justify-between">
                 <Button 
                   variant="link" 
-                  className="p-0 h-auto font-semibold"
+                  className="p-0 h-auto font-semibold text-sm"
+                  onClick={switchToForgotPassword}
+                >
+                  Forgot password?
+                </Button>
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto font-semibold text-sm"
                   onClick={() => setIsSignUp(true)}
                 >
                   Sign Up
                 </Button>
-              </p>
+              </div>
             )}
           </div>
         </form>
