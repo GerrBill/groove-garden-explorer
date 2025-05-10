@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Lock, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -19,39 +20,52 @@ const ResetPassword = () => {
   const location = useLocation();
   const { signIn } = useAuth();
   const [email, setEmail] = useState<string | null>(null);
+  const [isProcessingHash, setIsProcessingHash] = useState(true);
 
   // Extract parameters from the URL hash
   useEffect(() => {
-    const hash = location.hash.substring(1); // Remove the leading #
-    const params = new URLSearchParams(hash);
-    setHashParams(params);
-    
-    // Check for error in the hash
-    const errorParam = params.get('error');
-    const errorDescription = params.get('error_description');
-    if (errorParam) {
-      setError(errorDescription || errorParam);
-      return;
-    }
-    
-    // Try to extract email from the token if no error
-    const extractEmailFromToken = async () => {
+    const processHash = async () => {
+      setIsProcessingHash(true);
+      
       try {
+        const hash = location.hash.substring(1); // Remove the leading #
+        const params = new URLSearchParams(hash);
+        setHashParams(params);
+        
+        // Check for error in the hash
+        const errorParam = params.get('error');
+        const errorCode = params.get('error_code');
+        const errorDescription = params.get('error_description');
+        
+        if (errorParam || errorCode) {
+          setError(errorDescription?.replace(/\+/g, ' ') || errorParam || 'Invalid or expired reset link');
+          // Clear the hash to prevent repeated login attempts
+          window.history.replaceState(null, document.title, window.location.pathname);
+          setIsProcessingHash(false);
+          return;
+        }
+        
+        // If we have an access_token, try to extract the email
         const accessToken = params.get('access_token');
         if (accessToken) {
           const { data, error } = await supabase.auth.getUser(accessToken);
           if (!error && data?.user?.email) {
             setEmail(data.user.email);
           }
+          // Don't automatically log in - just extract the email for the reset form
         }
-      } catch (error) {
-        console.error('Error extracting email from token:', error);
+        
+        // Clear the hash to prevent repeated login attempts
+        window.history.replaceState(null, document.title, window.location.pathname);
+      } catch (err) {
+        console.error('Error processing hash parameters:', err);
+        setError('An error occurred while processing the reset link');
+      } finally {
+        setIsProcessingHash(false);
       }
     };
     
-    if (!errorParam) {
-      extractEmailFromToken();
-    }
+    processHash();
   }, [location.hash]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,18 +134,36 @@ const ResetPassword = () => {
     }
   };
 
+  // Show loading state while processing the hash parameters
+  if (isProcessingHash) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
+        <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-center">Processing Reset Link</h1>
+          <div className="flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // If there's an error parameter in the URL hash, show an error message
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
         <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
-          <h1 className="text-2xl font-bold text-center">Reset Link Expired</h1>
-          <p className="text-center text-muted-foreground">
-            {error.replace(/\+/g, ' ')}
-          </p>
+          <h1 className="text-2xl font-bold text-center">Reset Link Issue</h1>
+          
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          
           <p className="text-center text-muted-foreground">
             Please request a new password reset link.
           </p>
+          
           <Button 
             onClick={() => navigate('/')} 
             className="w-full"
@@ -143,7 +175,7 @@ const ResetPassword = () => {
     );
   }
 
-  // If no token is found and no error is found, show an error
+  // If no token is found and no error is found, show generic error
   if (!hashParams?.get('access_token') && !error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
