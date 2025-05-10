@@ -77,9 +77,9 @@ const ResetPassword = () => {
       }
       
       // Fix: Use the correct approach to update user password with the access token
+      // The headers option is not available in the type definition, so we need to use the token directly
       const { error } = await supabase.auth.updateUser(
         { password: newPassword },
-        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       
       if (error) {
