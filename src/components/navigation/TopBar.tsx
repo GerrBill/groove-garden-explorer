@@ -37,9 +37,9 @@ const TopBar: React.FC<TopBarProps> = () => {
       <div className="flex items-center gap-4">
         {user && (
           <>
-            <a href="/settings" className="text-theme-color hover:text-white transition-colors">
+            <Link to="/settings" className="text-white hover:text-theme-color transition-colors">
               <Settings size={18} />
-            </a>
+            </Link>
             <SendEmailDialog />
           </>
         )}

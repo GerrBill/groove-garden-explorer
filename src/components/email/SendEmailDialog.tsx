@@ -80,7 +80,7 @@ const SendEmailDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-theme-color hover:text-white">
+        <Button variant="ghost" size="icon" className="text-white hover:text-theme-color">
           <Mail size={18} />
         </Button>
       </DialogTrigger>

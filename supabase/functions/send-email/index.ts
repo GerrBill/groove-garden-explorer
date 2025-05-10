@@ -17,7 +17,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  from: string;
+  from?: string;
   to: string;
   subject: string;
   html: string;
@@ -44,15 +44,16 @@ serve(async (req) => {
     }
 
     // Parse and validate request body
-    const { from, to, subject, html }: EmailRequest = await req.json();
+    const requestData = await req.json();
+    const { from, to, subject, html }: EmailRequest = requestData;
     
-    if (!from || !to || !subject) {
-      throw new Error("Missing required fields: from, to, subject");
+    if (!to || !subject) {
+      throw new Error("Missing required fields: to, subject");
     }
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: from.includes("@") ? from : `Lovable <onboarding@resend.dev>`,
+      from: from && from.includes("@") ? from : `Lovable <onboarding@resend.dev>`,
       to: [to],
       subject,
       html: html || "<p>This email has no content.</p>",
@@ -72,7 +73,7 @@ serve(async (req) => {
         details: error.toString()
       }),
       {
-        status: 401,
+        status: error.message?.includes("Unauthorized") ? 401 : 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
