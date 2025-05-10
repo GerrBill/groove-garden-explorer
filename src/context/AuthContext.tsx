@@ -1,7 +1,9 @@
+
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { sendEmail } from '@/utils/email';
 
 type AuthContextType = {
   session: Session | null;
@@ -160,16 +162,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
-      // Get the current site URL to use for redirects
-      const siteUrl = window.location.origin;
+      // Get the correct site URL - using deployed URL rather than localhost
+      // You might need to adjust this URL based on your deployment environment
+      // For Lovable projects, use the Lovable preview URL or custom domain
+      const appUrl = "https://wiisixdctrokfmhnrxnw.supabase.co"; // Use your actual deployed URL here
       
       // Using only the supported properties in the options object
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/reset-password`,
+        redirectTo: `${appUrl}/reset-password`,
       });
       
       if (error) {
         throw error;
+      }
+      
+      // Send a custom email instead of using Supabase's default
+      try {
+        if (session?.access_token) {
+          await sendEmail(
+            email,
+            "Reset Your GerrbillMedia Password",
+            `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+              <h2 style="color: #FF5500;">Reset Your GerrbillMedia Password</h2>
+              <p>We received a request to reset your password. A password reset link has been sent to you via Supabase.</p>
+              <p>Please check your email for the password reset link from Supabase and follow the instructions to reset your password.</p>
+              <p>If you did not request a password reset, please ignore the Supabase email and contact support immediately.</p>
+              <p>Thank you,<br>The GerrbillMedia Team</p>
+            </div>
+            `,
+            session.access_token
+          );
+        }
+      } catch (emailError) {
+        console.error('Error sending custom password reset email:', emailError);
+        // We still proceed since Supabase sent the original reset email
       }
       
       toast({
