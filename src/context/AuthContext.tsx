@@ -160,13 +160,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetPassword = async (email: string) => {
     try {
       setIsLoading(true);
+      
+      // Get the current site URL to use for redirects
+      const siteUrl = window.location.origin;
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password',
+        redirectTo: `${siteUrl}/reset-password`,
+        // Using email template customization options
+        emailRedirectTo: `${siteUrl}/reset-password`,
       });
       
       if (error) {
         throw error;
       }
+      
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for a link to reset your password.",
+      });
     } catch (error: any) {
       toast({
         title: "Password reset failed",

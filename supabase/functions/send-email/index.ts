@@ -67,7 +67,7 @@ serve(async (req) => {
 
     // Send email
     const emailResponse = await resend.emails.send({
-      from: from && from.includes("@") ? from : `Lovable <onboarding@resend.dev>`,
+      from: from && from.includes("@") ? from : `GerrbillMedia <noreply@gerrbillmedia.com>`,
       to: [to],
       subject,
       html: html || "<p>This email has no content.</p>",
