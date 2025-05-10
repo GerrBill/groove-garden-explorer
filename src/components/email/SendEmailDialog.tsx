@@ -1,76 +1,86 @@
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Send, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Mail, Loader2 } from "lucide-react";
+import { sendEmail } from "@/utils/email";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context/AuthContext';
+
+const formSchema = z.object({
+  to: z.string().email({ message: "Please enter a valid email address." }),
+  subject: z.string().min(1, { message: "Subject is required." }),
+  message: z.string().min(1, { message: "Message is required." }),
+});
 
 const SendEmailDialog = () => {
-  const [to, setTo] = useState("");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const { user, session } = useAuth();
+  const { session } = useAuth();
 
-  const resetForm = () => {
-    setTo("");
-    setSubject("");
-    setBody("");
-  };
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      to: "",
+      subject: "",
+      message: "",
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user || !session) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!session) {
       toast({
         title: "Authentication required",
-        description: "You must be logged in to send emails.",
-        variant: "destructive"
+        description: "You need to be logged in to send emails.",
+        variant: "destructive",
       });
       return;
     }
     
+    setIsSending(true);
+    
     try {
-      setIsSending(true);
+      await sendEmail(
+        values.to,
+        values.subject,
+        `<div>${values.message.replace(/\n/g, "<br/>")}</div>`,
+        session.access_token
+      );
+      
       toast({
-        title: "Sending email...",
-        description: "Your email is being processed."
-      });
-
-      const { data, error } = await supabase.functions.invoke('send-email', {
-        body: {
-          from: user.email,
-          to,
-          subject,
-          html: body
-        },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Email sent successfully!",
-        description: "Your message has been delivered.",
-        variant: "default"
+        title: "Email sent",
+        description: "Your email has been sent successfully.",
       });
       
+      form.reset();
       setIsOpen(false);
-      resetForm();
-    } catch (error: any) {
-      console.error('Error sending email:', error);
+    } catch (error) {
+      console.error("Error sending email:", error);
       toast({
-        title: "Failed to send email",
-        description: error.message || "Please try again later.",
-        variant: "destructive"
+        title: "Error sending email",
+        description: error instanceof Error ? error.message : "An unknown error occurred.",
+        variant: "destructive",
       });
     } finally {
       setIsSending(false);
@@ -84,60 +94,70 @@ const SendEmailDialog = () => {
           <Mail size={18} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Send Email</DialogTitle>
+          <DialogDescription>
+            Send an email to someone through our platform.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid w-full gap-1.5">
-            <Label htmlFor="to">To</Label>
-            <Input
-              id="to"
-              type="email"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              placeholder="recipient@example.com"
-              required
-              disabled={isSending}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="to"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Recipient</FormLabel>
+                  <FormControl>
+                    <Input placeholder="recipient@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="grid w-full gap-1.5">
-            <Label htmlFor="subject">Subject</Label>
-            <Input
-              id="subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Email subject"
-              required
-              disabled={isSending}
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subject</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Email subject" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="grid w-full gap-1.5">
-            <Label htmlFor="body">Message</Label>
-            <Textarea
-              id="body"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Type your message here"
-              className="min-h-[100px]"
-              required
-              disabled={isSending}
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Message</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Your message here..."
+                      className="h-32"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <Button type="submit" className="w-full" disabled={isSending}>
-            {isSending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 h-4 w-4" />
+            <DialogFooter>
+              <Button
+                type="submit"
+                disabled={isSending}
+                className="w-full sm:w-auto"
+              >
+                {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send Email
-              </>
-            )}
-          </Button>
-        </form>
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

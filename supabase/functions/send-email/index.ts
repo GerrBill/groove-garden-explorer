@@ -1,19 +1,20 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
+import { Resend } from "https://esm.sh/resend@1.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+// Initialize Resend with API key
+const resendApiKey = Deno.env.get("RESEND_API_KEY");
+if (!resendApiKey) {
+  console.error("RESEND_API_KEY is not set. Please set this environment variable.");
+}
+const resend = new Resend(resendApiKey);
 
-// Initialize Supabase client with service role key for admin-level operations
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
+// Set CORS headers for browser clients
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
 };
 
 interface EmailRequest {
@@ -24,23 +25,36 @@ interface EmailRequest {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS preflight request
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
   }
 
   try {
-    // Verify authentication - check for valid JWT
-    const authHeader = req.headers.get("Authorization");
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing authorization header");
+      throw new Error('Unauthorized: No auth header');
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
     
-    if (authError || !user) {
-      throw new Error("Unauthorized: Invalid token");
+    // Verify token with Supabase
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error('Unauthorized: Invalid token');
     }
 
     // Parse and validate request body
@@ -59,17 +73,19 @@ serve(async (req) => {
       html: html || "<p>This email has no content.</p>",
     });
 
-    console.log("Email sent successfully:", emailResponse);
-
-    return new Response(JSON.stringify(emailResponse), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
-  } catch (error: any) {
-    console.error("Error in send-email function:", error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || "An unknown error occurred", 
+      JSON.stringify({ success: true, data: emailResponse }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: error.message || "Failed to send email",
         details: error.toString()
       }),
       {
