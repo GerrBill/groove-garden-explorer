@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -164,10 +163,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Get the current site URL to use for redirects
       const siteUrl = window.location.origin;
       
+      // Using only the supported properties in the options object
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${siteUrl}/reset-password`,
-        // Using email template customization options
-        emailRedirectTo: `${siteUrl}/reset-password`,
       });
       
       if (error) {
