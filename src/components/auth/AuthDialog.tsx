@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,20 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const { signIn, signUp, resetPassword } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
+  
+  // Check URL for email parameter when component mounts or dialog opens
+  useEffect(() => {
+    if (open) {
+      const params = new URLSearchParams(location.search);
+      const emailParam = params.get('email');
+      if (emailParam) {
+        setEmail(emailParam);
+        // Clear the email parameter from URL to avoid issues on refresh
+        window.history.replaceState({}, document.title, location.pathname);
+      }
+    }
+  }, [open, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

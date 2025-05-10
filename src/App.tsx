@@ -13,6 +13,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 import Sidebar from "./components/sidebar/Sidebar";
 import Player from "./components/player/Player";
 import TopBar from "./components/navigation/TopBar";
@@ -179,6 +180,7 @@ const App = () => {
                           <Route path="/blog" element={<Blog />} />
                           <Route path="/blog/:id" element={<BlogPost />} />
                           <Route path="/settings" element={<Settings />} />
+                          <Route path="/reset-password" element={<ResetPassword />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>

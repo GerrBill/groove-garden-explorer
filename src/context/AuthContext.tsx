@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -162,14 +161,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
-      // Get the correct site URL - using deployed URL rather than localhost
-      // You might need to adjust this URL based on your deployment environment
-      // For Lovable projects, use the Lovable preview URL or custom domain
-      const appUrl = "https://wiisixdctrokfmhnrxnw.supabase.co"; // Use your actual deployed URL here
+      // Use window.location.origin to dynamically get the current domain
+      // This will work in both development and production environments
+      const baseUrl = window.location.origin;
       
       // Using only the supported properties in the options object
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${appUrl}/reset-password`,
+        redirectTo: `${baseUrl}/reset-password`,
       });
       
       if (error) {
