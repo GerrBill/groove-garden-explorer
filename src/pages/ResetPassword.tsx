@@ -69,13 +69,14 @@ const ResetPassword = () => {
     setIsLoading(true);
     
     try {
-      // Use the updateUser method to set the new password
+      // Get the access token from the URL hash
       const accessToken = hashParams?.get('access_token');
       
       if (!accessToken) {
         throw new Error('No access token found in URL');
       }
       
+      // Use the updateUser method correctly with the access token
       const { error } = await supabase.auth.updateUser(
         { password: newPassword },
         { accessToken }
