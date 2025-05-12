@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -5,7 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 import { Track as TrackType } from '@/types/supabase';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
 interface Track {
@@ -198,7 +198,7 @@ const TrackList: React.FC<TrackListProps> = ({
           )}
         </TableBody>
       </Table>
-      <div className="h-4"></div>
+      <div className="h-12"></div>
     </div>
   );
 };

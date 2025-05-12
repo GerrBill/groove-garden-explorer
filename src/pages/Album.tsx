@@ -316,16 +316,17 @@ const Album = () => {
               onDeleteAlbum={isAdmin ? handleDeleteAlbum : undefined}
             />
             
-            <ScrollArea className="h-[calc(100vh-280px)]">
-              <div className="md:pl-0 pl-4">
+            <div className="md:pl-0 pl-4">
+              <ScrollArea className="h-[calc(100vh-280px)] pr-4">
                 <TrackList 
                   tracks={tracks} 
                   onToggleLike={handleToggleLike}
                   albumName={album.title}
                   onDeleteTrack={isAdmin ? handleDeleteTrack : undefined}
                 />
-              </div>
-            </ScrollArea>
+                <div className="h-8"></div>
+              </ScrollArea>
+            </div>
             
             {isMobile !== undefined && (
               <RelatedAlbums 
