@@ -55,14 +55,19 @@ const ResetPassword = () => {
         if (token) {
           setAccessToken(token);
           
+          // Get user data using the access token
           const { data, error } = await supabase.auth.getUser(token);
           if (error) {
+            console.error('Error getting user with token:', error);
             throw error;
           }
           
           if (data?.user?.email) {
             setEmail(data.user.email);
+            // Show the reset password dialog automatically
             setShowDialog(true);
+          } else {
+            throw new Error('Could not retrieve email from user data');
           }
           
           // Clear the hash to prevent repeated login attempts
@@ -116,6 +121,8 @@ const ResetPassword = () => {
         throw new Error('No access token found');
       }
       
+      console.log('Updating password with token:', accessToken.substring(0, 10) + '...');
+      
       // Set the session with the access token before updating the user password
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: accessToken,
@@ -123,8 +130,11 @@ const ResetPassword = () => {
       });
       
       if (sessionError) {
+        console.error('Error setting session:', sessionError);
         throw sessionError;
       }
+      
+      console.log('Session set successfully, updating password now');
       
       // Update the user password
       const { error } = await supabase.auth.updateUser({
@@ -132,8 +142,11 @@ const ResetPassword = () => {
       });
       
       if (error) {
+        console.error('Error updating password:', error);
         throw error;
       }
+      
+      console.log('Password updated successfully');
       
       toast({
         title: "Password updated successfully",
@@ -151,12 +164,12 @@ const ResetPassword = () => {
       }
       
     } catch (error: any) {
+      console.error('Password reset error details:', error);
       toast({
         title: "Password reset failed",
         description: error.message || "There was an error resetting your password. Please try again.",
         variant: "destructive",
       });
-      console.error('Password reset error:', error);
     } finally {
       setIsLoading(false);
     }

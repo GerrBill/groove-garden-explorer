@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
@@ -52,12 +53,14 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ open, onOpenChange }) => {
     
     try {
       if (isForgotPassword) {
+        console.log('Requesting password reset for:', email);
         await resetPassword(email);
         toast({
           title: "Password reset email sent",
           description: "Please check your email for instructions to reset your password.",
         });
         setIsForgotPassword(false);
+        onOpenChange(false);
       } else if (isSignUp) {
         if (!password) {
           toast({

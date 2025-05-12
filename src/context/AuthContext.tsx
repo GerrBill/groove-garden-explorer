@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -164,6 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Use window.location.origin to dynamically get the current domain
       // This will work in both development and production environments
       const baseUrl = window.location.origin;
+      console.log('Reset password base URL:', baseUrl);
       
       // Using only the supported properties in the options object
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -171,6 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (error) {
+        console.error('Supabase resetPasswordForEmail error:', error);
         throw error;
       }
       
@@ -202,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Check your email for a link to reset your password.",
       });
     } catch (error: any) {
+      console.error('Password reset error:', error);
       toast({
         title: "Password reset failed",
         description: error.message,
