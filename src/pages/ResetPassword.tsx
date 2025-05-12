@@ -7,20 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Lock, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [hashParams, setHashParams] = useState<URLSearchParams | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessingHash, setIsProcessingHash] = useState(true);
+  const [email, setEmail] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+  
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
-  const [email, setEmail] = useState<string | null>(null);
-  const [isProcessingHash, setIsProcessingHash] = useState(true);
 
   // Extract parameters from the URL hash
   useEffect(() => {
@@ -28,9 +29,9 @@ const ResetPassword = () => {
       setIsProcessingHash(true);
       
       try {
-        const hash = location.hash.substring(1); // Remove the leading #
+        // Remove the leading # and parse the hash
+        const hash = location.hash.substring(1);
         const params = new URLSearchParams(hash);
-        setHashParams(params);
         
         // Check for error in the hash
         const errorParam = params.get('error');
@@ -38,34 +39,51 @@ const ResetPassword = () => {
         const errorDescription = params.get('error_description');
         
         if (errorParam || errorCode) {
-          setError(errorDescription?.replace(/\+/g, ' ') || errorParam || 'Invalid or expired reset link');
+          const errorMessage = errorDescription?.replace(/\+/g, ' ') || 
+                              errorParam || 
+                              'Invalid or expired reset link';
+          setError(errorMessage);
+          
           // Clear the hash to prevent repeated login attempts
           window.history.replaceState(null, document.title, window.location.pathname);
           setIsProcessingHash(false);
           return;
         }
         
-        // If we have an access_token, try to extract the email
-        const accessToken = params.get('access_token');
-        if (accessToken) {
-          const { data, error } = await supabase.auth.getUser(accessToken);
-          if (!error && data?.user?.email) {
-            setEmail(data.user.email);
+        // If we have an access_token, try to extract the email and set up for password reset
+        const token = params.get('access_token');
+        if (token) {
+          setAccessToken(token);
+          
+          const { data, error } = await supabase.auth.getUser(token);
+          if (error) {
+            throw error;
           }
-          // Don't automatically log in - just extract the email for the reset form
+          
+          if (data?.user?.email) {
+            setEmail(data.user.email);
+            setShowDialog(true);
+          }
+          
+          // Clear the hash to prevent repeated login attempts
+          window.history.replaceState(null, document.title, window.location.pathname);
+        } else {
+          setError('No access token found in URL. This reset link may be invalid or incomplete.');
         }
-        
-        // Clear the hash to prevent repeated login attempts
-        window.history.replaceState(null, document.title, window.location.pathname);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error processing hash parameters:', err);
-        setError('An error occurred while processing the reset link');
+        setError(err.message || 'An error occurred while processing the reset link');
       } finally {
         setIsProcessingHash(false);
       }
     };
     
-    processHash();
+    if (location.hash) {
+      processHash();
+    } else {
+      setError('No reset parameters found. Please use a valid password reset link.');
+      setIsProcessingHash(false);
+    }
   }, [location.hash]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,17 +112,24 @@ const ResetPassword = () => {
     setIsLoading(true);
     
     try {
-      // Get the access token from the URL hash
-      const accessToken = hashParams?.get('access_token');
-      
       if (!accessToken) {
-        throw new Error('No access token found in URL');
+        throw new Error('No access token found');
       }
       
-      // Use the correct approach to update user password with the access token
-      const { error } = await supabase.auth.updateUser(
-        { password: newPassword },
-      );
+      // Set the session with the access token before updating the user password
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: '',
+      });
+      
+      if (sessionError) {
+        throw sessionError;
+      }
+      
+      // Update the user password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
       
       if (error) {
         throw error;
@@ -115,9 +140,12 @@ const ResetPassword = () => {
         description: "Your password has been reset. You can now sign in with your new password.",
       });
       
+      // Close dialog and redirect to homepage
+      setShowDialog(false);
+      
       // Redirect to homepage and open sign-in dialog with email prefilled
       if (email) {
-        navigate('/?email=' + encodeURIComponent(email));
+        navigate(`/?email=${encodeURIComponent(email)}`);
       } else {
         navigate('/');
       }
@@ -175,15 +203,26 @@ const ResetPassword = () => {
     );
   }
 
-  // If no token is found and no error is found, show generic error
-  if (!hashParams?.get('access_token') && !error) {
-    return (
+  // Dialog for password reset
+  return (
+    <>
+      {/* Main page content */}
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
         <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
-          <h1 className="text-2xl font-bold text-center">Invalid Reset Link</h1>
-          <p className="text-center text-muted-foreground">
-            The password reset link is invalid or has expired. Please request a new password reset link.
-          </p>
+          <h1 className="text-2xl font-bold text-center">Reset Your Password</h1>
+          
+          {email && (
+            <p className="text-sm text-center text-muted-foreground">
+              A dialog will appear to set a new password for {email}
+            </p>
+          )}
+          
+          {!email && !error && (
+            <p className="text-sm text-center text-muted-foreground">
+              There was an issue processing your reset link. Please try again or request a new link.
+            </p>
+          )}
+          
           <Button 
             onClick={() => navigate('/')} 
             className="w-full"
@@ -192,77 +231,73 @@ const ResetPassword = () => {
           </Button>
         </div>
       </div>
-    );
-  }
-
-  // Default view: Show reset password form if access_token is present
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
-      <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-center">Reset Your Password</h1>
-        
-        {email && (
-          <p className="text-sm text-center text-muted-foreground">
-            Setting new password for {email}
-          </p>
-        )}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
-              <Input
-                id="newPassword"
-                type="password"
-                placeholder="••••••••"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="pl-10"
-                required
-                disabled={isLoading}
-              />
+      
+      {/* Reset Password Dialog */}
+      <Dialog open={showDialog} onOpenChange={(open) => {
+        setShowDialog(open);
+        if (!open) {
+          navigate('/');
+        }
+      }}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Reset Your Password</DialogTitle>
+          </DialogHeader>
+          
+          {email && (
+            <p className="text-sm text-muted-foreground">
+              Setting new password for {email}
+            </p>
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pl-10"
+                  required
+                  disabled={isLoading}
+                  autoFocus
+                />
+              </div>
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-10"
-                required
-                disabled={isLoading}
-              />
+            
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
             </div>
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full mt-6"
-            disabled={isLoading}
-          >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Reset Password
-          </Button>
-          
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="w-full"
-            onClick={() => navigate('/')}
-            disabled={isLoading}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Return to Home
-          </Button>
-        </form>
-      </div>
-    </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full mt-6"
+              disabled={isLoading}
+            >
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Reset Password
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
