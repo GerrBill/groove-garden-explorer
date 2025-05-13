@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Trash2, Mail, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/AuthContext';
 import { Spinner } from '@/components/ui/spinner';
@@ -28,7 +27,8 @@ const UserManagement = () => {
   const allowedEmails = ['wjparker@outlook.com', 'ghodgett59@gmail.com'];
   
   // Get authenticated user from AuthContext
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user;
   
   useEffect(() => {
     // Check if current user is an admin

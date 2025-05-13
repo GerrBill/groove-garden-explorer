@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +23,14 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -134,23 +142,6 @@ const App = () => {
   }, []);
 
   console.log("App rendered, routes should be active");
-
-  // Update the useEffect for mobile view
-  useEffect(() => {
-    const handleResize = () => {
-      const isMobileWidth = window.innerWidth < 700;
-      setSidebarOpen(!isMobileWidth);
-    };
-
-    // Initial check
-    handleResize();
-
-    // Add event listener
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -483,20 +483,20 @@ const BlogPost = () => {
               </div>
               
               {/* Fix the article-content styling and rendering */}
-              <div className="article-content prose dark:prose-invert max-w-none mb-8">
-                <style jsx global>{`
+              <style>{`
+                .article-content iframe {
+                  max-width: 100%;
+                  margin: 1.5rem 0;
+                  aspect-ratio: 16/9;
+                  height: auto;
+                }
+                @media (max-width: 640px) {
                   .article-content iframe {
-                    max-width: 100%;
-                    margin: 1.5rem 0;
-                    aspect-ratio: 16/9;
                     height: auto;
                   }
-                  @media (max-width: 640px) {
-                    .article-content iframe {
-                      height: auto;
-                    }
-                  }
-                `}</style>
+                }
+              `}</style>
+              <div className="article-content prose dark:prose-invert max-w-none mb-8">
                 <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
               </div>
               

@@ -21,7 +21,8 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user;
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
 
   const fetchAlbums = async () => {

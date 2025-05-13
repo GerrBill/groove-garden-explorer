@@ -8,12 +8,12 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast";
-import { type ToastProps, type ToastActionElement } from "@/components/ui/toast";
+import { type ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 1000000;
 
-type ToasterToast = ToastProps & {
+export type ToasterToast = Omit<ToastProps, "title" | "description" | "action"> & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
@@ -120,26 +120,20 @@ function dispatch(action: Action) {
   });
 }
 
-interface Toast {
-  id: string;
+export type ToastOptions = {
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
   variant?: "default" | "destructive";
-  open?: boolean;
-}
+};
 
-type ToastOptions = Partial<
-  Pick<Toast, "title" | "description" | "action" | "variant">
->;
-
-export function toast({ ...props }: ToastOptions) {
+export function toast(options: ToastOptions) {
   const id = Math.random().toString(36).substring(2, 9);
 
   const update = (props: ToastOptions) =>
     dispatch({
       type: actionTypes.UPDATE_TOAST,
-      toast: { ...props, id },
+      toast: { ...props, id } as ToasterToast,
     });
 
   const dismiss = () =>
@@ -153,8 +147,8 @@ export function toast({ ...props }: ToastOptions) {
       onOpenChange: (open) => {
         if (!open) dismiss();
       },
-      ...props,
-    },
+      ...options,
+    } as ToasterToast,
   });
 
   return {

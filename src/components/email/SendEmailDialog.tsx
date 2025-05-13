@@ -37,7 +37,8 @@ const formSchema = z.object({
 const SendEmailDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const { session } = useAuth();
+  const auth = useAuth();
+  const session = auth?.session;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +50,7 @@ const SendEmailDialog = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!session) {
+    if (!session?.access_token) {
       toast({
         title: "Authentication required",
         description: "You need to be logged in to send emails.",

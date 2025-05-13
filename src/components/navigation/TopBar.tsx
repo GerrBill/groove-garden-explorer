@@ -10,7 +10,9 @@ import SendEmailDialog from '@/components/email/SendEmailDialog';
 interface TopBarProps {}
 
 const TopBar: React.FC<TopBarProps> = () => {
-  const { user } = useAuth();
+  // Use optional chaining to prevent errors if auth context is not available yet
+  const auth = useAuth();
+  const user = auth?.user;
   const { colorTheme } = useTheme();
 
   // Add meta viewport tag for better fullscreen control

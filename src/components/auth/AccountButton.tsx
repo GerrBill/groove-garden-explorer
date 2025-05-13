@@ -15,11 +15,15 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 const AccountButton: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user;
+  const signOut = auth?.signOut;
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    if (!signOut) return;
+    
     try {
       setIsSigningOut(true);
       await signOut();
