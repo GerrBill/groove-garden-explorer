@@ -1,4 +1,3 @@
-
 /**
  * Utility function to handle file uploads for the media player using Supabase Storage
  */
