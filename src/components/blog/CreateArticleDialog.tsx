@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
 import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
@@ -19,6 +20,7 @@ interface ArticleFormValues {
   category: string;
   author: string;
   imageFile?: File | null;
+  youtubeVideoId?: string;
 }
 
 const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
@@ -26,7 +28,6 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -65,8 +66,9 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
           });
           imageUrl = '/placeholder.svg';
         }
-      } else {
-        console.log('No image file provided, using default');
+      } else if (values.youtubeVideoId) {
+        // If YouTube video ID is provided, use its thumbnail
+        imageUrl = `https://img.youtube.com/vi/${values.youtubeVideoId}/hqdefault.jpg`;
       }
 
       // Generate excerpt if not provided (use first 150 chars of content)
@@ -88,7 +90,8 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
         excerpt: excerpt,
         image_url: imageUrl,
         author: values.author || 'Anonymous',
-        category: values.category
+        category: values.category,
+        published_at: new Date().toISOString()
       }).select('id').single();
       
       if (error) {

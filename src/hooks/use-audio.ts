@@ -1,152 +1,112 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-interface UseAudioReturnType {
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  volume: number;
-  isMuted: boolean;
-  togglePlayPause: () => void;
-  seek: (time: number) => void;
-  setVolume: (volume: number) => void;
-  skipForward: () => void;
-  skipBack: () => void;
-  toggleMute: () => void;
-}
-
-export function useAudio(audioSrc?: string): UseAudioReturnType {
+export function useAudio(audioSrc: string | undefined) {
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolumeState] = useState(0.7);
+  const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const previousVolumeRef = useRef(volume);
+  const previousVolume = useRef(volume);
 
   // Initialize audio element
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.volume = volume;
-    }
+    if (!audioSrc) return;
 
+    const audioElement = new Audio(audioSrc);
+    audioElement.volume = volume;
+    
+    setAudio(audioElement);
+    
+    // Clean up audio element on unmount
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
       }
     };
-  }, []);
-
-  // Update audio source when it changes
-  useEffect(() => {
-    if (audioRef.current && audioSrc) {
-      audioRef.current.src = audioSrc;
-      audioRef.current.load();
-      
-      // If it was playing, continue playing with the new track
-      if (isPlaying) {
-        audioRef.current.play().catch(error => {
-          console.error("Audio playback failed:", error);
-          setIsPlaying(false);
-        });
-      }
-    }
   }, [audioSrc]);
 
-  // Set up event listeners
+  // Set up event listeners for audio element
   useEffect(() => {
-    const audio = audioRef.current;
     if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
-
-    const handleDurationChange = () => {
-      setDuration(audio.duration);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
+    
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration || 0);
+    const handleEnded = () => setIsPlaying(false);
+    
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('durationchange', updateDuration);
     audio.addEventListener('ended', handleEnded);
-
+    
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('durationchange', updateDuration);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, []);
+  }, [audio]);
 
-  // Toggle play/pause
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-
+  // Play/pause control
+  useEffect(() => {
+    if (!audio) return;
+    
     if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(error => {
-        console.error("Audio playback failed:", error);
+      audio.play().catch(err => {
+        console.error('Error playing audio:', err);
+        setIsPlaying(false);
       });
+    } else {
+      audio.pause();
     }
-    setIsPlaying(!isPlaying);
-  };
+  }, [isPlaying, audio]);
 
-  // Seek to a specific time
+  // Mute control
+  useEffect(() => {
+    if (!audio) return;
+    
+    audio.muted = isMuted;
+  }, [isMuted, audio]);
+
+  // Volume control
+  useEffect(() => {
+    if (!audio) return;
+    
+    audio.volume = volume;
+  }, [volume, audio]);
+
+  const togglePlayPause = () => setIsPlaying(!isPlaying);
+  
+  const toggleMute = () => {
+    if (isMuted) {
+      setIsMuted(false);
+      setVolume(previousVolume.current);
+    } else {
+      previousVolume.current = volume;
+      setIsMuted(true);
+      setVolume(0);
+    }
+  };
+  
   const seek = (time: number) => {
-    if (!audioRef.current) return;
-    if (time >= 0 && time <= duration) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
+    if (!audio) return;
+    
+    audio.currentTime = time;
+    setCurrentTime(time);
   };
-
-  // Set volume
-  const setVolume = (newVolume: number) => {
-    if (!audioRef.current) return;
-    
-    // Ensure volume is between 0 and 1
-    const clampedVolume = Math.max(0, Math.min(1, newVolume));
-    
-    if (!isMuted) {
-      audioRef.current.volume = clampedVolume;
-    }
-    
-    setVolumeState(clampedVolume);
-    previousVolumeRef.current = clampedVolume;
-  };
-
-  // Skip forward 10 seconds
+  
   const skipForward = () => {
-    if (!audioRef.current) return;
-    const newTime = Math.min(audioRef.current.currentTime + 10, duration);
-    seek(newTime);
-  };
-
-  // Skip back 10 seconds
-  const skipBack = () => {
-    if (!audioRef.current) return;
-    const newTime = Math.max(audioRef.current.currentTime - 10, 0);
+    if (!audio) return;
+    
+    const newTime = Math.min(audio.currentTime + 10, duration);
     seek(newTime);
   };
   
-  // Toggle mute
-  const toggleMute = () => {
-    if (!audioRef.current) return;
+  const skipBack = () => {
+    if (!audio) return;
     
-    if (isMuted) {
-      audioRef.current.volume = previousVolumeRef.current;
-    } else {
-      audioRef.current.volume = 0;
-    }
-    
-    setIsMuted(!isMuted);
+    const newTime = Math.max(audio.currentTime - 10, 0);
+    seek(newTime);
   };
 
   return {
@@ -156,10 +116,10 @@ export function useAudio(audioSrc?: string): UseAudioReturnType {
     volume,
     isMuted,
     togglePlayPause,
+    toggleMute,
     seek,
     setVolume,
     skipForward,
-    skipBack,
-    toggleMute
+    skipBack
   };
 }

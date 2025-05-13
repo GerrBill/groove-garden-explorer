@@ -4,25 +4,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast"; 
+import { toast } from "@/components/ui/use-toast"; 
 import { uploadAudioFile, getAudioUrl } from '@/utils/fileUpload';
 import { useQueryClient } from '@tanstack/react-query';
+import TrackForm, { TrackFormValues } from './components/TrackForm';
 
 interface AddTrackDialogProps {
   children: React.ReactNode;
   albumId: string;
   albumTitle?: string;
   artist?: string;
-}
-
-interface TrackFormData {
-  title: string;
-  artist?: string;
-  trackNumber: string;
-  duration: string;
-  genre?: string;
-  comment?: string;
-  audioFile?: File | null;
 }
 
 const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
@@ -42,7 +33,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
     return `albums/${albumId}/tracks/${uniqueId}.${fileExt}`;
   };
 
-  const handleSubmit = async (data: TrackFormData) => {
+  const handleSubmit = async (data: TrackFormValues) => {
     if (!audioFile) {
       toast({
         title: "Error",
@@ -61,7 +52,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
       const audioUrl = getAudioUrl(filePath);
 
       // Convert trackNumber to a number before inserting
-      const trackNumberAsNumber = parseInt(data.trackNumber, 10);
+      const trackNumberAsNumber = data.trackNumber ? parseInt(data.trackNumber, 10) : 1;
       
       // Add the track to the database
       const { error } = await supabase
@@ -70,7 +61,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
           album_id: albumId,
           title: data.title,
           artist: data.artist || artist || "",
-          duration: data.duration,
+          duration: data.duration || "0:00",
           genre: data.genre || null,
           audio_path: audioUrl,
           track_number: trackNumberAsNumber
@@ -143,6 +134,4 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
   );
 };
 
-// Import TrackForm
-import TrackForm from './components/TrackForm';
 export default AddTrackDialog;
