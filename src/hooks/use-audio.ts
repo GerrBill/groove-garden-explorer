@@ -8,20 +8,44 @@ export function useAudio(audioSrc: string | undefined) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const previousVolume = useRef(volume);
 
   // Initialize audio element
   useEffect(() => {
-    if (!audioSrc) return;
+    if (!audioSrc) {
+      setLoadError("No audio source provided");
+      return;
+    }
 
+    console.log("Creating audio element with source:", audioSrc);
     const audioElement = new Audio(audioSrc);
     audioElement.volume = volume;
+    
+    // Handle any loading errors
+    const handleError = (e: ErrorEvent) => {
+      console.error("Audio loading error:", e);
+      setLoadError(`Failed to load audio: ${e.message}`);
+      setIsPlaying(false);
+    };
+    
+    audioElement.addEventListener('error', handleError as EventListener);
+    
+    // Set up additional events
+    const handleCanPlay = () => {
+      console.log("Audio can play now");
+      setLoadError(null); // Clear any previous errors
+    };
+    
+    audioElement.addEventListener('canplay', handleCanPlay);
     
     setAudio(audioElement);
     
     // Clean up audio element on unmount
     return () => {
       if (audioElement) {
+        audioElement.removeEventListener('error', handleError as EventListener);
+        audioElement.removeEventListener('canplay', handleCanPlay);
         audioElement.pause();
         audioElement.src = '';
       }
@@ -52,10 +76,14 @@ export function useAudio(audioSrc: string | undefined) {
     if (!audio) return;
     
     if (isPlaying) {
-      audio.play().catch(err => {
-        console.error('Error playing audio:', err);
-        setIsPlaying(false);
-      });
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.error('Error playing audio:', err);
+          setIsPlaying(false);
+          setLoadError(`Playback error: ${err.message}`);
+        });
+      }
     } else {
       audio.pause();
     }
@@ -115,6 +143,7 @@ export function useAudio(audioSrc: string | undefined) {
     duration,
     volume,
     isMuted,
+    loadError,
     togglePlayPause,
     toggleMute,
     seek,

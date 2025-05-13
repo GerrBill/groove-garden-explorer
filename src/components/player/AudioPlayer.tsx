@@ -1,9 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { Slider } from "@/components/ui/slider";
 import { useAudio } from '@/hooks/use-audio';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 
 interface AudioPlayerProps {
   audioSrc: string;
@@ -11,7 +12,7 @@ interface AudioPlayerProps {
   trackArtist: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackArtist }) => {
   const {
     isPlaying,
     currentTime,
@@ -24,12 +25,26 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
     skipBack,
     isMuted,
     toggleMute,
+    loadError
   } = useAudio(audioSrc);
 
   const [isSeeking, setIsSeeking] = useState(false);
   const [displayVolume, setDisplayVolume] = useState(volume);
   const isMobile = useIsMobile();
   const volumeRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  // Display error toast if audio fails to load
+  useEffect(() => {
+    if (loadError) {
+      console.error("Audio error:", loadError);
+      toast({
+        title: "Playback Error",
+        description: `Could not play "${trackTitle}". ${loadError}`,
+        variant: "destructive"
+      });
+    }
+  }, [loadError, toast, trackTitle]);
 
   useEffect(() => {
     setDisplayVolume(volume);
