@@ -106,7 +106,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     return (
       <Link 
         to={`/${type}/${id}`} 
-        className={`block bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-4 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}
+        className={`block bg-black p-3 rounded-md hover:bg-black hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-4 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}
         aria-label={`View ${type} ${title}`}
         onClick={handleCardClick}
         data-testid={`${type}-card-${id}`}
@@ -117,7 +117,7 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   }
 
   return (
-    <div className={`bg-spotify-card bg-opacity-40 p-3 rounded-md hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-4 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}>
+    <div className={`bg-black p-3 rounded-md hover:bg-black hover:bg-opacity-70 transition-all group cursor-pointer mx-auto my-4 ${sizeClasses[size]} min-w-[70vw] max-w-[70vw] sm:min-w-0 sm:max-w-[320px]`}>
       {content}
     </div>
   );

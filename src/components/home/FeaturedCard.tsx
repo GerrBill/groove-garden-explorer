@@ -20,7 +20,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
   id,
 }) => {
   const renderContent = () => (
-    <div className="flex flex-col md:flex-row items-stretch bg-gradient-to-r from-zinc-800/70 to-zinc-900/30 rounded-lg overflow-hidden relative cursor-pointer group">
+    <div className="flex flex-col md:flex-row items-stretch bg-black rounded-lg overflow-hidden relative cursor-pointer group">
       <div className="w-full md:w-2/3 p-6 flex flex-col justify-between z-10">
         <div>
           <span className="text-xs text-white bg-black/40 px-2 py-1 rounded">
@@ -47,8 +47,8 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
             alt={title} 
             className="h-full w-full object-cover" 
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-zinc-800/80 to-transparent md:block hidden"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-800/80 to-transparent md:hidden"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent md:block hidden"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent md:hidden"></div>
         </AspectRatio>
       </div>
     </div>

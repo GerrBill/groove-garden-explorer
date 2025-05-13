@@ -17,7 +17,7 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({
   trackCount
 }) => {
   return (
-    <div className="px-4 pt-3 pb-2 flex items-end gap-4 bg-gradient-to-b from-orange-950/40 to-zinc-900">
+    <div className="px-4 pt-3 pb-2 flex items-end gap-4 bg-black">
       <div className="w-28 h-28 shadow-lg flex-shrink-0 flex items-center justify-center">
         {imageUrl ? (
           <img 
@@ -29,7 +29,7 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+          <div className="w-full h-full bg-black flex items-center justify-center">
             <span className="text-3xl font-bold text-zinc-600">
               {title[0]}
             </span>

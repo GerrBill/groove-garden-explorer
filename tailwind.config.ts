@@ -70,10 +70,10 @@ export default {
           DEFAULT: 'hsl(var(--theme-color))',
           hover: 'hsl(var(--theme-color-hover))'
         },
-        // Music app specific colors
+        // Music app specific colors with updated dark mode values
         spotify: {
-          background: '#121212',
-          card: '#282828',
+          background: '#000000',  // Updated to pure black for dark mode
+          card: '#000000',        // Updated to pure black for dark mode
           text: {
             primary: '#FFFFFF',
             secondary: '#B3B3B3',

@@ -112,7 +112,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   return (
     <div className="w-full relative">
       <Table>
-        <TableHeader className="sticky top-0 bg-zinc-900 z-10">
+        <TableHeader className="sticky top-0 bg-black z-10">
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[5%] px-4">#</TableHead>
             <TableHead className="w-[55%] px-4">Title</TableHead>
@@ -125,27 +125,27 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
             [...Array(5)].map((_, i) => (
               <TableRow key={i}>
                 <TableCell className="w-[5%] px-4">
-                  <div className="w-6 h-6 bg-zinc-800 animate-pulse rounded"></div>
+                  <div className="w-6 h-6 bg-black animate-pulse rounded"></div>
                 </TableCell>
                 <TableCell className="w-[55%] px-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-zinc-800 animate-pulse rounded"></div>
+                    <div className="w-10 h-10 bg-black animate-pulse rounded"></div>
                     <div className="space-y-2">
-                      <div className="w-24 h-4 bg-zinc-800 animate-pulse rounded"></div>
-                      <div className="w-16 h-3 bg-zinc-800 animate-pulse rounded"></div>
+                      <div className="w-24 h-4 bg-black animate-pulse rounded"></div>
+                      <div className="w-16 h-3 bg-black animate-pulse rounded"></div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="w-[25%] hidden md:table-cell px-4">
-                  <div className="w-20 h-4 bg-zinc-800 animate-pulse rounded"></div>
+                  <div className="w-20 h-4 bg-black animate-pulse rounded"></div>
                 </TableCell>
                 <TableCell className="w-[15%] px-4"></TableCell>
               </TableRow>
             ))
           ) : tracks.length > 0 ? (
             tracks.map(track => (
-              <TableRow key={track.id} className={`group ${track.isPlaying ? 'text-orange-600' : 'text-white'}`}>
-                <TableCell className="w-[5%] px-4">
+              <TableRow key={track.id} className={`group ${track.isPlaying ? 'text-orange-600' : 'text-white'} hover:bg-black/30`}>
+                <TableCell className="w-[5%] px-4 bg-black/50">
                   <div className="flex items-center">
                     <span className="group-hover:hidden">{track.position}</span>
                     <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
@@ -153,9 +153,9 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                     </button>
                   </div>
                 </TableCell>
-                <TableCell className="w-[55%] px-4">
+                <TableCell className="w-[55%] px-4 bg-black/50">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
+                    <div className="w-10 h-10 bg-black flex items-center justify-center rounded shrink-0">
                       <Music size={16} className="text-zinc-400" />
                     </div>
                     <div className="min-w-0 truncate">
@@ -164,10 +164,10 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="w-[25%] hidden md:table-cell text-zinc-400 truncate px-4">
+                <TableCell className="w-[25%] hidden md:table-cell text-zinc-400 truncate px-4 bg-black/50">
                   {track.albumName || 'Unknown Album'}
                 </TableCell>
-                <TableCell className="w-[15%] px-4 text-right">
+                <TableCell className="w-[15%] px-4 text-right bg-black/50">
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       className={`${track.isLiked ? 'text-orange-600' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} 
@@ -195,7 +195,7 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center text-zinc-400 py-8">
+              <TableCell colSpan={4} className="text-center text-zinc-400 py-8 bg-black/50">
                 This playlist doesn't have any tracks yet. Start adding some tracks!
               </TableCell>
             </TableRow>

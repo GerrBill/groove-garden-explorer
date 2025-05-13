@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -162,7 +161,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground w-full">
+                <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
                   <TopBar />
                   <div className="flex flex-grow relative">
                     {sidebarOpen && (
@@ -171,7 +170,7 @@ const App = () => {
                       </div>
                     )}
                     <div className="flex flex-col flex-grow w-full">
-                      <div className="flex-grow overflow-y-auto">
+                      <div className="flex-grow overflow-y-auto bg-black">
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/album/:id" element={<Album />} />

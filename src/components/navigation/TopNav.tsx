@@ -40,7 +40,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
               px-2 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium mx-0.5 text-center
               ${selectedTab === tab 
                 ? 'bg-theme-color text-white' 
-                : 'bg-zinc-800 text-white hover:bg-zinc-700'}
+                : 'bg-black text-white hover:bg-zinc-900'}
               min-w-[72px] sm:min-w-[90px]
             `}
             onClick={() => setSelectedTab(tab)}
