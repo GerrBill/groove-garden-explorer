@@ -152,7 +152,20 @@
   .dark .bg-zinc-900,
   .dark .bg-zinc-800\/40,
   .dark .bg-zinc-800\/70,
-  .dark .bg-zinc-900\/30 {
+  .dark .bg-zinc-900\/30,
+  .dark [class*="bg-zinc-"] {
+    background-color: #000000 !important;
+  }
+  
+  .dark .bg-gray-100,
+  .dark .bg-gray-200,
+  .dark .bg-gray-900,
+  .dark [class*="bg-gray-"] {
+    background-color: #000000 !important;
+  }
+  
+  /* Ensure all Dialog content is black in dark mode */
+  .dark [role="dialog"] {
     background-color: #000000 !important;
   }
 }

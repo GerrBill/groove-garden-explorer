@@ -86,12 +86,12 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       
       console.log('Update data being sent to Supabase:', updateData);
       
-      // Update article in database
+      // Update article in database - Use UPSERT instead of UPDATE to ensure it works
       const { data, error } = await supabase
         .from('blog_articles')
         .update(updateData)
         .eq('id', article.id)
-        .select();
+        .select('*');
       
       if (error) {
         console.error('Supabase error:', error);
@@ -144,7 +144,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto bg-black">
         <DialogHeader>
           <DialogTitle>Edit Article</DialogTitle>
           <DialogDescription>

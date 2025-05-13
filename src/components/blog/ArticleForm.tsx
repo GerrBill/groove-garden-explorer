@@ -158,7 +158,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
             <FormItem>
               <FormLabel className="text-sm font-medium">Article Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter an attention-grabbing title" {...field} />
+                <Input placeholder="Enter an attention-grabbing title" {...field} className="dark:bg-black" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -172,7 +172,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
             <FormItem>
               <FormLabel className="text-sm font-medium">Subtitle</FormLabel>
               <FormControl>
-                <Input placeholder="Add a subtitle or brief description" {...field} />
+                <Input placeholder="Add a subtitle or brief description" {...field} className="dark:bg-black" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -208,7 +208,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
               <FormItem>
                 <FormLabel className="text-sm font-medium">Category</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Fashion, Lifestyle, Travel" {...field} />
+                  <Input placeholder="e.g. Fashion, Lifestyle, Travel" {...field} className="dark:bg-black" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -227,6 +227,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
                     placeholder="Your name" 
                     {...field} 
                     disabled={isEditing}
+                    className="dark:bg-black"
                   />
                 </FormControl>
                 <FormMessage />
