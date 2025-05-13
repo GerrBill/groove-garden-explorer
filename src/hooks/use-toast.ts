@@ -1,6 +1,5 @@
 
 // Re-export from the implementation file
-import { toast, useToast } from "@radix-ui/react-toast";
-import { type ToastActionElement } from "@/components/ui/toast";
+import { toast, useToast, type ToastActionElement } from "@/hooks/use-toast.tsx";
 
 export { toast, useToast, type ToastActionElement };
