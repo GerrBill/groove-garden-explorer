@@ -16,10 +16,25 @@ const Player = () => {
       setCurrentTrack(track);
     };
     
+    const handlePlayTrack = (event: CustomEvent) => {
+      const detail = event.detail;
+      if (detail && detail.immediate) {
+        console.log("Received immediate play command");
+        // This would trigger play in a child component
+        const audioElement = document.querySelector('audio');
+        if (audioElement) {
+          audioElement.play()
+            .catch(err => console.error("Error playing audio:", err));
+        }
+      }
+    };
+    
     window.addEventListener('trackSelected', handleTrackSelected as EventListener);
+    window.addEventListener('playTrack', handlePlayTrack as EventListener);
     
     return () => {
       window.removeEventListener('trackSelected', handleTrackSelected as EventListener);
+      window.removeEventListener('playTrack', handlePlayTrack as EventListener);
     };
   }, []);
 

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -170,9 +169,8 @@ const TrackList: React.FC<TrackListProps> = ({
         <TableHeader className="sticky top-0 bg-zinc-900 z-10">
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[5%] px-4">#</TableHead>
-            <TableHead className="w-[55%] px-4">Title</TableHead>
-            <TableHead className="w-[25%] hidden md:table-cell px-4">Album</TableHead>
-            <TableHead className="w-[15%] px-4 text-right">Actions</TableHead>
+            <TableHead className="w-[75%] px-4">Title</TableHead>
+            <TableHead className="w-[20%] px-4 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -204,21 +202,13 @@ const TrackList: React.FC<TrackListProps> = ({
                   )}
                 </div>
               </TableCell>
-              <TableCell className="w-[55%] px-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 bg-zinc-800 flex items-center justify-center rounded shrink-0">
-                    <Music size={16} className="text-zinc-400" />
-                  </div>
-                  <div className="min-w-0 truncate">
-                    <div className="font-medium truncate">{track.title}</div>
-                    <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
-                  </div>
+              <TableCell className="w-[75%] px-4">
+                <div className="min-w-0 truncate">
+                  <div className="font-medium truncate">{track.title}</div>
+                  <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
                 </div>
               </TableCell>
-              <TableCell className="w-[25%] hidden md:table-cell text-zinc-400 truncate px-4">
-                {albumName || 'Unknown Album'}
-              </TableCell>
-              <TableCell className="w-[15%] px-4 text-right">
+              <TableCell className="w-[20%] px-4 text-right">
                 <div className="flex items-center justify-end gap-2">
                   <button className={`${track.isLiked ? 'text-spotify-accent' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} onClick={() => track.trackId && handleToggleLike(track.trackId)}>
                     <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />

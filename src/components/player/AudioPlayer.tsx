@@ -4,7 +4,6 @@ import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX } from 'lucide-rea
 import { Slider } from "@/components/ui/slider";
 import { useAudio } from '@/hooks/use-audio';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAuth } from '@/context/AuthContext';
 
 interface AudioPlayerProps {
   audioSrc: string;
@@ -12,7 +11,7 @@ interface AudioPlayerProps {
   trackArtist: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackArtist }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   const {
     isPlaying,
     currentTime,
@@ -31,7 +30,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
   const [displayVolume, setDisplayVolume] = useState(volume);
   const isMobile = useIsMobile();
   const volumeRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
 
   useEffect(() => {
     setDisplayVolume(volume);
@@ -70,22 +68,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
   };
 
   return (
-    <div className="bg-black border-t border-zinc-800 p-4 flex items-center text-white">
-      {/* Track Info */}
-      <div className="flex-grow flex items-center">
-        <div className="mr-4">
-          <img
-            src="https://lastfm.freetls.fastly.net/i/u/300x300/42c4943559f139b6b790a34442f40807.png"
-            alt="Album Art"
-            className="w-12 h-12 rounded"
-          />
-        </div>
-        <div>
-          <div className="text-sm font-semibold">{trackTitle}</div>
-          <div className="text-xs text-zinc-500">{trackArtist}</div>
-        </div>
-      </div>
-
+    <div className="flex items-center justify-center w-full gap-4">
       {/* Controls */}
       <div className="flex items-center gap-4">
         <button onClick={skipBack} className="text-zinc-400 hover:text-white transition-colors">
@@ -100,7 +83,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
       </div>
 
       {/* Seek Slider */}
-      <div className="flex items-center gap-2 w-40 md:w-64 lg:w-80 ml-4">
+      <div className="flex items-center gap-2 w-40 md:w-64 lg:w-80">
         <span className="text-xs text-zinc-400">{formatTime(currentTime)}</span>
         <Slider
           defaultValue={[0]}
@@ -116,7 +99,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
       </div>
 
       {/* Volume Controls */}
-      <div className="flex items-center gap-2 ml-4" ref={volumeRef}>
+      <div className="flex items-center gap-2" ref={volumeRef}>
         <button onClick={toggleMuteHandler} className="text-zinc-400 hover:text-white transition-colors">
           {isMuted ? <VolumeX size={isMobile ? 18 : 20} /> : <Volume2 size={isMobile ? 18 : 20} />}
         </button>
