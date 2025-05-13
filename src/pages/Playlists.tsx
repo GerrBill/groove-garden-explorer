@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import AlbumCard from '@/components/home/AlbumCard';
 import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
 import { useTheme } from '@/context/ThemeContext';
+import { useQuery } from '@tanstack/react-query';
 
 interface Playlist {
   id: string;
@@ -25,42 +26,49 @@ const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
 
 const Playlists = () => {
   const [selectedTab, setSelectedTab] = useState('Playlists');
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const isMobileView = useIsMobile(700);
   const { user } = useAuth();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
   const { colorTheme } = useTheme();
 
-  const fetchPlaylists = async () => {
-    setLoading(true);
-    try {
-      console.log("Fetching playlists...");
+  console.log("Playlists page rendered, user:", user);
+
+  const {
+    data: playlists,
+    isLoading,
+    error,
+    refetch: fetchPlaylists
+  } = useQuery({
+    queryKey: ['playlists-page'],
+    queryFn: async () => {
+      console.log("Fetching playlists for Playlists page...");
       const {
         data,
         error
       } = await supabase.from('playlists').select('*').order('created_at', {
         ascending: false
       });
-      if (error) throw error;
-      console.log("Playlists fetched:", data);
-      setPlaylists(data || []);
-    } catch (error) {
+      if (error) {
+        console.error('Error fetching playlists:', error);
+        throw error;
+      }
+      console.log("Playlists fetched for page:", data);
+      return data || [];
+    }
+  });
+
+  // Show error toast if fetch fails
+  useEffect(() => {
+    if (error) {
       console.error('Error fetching playlists:', error);
       toast({
         title: "Error",
         description: "Failed to load playlists. Please try again later.",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchPlaylists();
-  }, []);
+  }, [error, toast]);
 
   const handlePlaylistAdded = () => {
     console.log("Playlist added, refreshing list...");
@@ -73,6 +81,8 @@ const Playlists = () => {
   };
 
   const gridClass = isMobileView ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
+
+  console.log("Rendering Playlists page with data:", playlists);
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
@@ -101,7 +111,7 @@ const Playlists = () => {
           </div>
           
           <div className={`grid ${gridClass} gap-4 py-4`}>
-            {loading ? (
+            {isLoading ? (
               [...Array(10)].map((_, i) => (
                 <div key={i} className="w-full p-1 rounded-md">
                   <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
@@ -109,7 +119,7 @@ const Playlists = () => {
                   <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2 mx-auto"></div>
                 </div>
               ))
-            ) : playlists.length > 0 ? (
+            ) : playlists && playlists.length > 0 ? (
               playlists.map(playlist => (
                 <AlbumCard 
                   key={playlist.id} 

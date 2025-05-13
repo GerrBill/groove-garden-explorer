@@ -1,9 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Album as AlbumType } from '@/types/supabase';
 import TopNav from '@/components/navigation/TopNav';
-import HomeSection from '@/components/home/HomeSection';
 import AlbumCard from '@/components/home/AlbumCard';
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,47 +11,53 @@ import AddAlbumDialog from '@/components/album/AddAlbumDialog';
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 
 const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
 
 const Index = () => {
   const [selectedTab, setSelectedTab] = useState('Albums');
-  const [albums, setAlbums] = useState<AlbumType[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
+  const isMobileView = useIsMobile(700); 
   const auth = useAuth();
   const user = auth?.user;
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
 
-  const fetchAlbums = async () => {
-    setLoading(true);
-    try {
-      console.log("Fetching albums...");
+  console.log("Index page rendered, user:", user);
+
+  const {
+    data: albums,
+    isLoading,
+    error,
+    refetch: fetchAlbums
+  } = useQuery({
+    queryKey: ['albums-page'],
+    queryFn: async () => {
+      console.log("Fetching albums for Index page...");
       const {
         data,
         error
       } = await supabase.from('albums').select('*').order('created_at', {
         ascending: false
       });
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching albums:', error);
+        throw error;
+      }
       console.log("Albums fetched:", data);
-      setAlbums(data || []);
-    } catch (error) {
-      console.error('Error fetching albums:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load albums. Please try again later.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+      return data || [];
     }
-  };
+  });
 
-  useEffect(() => {
-    fetchAlbums();
-  }, []);
+  // Show error toast if fetch fails
+  if (error) {
+    console.error('Error fetching albums:', error);
+    toast({
+      title: "Error",
+      description: "Failed to load albums. Please try again later.",
+      variant: "destructive"
+    });
+  }
 
   const handleAlbumAdded = () => {
     console.log("Album added, refreshing list...");
@@ -65,8 +70,10 @@ const Index = () => {
   };
 
   const gridClass = isMobileView 
-    ? "grid-cols-1" // 1 column on mobile
-    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; // Default grid for larger screens
+    ? "grid-cols-1" 
+    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; 
+
+  console.log("Rendering Index page with data:", albums);
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
@@ -89,14 +96,16 @@ const Index = () => {
           </div>
           
           <div className={`grid ${gridClass} gap-4 py-4`}>
-            {loading ? (
-              [...Array(10)].map((_, i) => <div key={i} className="w-full p-1 rounded-md">
-                <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
-                <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
-                <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
-              </div>)
+            {isLoading ? (
+              [...Array(10)].map((_, i) => (
+                <div key={i} className="w-full p-1 rounded-md">
+                  <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4"></div>
+                  <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
+                </div>
+              ))
             ) : (
-              albums.length > 0 ? (
+              albums && albums.length > 0 ? (
                 albums.map(album => (
                   <AlbumCard 
                     key={album.id}

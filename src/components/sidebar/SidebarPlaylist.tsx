@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 export interface Playlist {
   id: string;
@@ -16,6 +17,17 @@ interface SidebarPlaylistProps {
 }
 
 const SidebarPlaylist: React.FC<SidebarPlaylistProps> = ({ playlists }) => {
+  // Add console log to debug
+  console.log("Sidebar Playlists received:", playlists);
+  
+  if (!playlists || playlists.length === 0) {
+    return (
+      <div className="text-xs text-zinc-500 italic px-2 py-1">
+        No playlists found
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-1">
       {playlists.map((playlist) => {
