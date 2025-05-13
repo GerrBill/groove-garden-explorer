@@ -1,6 +1,6 @@
 
-// Re-export toast components from the ui component
-import { toast, useToast } from "@/components/ui/toast";
+// Re-export toast components from the hooks implementation
+import { toast, useToast } from "@/hooks/use-toast.tsx";
 
 export type ToastOptions = {
   title?: string

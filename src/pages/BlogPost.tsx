@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import TopNav from '@/components/navigation/TopNav';
 import { BlogArticle, BlogComment } from '@/types/supabase';
