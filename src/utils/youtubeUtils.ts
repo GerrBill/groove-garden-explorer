@@ -38,9 +38,9 @@ export const isYouTubeUrl = (url: string): boolean => {
 };
 
 /**
- * Generate a React-compatible YouTube embed component
+ * Generate a React-compatible YouTube embed placeholder
  * @param videoId YouTube video ID
- * @returns JSX for embedded YouTube player
+ * @returns HTML string for embedded YouTube player placeholder
  */
 export const createYouTubeEmbed = (videoId: string): string => {
   return `<div class="youtube-embed" data-youtube-id="${videoId}"></div>`;
