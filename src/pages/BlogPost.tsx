@@ -152,8 +152,34 @@ const BlogPost = () => {
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
     
-    // Convert the HTML content directly
-    return content;
+    let formatted = content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-orange-700 underline">$1</a>')
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full my-4 rounded-md" />')
+      .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '<div style="text-align: $1;">$2</div>')
+      .replace(/- (.*?)(?:\n|$)/g, '<li>$1</li>')
+      .replace(/\n/g, '<br />');
+    
+    // YouTube URL regex
+    const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=|embed\/|v\/|shorts\/|playlist\?list=|channel\/)?([a-zA-Z0-9_-]{11})(\S*)?/g;
+    formatted = formatted.replace(youtubeRegex, (match) => {
+      return `<div class="aspect-w-16 aspect-h-9 my-4">
+        <iframe src="https://www.youtube.com/embed/${match.match(/([a-zA-Z0-9_-]{11})/)?.[0]}" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen
+          class="w-full h-64 rounded-md"
+        ></iframe>
+      </div>`;
+    });
+    
+    if (formatted.includes('<li>')) {
+      formatted = formatted.replace(/<li>(.*?)(?:<br \/>|$)/g, '<li>$1</li>');
+      formatted = '<ul class="list-disc pl-5 my-4">' + formatted + '</ul>';
+    }
+    
+    return formatted;
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -483,8 +509,8 @@ const BlogPost = () => {
                 )}
               </div>
               
-              <div className="article-content prose max-w-none dark:prose-invert mb-8">
-                <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+              <div className="article-content prose max-w-none mb-8">
+                <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
               </div>
               
               <Separator className="my-8" />
