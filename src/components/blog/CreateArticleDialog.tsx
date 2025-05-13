@@ -8,6 +8,7 @@ import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQueryClient } from '@tanstack/react-query';
+import { extractYouTubeVideoId, convertYouTubeUrlsToEmbeds } from '@/utils/youtubeUtils';
 
 interface CreateArticleDialogProps {
   children: React.ReactNode;
@@ -71,12 +72,16 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
         imageUrl = `https://img.youtube.com/vi/${values.youtubeVideoId}/hqdefault.jpg`;
       }
 
+      // Process content to convert any YouTube URLs to embeds
+      const processedContent = convertYouTubeUrlsToEmbeds(values.content);
+
       // Generate excerpt if not provided (use first 150 chars of content)
-      const excerpt = values.content
+      const excerpt = processedContent
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
         .replace(/!\[(.*?)\]\((.*?)\)/g, '')
+        .replace(/<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g, '[YouTube Video]')
         .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
         .substring(0, 150) + '...';
 
@@ -86,7 +91,7 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       const { data, error } = await supabase.from('blog_articles').insert({
         title: values.title,
         subtitle: values.subtitle || null,
-        content: values.content,
+        content: processedContent,
         excerpt: excerpt,
         image_url: imageUrl,
         author: values.author || 'Anonymous',

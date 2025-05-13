@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { BlogArticle } from '@/types/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "@/components/ui/spinner";
+import { convertYouTubeUrlsToEmbeds } from '@/utils/youtubeUtils';
 
 interface EditArticleDialogProps {
   children: React.ReactNode;
@@ -64,13 +65,17 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         imageUrl = `https://img.youtube.com/vi/${values.youtubeVideoId}/hqdefault.jpg`;
       }
       
+      // Process content to convert any YouTube URLs to embeds
+      const processedContent = convertYouTubeUrlsToEmbeds(values.content);
+      
       // Generate excerpt if content changed (use first 150 chars of content)
-      const excerpt = values.content
+      const excerpt = processedContent
         .replace(/<[^>]*>/g, '') // Remove HTML tags
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
         .replace(/!\[(.*?)\]\((.*?)\)/g, '')
+        .replace(/<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g, '[YouTube Video]')
         .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '$2')
         .substring(0, 150) + '...';
       
@@ -81,7 +86,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       const updateData = {
         title: values.title,
         subtitle: values.subtitle || null, // Handle empty subtitle
-        content: values.content,
+        content: processedContent,
         excerpt: excerpt,
         image_url: imageUrl,
         category: values.category

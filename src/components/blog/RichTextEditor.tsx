@@ -14,7 +14,8 @@ import {
   List,
   Image as ImageIcon,
   Link as LinkIcon,
-  Youtube
+  Youtube,
+  Video
 } from 'lucide-react';
 import { useRef, useCallback } from 'react';
 import { extractYouTubeVideoId, generateYouTubeEmbed, isYouTubeUrl } from '@/utils/youtubeUtils';
@@ -205,7 +206,7 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 p-0 px-2"
+          className="h-8 px-2 py-0"
           onClick={handleYoutubeEmbed}
         >
           <Youtube className="h-4 w-4 mr-1" />
