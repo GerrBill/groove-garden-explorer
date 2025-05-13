@@ -145,11 +145,11 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider>
-          <TooltipProvider>
-            <SidebarProvider defaultOpen={sidebarOpen}>
-              <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <ThemeProvider>
+            <TooltipProvider>
+              <SidebarProvider defaultOpen={sidebarOpen}>
                 <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
                   <TopBar />
                   <div className="flex flex-grow relative">
@@ -176,13 +176,13 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-              </BrowserRouter>
-              <Toaster />
-              <Sonner />
-            </SidebarProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-      </AuthProvider>
+                <Toaster />
+                <Sonner />
+              </SidebarProvider>
+            </TooltipProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
