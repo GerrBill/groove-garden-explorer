@@ -34,7 +34,6 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
