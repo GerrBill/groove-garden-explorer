@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
 import { uploadImageFile } from '@/utils/fileUpload';
@@ -67,6 +67,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       
       // Process content to convert any YouTube URLs to embeds
       const processedContent = convertYouTubeUrlsToEmbeds(values.content);
+      console.log('Processed content for update:', processedContent);
       
       // Generate excerpt if content changed (use first 150 chars of content)
       const excerpt = processedContent

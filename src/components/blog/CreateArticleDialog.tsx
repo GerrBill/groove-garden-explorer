@@ -74,9 +74,11 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
 
       // Process content to convert any YouTube URLs to embeds
       const processedContent = convertYouTubeUrlsToEmbeds(values.content);
+      console.log('Processed content:', processedContent);
 
       // Generate excerpt if not provided (use first 150 chars of content)
       const excerpt = processedContent
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
@@ -86,6 +88,7 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
         .substring(0, 150) + '...';
 
       console.log('Creating article with image URL:', imageUrl);
+      console.log('Excerpt:', excerpt);
 
       // Insert article into database
       const { data, error } = await supabase.from('blog_articles').insert({
