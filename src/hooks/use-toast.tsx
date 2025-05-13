@@ -3,13 +3,13 @@ import * as React from "react";
 import { createContext, useContext, useState } from "react";
 
 // Types for toast related functionality
-export type ToastProps = {
+export interface ToastProps {
   title?: React.ReactNode;
   description?: React.ReactNode;
   variant?: "default" | "destructive";
   duration?: number;
   action?: React.ReactNode;
-};
+}
 
 export type Toast = ToastProps & {
   id: string;
@@ -33,7 +33,7 @@ export function useToast() {
 }
 
 // Define the toast function
-export function toast(props: ToastProps) {
+export const toast = (props: ToastProps) => {
   // Generate an ID for this toast
   const id = Math.random().toString(36).slice(2, 10);
   
@@ -41,7 +41,7 @@ export function toast(props: ToastProps) {
   try {
     const context = useContext(ToastContext);
     if (context) {
-      context.addToast({ ...props, id });
+      context.addToast({ ...props, id: id });
     } else {
       console.warn("Toast context not available, toast may not appear");
     }
@@ -62,20 +62,18 @@ export function toast(props: ToastProps) {
       }
     },
   };
-}
+};
 
 // ToastProvider component
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = (props: ToastProps) => {
-    const id = Math.random().toString(36).slice(2, 10);
-    const toast = { ...props, id };
-    setToasts((prev) => [...prev, toast]);
+  const addToast = (props: ToastProps & { id: string }) => {
+    setToasts((prev) => [...prev, props]);
     
     if (props.duration !== Infinity) {
       setTimeout(() => {
-        dismissToast(id);
+        dismissToast(props.id);
       }, props.duration || 5000);
     }
   };

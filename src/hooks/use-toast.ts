@@ -1,4 +1,6 @@
 
-import { useToast, toast, ToastProps, ToastProvider, ToastActionElement } from "./use-toast.tsx";
+import { useToast, toast, ToastProvider } from "./use-toast.tsx";
+import type { ToastProps, ToastActionElement } from "./use-toast.tsx";
 
-export { useToast, toast, ToastProps, ToastProvider, type ToastActionElement };
+export { useToast, toast, ToastProvider };
+export type { ToastProps, ToastActionElement };
