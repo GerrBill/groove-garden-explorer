@@ -145,14 +145,11 @@ function toast(props: Toast) {
     },
   });
   
-  // But don't actually show the toast notification
-  // Commented out sonner toast to stop showing toast messages
-  /* 
+  // Show the toast notification with sonner
   sonnerToast[props.variant === "destructive" ? "error" : "success"](props.title as string, {
     description: props.description,
     action: props.action,
   });
-  */
 
   return {
     id,

@@ -1,11 +1,8 @@
 
 // Re-export from the implementation file
-import { useToast } from "@/hooks/use-toast.tsx";
+import { useToast, toast } from "./use-toast.tsx";
 
-export { useToast };
-
-// No-op toast function that doesn't actually show toasts
-export const toast = () => {};
+export { useToast, toast };
 
 // Export the type for compatibility
 export type ToastActionElement = React.ReactElement<unknown>;
