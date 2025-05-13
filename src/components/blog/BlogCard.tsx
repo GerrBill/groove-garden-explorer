@@ -67,23 +67,45 @@ const BlogCard: React.FC<BlogCardProps> = ({
       description: "Please wait while we delete this article"
     });
     
-    const success = await deleteBlogArticle(
-      id,
-      image,
-      () => {
-        // Invalidate both queries to refresh sidebar and main blog list
-        queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
-        queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
-        
-        // Call onDeleted callback to refresh the main blog list
-        if (onDeleted) {
-          console.log("Calling onDeleted callback for main blog list refresh");
-          onDeleted();
+    try {
+      const success = await deleteBlogArticle(
+        id,
+        image,
+        () => {
+          // Invalidate both queries to refresh sidebar and main blog list
+          queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+          queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+          
+          // Call onDeleted callback to refresh the main blog list
+          if (onDeleted) {
+            console.log("Calling onDeleted callback for main blog list refresh");
+            onDeleted();
+          }
         }
+      );
+      
+      if (success) {
+        toast({
+          title: "Article deleted",
+          description: "The article has been successfully deleted"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete the article",
+          variant: "destructive"
+        });
       }
-    );
-    
-    setIsDeleting(false);
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the article",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (

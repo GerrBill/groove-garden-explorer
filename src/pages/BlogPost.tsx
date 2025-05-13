@@ -370,7 +370,7 @@ const BlogPost = () => {
     });
   };
 
-  // Modified delete handler without confirmation that doesn't use window.location.reload()
+  // Modified delete handler to fix deletion issues
   const handleDeleteArticle = async () => {
     if (!blogPost?.id || isDeleting) return;
 
@@ -382,21 +382,40 @@ const BlogPost = () => {
       description: "Please wait while we delete this article"
     });
     
-    const success = await deleteBlogArticle(
-      blogPost.id, 
-      blogPost.image_url, 
-      () => {
-        // Invalidate both queries to refresh sidebar and blog list
-        queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
-        queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
-        
-        // Navigate back to the blog page
-        console.log("Delete success callback triggered in BlogPost");
-        navigate('/blog', { replace: true });
+    try {
+      const success = await deleteBlogArticle(
+        blogPost.id, 
+        blogPost.image_url, 
+        () => {
+          // Invalidate both queries to refresh sidebar and blog list
+          queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
+          queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+          
+          // Navigate back to the blog page
+          console.log("Delete success callback triggered in BlogPost");
+          navigate('/blog', { replace: true });
+        }
+      );
+      
+      if (success) {
+        toast({
+          title: "Article deleted",
+          description: "The article has been successfully deleted"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete the article",
+          variant: "destructive"
+        });
       }
-    );
-    
-    if (!success) {
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the article",
+        variant: "destructive"
+      });
       setIsDeleting(false);
     }
   };
@@ -499,7 +518,16 @@ const BlogPost = () => {
                       onClick={handleDeleteArticle}
                       disabled={isDeleting}
                     >
-                      <Trash2 size={16} /> Delete
+                      {isDeleting ? (
+                        <>
+                          <Spinner size="sm" className="mr-1" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 size={16} /> Delete
+                        </>
+                      )}
                     </Button>
                   </div>
                 )}

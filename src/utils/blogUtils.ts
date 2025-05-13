@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { BlogArticle } from '@/types/supabase';
 import { uploadImageFile } from './fileUpload';
@@ -161,6 +162,7 @@ export const deleteBlogArticle = async (
       .eq('id', id);
       
     if (error) {
+      console.error('Error deleting blog article:', error);
       throw error;
     }
     
@@ -197,6 +199,7 @@ export const deleteBlogArticle = async (
     
     // Call success callback if provided
     if (onSuccess) {
+      console.log('Calling onSuccess callback after successful deletion');
       onSuccess();
     }
     

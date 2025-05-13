@@ -40,7 +40,7 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
   const isYouTube = isYouTubeUrl(image);
   const youtubeId = isYouTube ? extractYouTubeVideoId(image) : null;
   
-  // Check if excerpt is just a URL
+  // Check if excerpt is just a URL and should be hidden
   const shouldHideExcerpt = isContentOnlyUrl(excerpt);
   
   return (
