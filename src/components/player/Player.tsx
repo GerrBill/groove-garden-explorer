@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import PlayerContent from './PlayerContent';
@@ -14,7 +15,9 @@ const Player = () => {
       console.log("Player received track selection event:", track.title);
       setCurrentTrack(track);
     };
+    
     window.addEventListener('trackSelected', handleTrackSelected as EventListener);
+    
     return () => {
       window.removeEventListener('trackSelected', handleTrackSelected as EventListener);
     };
