@@ -20,6 +20,7 @@ interface ToastContextType {
   addToast: (props: ToastProps) => void;
   dismissToast: (id: string) => void;
   dismissAll: () => void;
+  toast: (props: ToastProps) => { id: string; dismiss: () => void }; // Added the toast function to the context type
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);
@@ -32,15 +33,27 @@ export function useToast() {
   return context;
 }
 
-// Define the toast function separately to avoid circular dependencies
+// Define the toast function that will be included in the context
+const createToast = (addToast: (props: ToastProps) => void, dismissToast: (id: string) => void) => {
+  return (props: ToastProps) => {
+    const id = Math.random().toString(36).slice(2, 10);
+    
+    addToast({ ...props, id });
+    
+    return {
+      id,
+      dismiss: () => dismissToast(id),
+    };
+  };
+};
+
+// Export the standalone toast function for direct imports
 export const toast = (props: ToastProps) => {
   // Generate an ID for this toast
   const id = Math.random().toString(36).slice(2, 10);
   
-  // Get the current toast context if available
   try {
     // Using a direct DOM event to add the toast
-    // Instead of trying to use the context directly which causes circular dependencies
     window.dispatchEvent(
       new CustomEvent("add-toast", { 
         detail: { ...props, id } 
@@ -118,11 +131,15 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     setToasts([]);
   };
 
+  // Create the toast function for the context
+  const toastFn = createToast(addToast, dismissToast);
+
   const contextValue: ToastContextType = {
     toasts,
     addToast,
     dismissToast,
-    dismissAll
+    dismissAll,
+    toast: toastFn // Include the toast function in the context
   };
 
   return (

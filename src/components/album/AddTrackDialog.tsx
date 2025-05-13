@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast"; 
+import { useToast } from "@/hooks/use-toast";
 import { uploadAudioFile, getAudioUrl } from '@/utils/fileUpload';
 import { useQueryClient } from '@tanstack/react-query';
 import TrackForm, { TrackFormValues } from './components/TrackForm';
@@ -25,6 +25,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const generateFilePath = (albumId: string, fileName: string): string => {
     const fileExt = fileName.split('.').pop();
