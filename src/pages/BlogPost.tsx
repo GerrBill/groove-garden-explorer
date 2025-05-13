@@ -19,7 +19,7 @@ import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "@/components/ui/spinner";
-import { isYouTubeUrl, extractYouTubeVideoId } from '@/utils/youtubeUtils';
+import { isYouTubeUrl, extractYouTubeVideoId, isContentOnlyUrl } from '@/utils/youtubeUtils';
 import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
 
 const ADMIN_EMAILS = [
@@ -154,6 +154,11 @@ const BlogPost = () => {
   // Improved function to properly render HTML content with YouTube embeds
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
+    
+    // If the content is just a URL, don't display it
+    if (isContentOnlyUrl(content)) {
+      return '';
+    }
     
     // Process the content to identify and replace YouTube embeds
     const processedContent = content.replace(
@@ -571,7 +576,9 @@ const BlogPost = () => {
                 `}
               </style>
               <div className="article-content prose dark:prose-invert max-w-none mb-8">
-                <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
+                {!isContentOnlyUrl(blogPost.content) && (
+                  <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
+                )}
               </div>
               
               <Separator className="my-8" />

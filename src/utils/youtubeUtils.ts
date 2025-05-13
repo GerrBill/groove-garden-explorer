@@ -71,3 +71,18 @@ export const convertYouTubeUrlsToEmbeds = (content: string): string => {
     return createYouTubeEmbed(videoId);
   });
 };
+
+/**
+ * Check if content is just a URL and nothing else
+ * @param content The content to check
+ * @returns boolean indicating if content is just a URL
+ */
+export const isContentOnlyUrl = (content: string): boolean => {
+  if (!content) return false;
+  
+  // Trim whitespace and check if it matches a URL pattern
+  const trimmed = content.trim();
+  const urlPattern = /^(https?:\/\/)[^\s]+$/;
+  
+  return urlPattern.test(trimmed);
+};

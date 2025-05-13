@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { isYouTubeUrl, extractYouTubeVideoId } from '@/utils/youtubeUtils';
+import { isYouTubeUrl, extractYouTubeVideoId, isContentOnlyUrl } from '@/utils/youtubeUtils';
 import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
 
 interface FeaturedBlogPostProps {
@@ -40,6 +40,9 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
   const isYouTube = isYouTubeUrl(image);
   const youtubeId = isYouTube ? extractYouTubeVideoId(image) : null;
   
+  // Check if excerpt is just a URL
+  const shouldHideExcerpt = isContentOnlyUrl(excerpt);
+  
   return (
     <div className="bg-zinc-900 rounded-lg overflow-hidden w-full mb-8">
       <div className="flex flex-col md:flex-row">
@@ -69,9 +72,11 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
             <h2 className="text-xl md:text-2xl font-bold mb-2 text-white">
               {title}
             </h2>
-            <p className="text-gray-300 text-sm mb-4 line-clamp-2">
-              {excerpt}
-            </p>
+            {!shouldHideExcerpt && excerpt && (
+              <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                {excerpt.replace(/<[^>]*>/g, '')}
+              </p>
+            )}
           </div>
           
           <div className="flex items-center justify-between">

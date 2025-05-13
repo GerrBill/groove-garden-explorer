@@ -6,9 +6,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from '@tanstack/react-query';
-import { isYouTubeUrl, extractYouTubeVideoId } from '@/utils/youtubeUtils';
+import { isYouTubeUrl, extractYouTubeVideoId, isContentOnlyUrl } from '@/utils/youtubeUtils';
 import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
 
 const ADMIN_EMAILS = [
@@ -44,10 +44,14 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [imageError, setImageError] = useState(false);
+  const { toast } = useToast();
   
   // Check if image is a YouTube URL
   const isYouTube = image ? isYouTubeUrl(image) : false;
   const youtubeId = isYouTube && image ? extractYouTubeVideoId(image) : null;
+  
+  // Check if excerpt is just a URL
+  const shouldHideExcerpt = excerpt && isContentOnlyUrl(excerpt);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -129,7 +133,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
         <CardContent className="p-4">
           <h3 className="font-semibold text-base mb-1 line-clamp-2">{title}</h3>
           
-          {excerpt && (
+          {excerpt && !shouldHideExcerpt && (
             <p className="text-sm text-zinc-400 mb-2 line-clamp-2">
               {excerpt.replace(/<[^>]*>/g, '')}
             </p>
