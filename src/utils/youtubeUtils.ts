@@ -38,6 +38,15 @@ export const isYouTubeUrl = (url: string): boolean => {
 };
 
 /**
+ * Generate a React-compatible YouTube embed component
+ * @param videoId YouTube video ID
+ * @returns JSX for embedded YouTube player
+ */
+export const createYouTubeEmbed = (videoId: string): string => {
+  return `<div class="youtube-embed" data-youtube-id="${videoId}"></div>`;
+};
+
+/**
  * Generate an embeddable YouTube iframe HTML
  * @param videoId YouTube video ID
  * @param width Width of the iframe
@@ -49,15 +58,7 @@ export const generateYouTubeEmbed = (
   width: number = 560,
   height: number = 315
 ): string => {
-  return `<iframe 
-    width="${width}" 
-    height="${height}" 
-    src="https://www.youtube.com/embed/${videoId}" 
-    title="YouTube video player" 
-    frameborder="0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-    allowfullscreen
-  ></iframe>`;
+  return createYouTubeEmbed(videoId);
 };
 
 /**
@@ -71,6 +72,6 @@ export const convertYouTubeUrlsToEmbeds = (content: string): string => {
   
   // Find YouTube URLs and replace them with embeds
   return content.replace(YOUTUBE_REGEX, (match, videoId) => {
-    return generateYouTubeEmbed(videoId);
+    return createYouTubeEmbed(videoId);
   });
 };

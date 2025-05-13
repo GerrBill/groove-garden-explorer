@@ -152,9 +152,44 @@ const BlogPost = () => {
   // Simplify the renderFormattedContent function to properly display HTML content
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
-    return content;
+    
+    // Process the content to identify and replace YouTube embeds
+    const processedContent = content.replace(
+      /<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g,
+      (_, videoId) => {
+        return `<div class="youtube-embed-placeholder" data-video-id="${videoId}"></div>`;
+      }
+    );
+    
+    return processedContent;
   };
-
+  
+  // Effect to replace YouTube placeholder elements with actual embeds
+  useEffect(() => {
+    if (!blogPost?.content) return;
+    
+    const youtubeEmbeds = document.querySelectorAll('.youtube-embed-placeholder');
+    youtubeEmbeds.forEach(embed => {
+      const videoId = embed.getAttribute('data-video-id');
+      if (!videoId) return;
+      
+      const iframe = document.createElement('div');
+      iframe.className = 'aspect-video';
+      iframe.innerHTML = `
+        <iframe
+          src="https://www.youtube.com/embed/${videoId}"
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          class="w-full h-full rounded-md"
+        ></iframe>
+      `;
+      
+      embed.parentNode?.replaceChild(iframe, embed);
+    });
+  }, [blogPost?.content]);
+  
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -491,6 +526,23 @@ const BlogPost = () => {
                     aspect-ratio: 16/9;
                     height: auto;
                   }
+                  .article-content .aspect-video {
+                    position: relative;
+                    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+                    height: 0;
+                    overflow: hidden;
+                    max-width: 100%;
+                    margin: 1.5rem 0;
+                  }
+                  .article-content .aspect-video iframe {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border: 0;
+                    border-radius: 0.375rem;
+                  }
                   @media (max-width: 640px) {
                     .article-content iframe {
                       height: auto;
@@ -499,7 +551,7 @@ const BlogPost = () => {
                 `}
               </style>
               <div className="article-content prose dark:prose-invert max-w-none mb-8">
-                <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+                <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
               </div>
               
               <Separator className="my-8" />
