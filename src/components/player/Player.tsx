@@ -3,12 +3,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import PlayerContent from './PlayerContent';
 import { Track } from '@/types/supabase';
+import { useToast } from '@/hooks/use-toast';
 
 const Player = () => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const location = useLocation();
   const shouldHidePlayer = location.pathname.includes('/blog');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleTrackSelected = (event: CustomEvent) => {
@@ -18,6 +20,11 @@ const Player = () => {
       // Check if the track has an audio_path
       if (!track.audio_path) {
         console.error("Track has no audio path:", track);
+        toast({
+          title: "Playback Error",
+          description: "This track doesn't have an audio file associated with it.",
+          variant: "destructive"
+        });
         return;
       }
       
@@ -40,7 +47,14 @@ const Player = () => {
         // Trigger play in AudioPlayer component via the audio element
         if (audioRef.current) {
           audioRef.current.play()
-            .catch(err => console.error("Error playing audio:", err));
+            .catch(err => {
+              console.error("Error playing audio:", err);
+              toast({
+                title: "Playback Error",
+                description: "Could not play the track. Please try again.",
+                variant: "destructive"
+              });
+            });
         }
       }
     };
@@ -55,7 +69,7 @@ const Player = () => {
       window.removeEventListener('trackSelected', handleTrackSelected as EventListener);
       window.removeEventListener('playTrack', handlePlayTrack as EventListener);
     };
-  }, []);
+  }, [toast]);
 
   if (shouldHidePlayer) {
     return null;

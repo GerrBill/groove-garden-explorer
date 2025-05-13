@@ -120,47 +120,36 @@ const TrackList: React.FC<TrackListProps> = ({
   };
 
   const handlePlayClick = (track: Track) => {
-    const fetchTrackDetails = async (trackId: string) => {
-      try {
-        const {
-          data,
-          error
-        } = await supabase.from('tracks').select('*').eq('id', trackId).single();
-        if (error) throw error;
-        const fullTrack: TrackType = {
-          ...data,
-          id: data.id,
-          title: data.title,
-          artist: data.artist,
-          album_id: data.album_id,
-          duration: data.duration,
-          plays: data.plays || 0,
-          audio_path: data.audio_path,
-          track_number: data.track_number
-        };
-        
-        // Set currently playing track
-        setCurrentlyPlayingId(trackId);
-        
-        console.log("Dispatching track for playback:", fullTrack);
-        window.dispatchEvent(new CustomEvent('trackSelected', {
-          detail: fullTrack
-        }));
-        
-        // Immediately play the track
-        window.dispatchEvent(new CustomEvent('playTrack', {
-          detail: { immediate: true }
-        }));
-      } catch (error) {
-        console.error('Error fetching track details:', error);
-        toast({
-          title: "Error",
-          description: "Failed to play track",
-          variant: "destructive"
-        });
-      }
+    console.log("Play button clicked for track:", track.title);
+    
+    // Create a full track object to pass to the player
+    const fullTrack: TrackType = {
+      id: track.trackId,
+      title: track.title,
+      artist: track.artist,
+      album_id: "", // This will be filled by the player if needed
+      duration: track.duration,
+      plays: Number(track.plays) || 0,
+      audio_path: track.audio_path || "",
+      track_number: 0 // Default value
     };
-    fetchTrackDetails(track.trackId);
+    
+    // Set currently playing track
+    setCurrentlyPlayingId(track.trackId);
+    
+    console.log("Dispatching track for playback:", fullTrack);
+    window.dispatchEvent(new CustomEvent('trackSelected', {
+      detail: fullTrack
+    }));
+    
+    // Immediately play the track
+    window.dispatchEvent(new CustomEvent('playTrack', {
+      detail: { immediate: true }
+    }));
+    
+    if (onPlayTrack) {
+      onPlayTrack(track.trackId);
+    }
   };
 
   return (

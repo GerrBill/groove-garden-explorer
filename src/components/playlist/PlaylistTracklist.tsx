@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +18,7 @@ interface PlaylistTrack {
   trackId: string;
   albumName?: string | null;
   position: number;
+  audio_path?: string;
 }
 
 interface PlaylistTracklistProps {
@@ -32,6 +34,38 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
+  
+  // VU Meter animation state
+  const [vuHeights, setVuHeights] = useState<number[]>([20, 40, 30, 50, 25]);
+
+  // Listen for track selection events to update UI
+  useEffect(() => {
+    const handleTrackSelected = (event: Event) => {
+      const trackEvent = event as CustomEvent;
+      const track = trackEvent.detail as TrackType;
+      setCurrentlyPlayingId(track.id);
+    };
+
+    window.addEventListener('trackSelected', handleTrackSelected);
+    
+    return () => {
+      window.removeEventListener('trackSelected', handleTrackSelected);
+    };
+  }, []);
+
+  // VU meter animation effect
+  useEffect(() => {
+    if (currentlyPlayingId) {
+      const interval = setInterval(() => {
+        setVuHeights(prevHeights => 
+          prevHeights.map(() => Math.floor(Math.random() * 40) + 20)
+        );
+      }, 100);
+      
+      return () => clearInterval(interval);
+    }
+  }, [currentlyPlayingId]);
 
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
@@ -67,43 +101,32 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   };
 
   const handlePlayClick = (track: PlaylistTrack) => {
-    const fetchTrackDetails = async (trackId: string) => {
-      try {
-        const {
-          data,
-          error
-        } = await supabase.from('tracks').select('*').eq('id', trackId).single();
-        if (error) throw error;
-        const fullTrack: TrackType = {
-          ...data,
-          id: data.id,
-          title: data.title,
-          artist: data.artist,
-          album_id: data.album_id,
-          duration: data.duration,
-          plays: data.plays || 0,
-          audio_path: data.audio_path,
-          track_number: data.track_number
-        };
-        console.log("Dispatching playlist track for playback:", fullTrack);
-        window.dispatchEvent(new CustomEvent('trackSelected', {
-          detail: fullTrack
-        }));
-        
-        // Play the track immediately
-        window.dispatchEvent(new CustomEvent('playTrack', {
-          detail: { immediate: true }
-        }));
-      } catch (error) {
-        console.error('Error fetching track details:', error);
-        toast({
-          title: "Error",
-          description: "Failed to play track",
-          variant: "destructive"
-        });
-      }
+    console.log("Play button clicked for playlist track:", track.title);
+    
+    // Create a full track object with essential properties
+    const fullTrack: TrackType = {
+      id: track.trackId,
+      title: track.title,
+      artist: track.artist,
+      album_id: "", // Default value
+      duration: track.duration,
+      plays: Number(track.plays) || 0,
+      audio_path: track.audio_path || "",
+      track_number: track.position || 0
     };
-    fetchTrackDetails(track.trackId);
+    
+    // Set currently playing track
+    setCurrentlyPlayingId(track.trackId);
+    
+    console.log("Dispatching playlist track for playback:", fullTrack);
+    window.dispatchEvent(new CustomEvent('trackSelected', {
+      detail: fullTrack
+    }));
+    
+    // Play the track immediately
+    window.dispatchEvent(new CustomEvent('playTrack', {
+      detail: { immediate: true }
+    }));
   };
 
   return (
@@ -136,13 +159,28 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
             ))
           ) : tracks.length > 0 ? (
             tracks.map(track => (
-              <TableRow key={track.id} className={`group ${track.isPlaying ? 'text-orange-600' : 'text-white'} hover:bg-black/30`}>
+              <TableRow key={track.id} className={`group ${track.trackId === currentlyPlayingId ? 'text-orange-600' : 'text-white'} hover:bg-black/30`}>
                 <TableCell className="w-[5%] px-4 bg-black/50">
                   <div className="flex items-center">
-                    <span className="group-hover:hidden">{track.position}</span>
-                    <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
-                      <Play size={14} />
-                    </button>
+                    {track.trackId === currentlyPlayingId ? (
+                      // VU Meter animation when track is playing
+                      <div className="flex items-end h-4 gap-[2px]">
+                        {vuHeights.map((height, i) => (
+                          <div 
+                            key={i}
+                            className="w-[2px] bg-orange-600"
+                            style={{ height: `${height}%` }}
+                          ></div>
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        <span className="group-hover:hidden">{track.position}</span>
+                        <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
+                          <Play size={14} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="w-[75%] px-4 bg-black/50">
