@@ -1,8 +1,4 @@
 
-// Re-export from the implementation file
-import { useToast, toast } from "./use-toast.tsx";
+import { useToast, toast, ToastProps, ToastProvider, ToastActionElement } from "./use-toast.tsx";
 
-export { useToast, toast };
-
-// Export the type for compatibility
-export type ToastActionElement = React.ReactElement<unknown>;
+export { useToast, toast, ToastProps, ToastProvider, type ToastActionElement };
