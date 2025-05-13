@@ -19,6 +19,8 @@ import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "@/components/ui/spinner";
+import { isYouTubeUrl, extractYouTubeVideoId } from '@/utils/youtubeUtils';
+import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -516,15 +518,22 @@ const BlogPost = () => {
               
               <div className="mb-8 relative group">
                 {blogPost.image_url && (
-                  <img 
-                    src={blogPost.image_url} 
-                    alt={blogPost.title} 
-                    className="w-full h-auto rounded-md object-cover max-h-[500px]" 
-                    onError={(e) => {
-                      console.error("Error loading image:", blogPost.image_url);
-                      (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
-                    }}
-                  />
+                  isYouTubeUrl(blogPost.image_url) ? (
+                    <YouTubeEmbed 
+                      videoId={extractYouTubeVideoId(blogPost.image_url) || ''} 
+                      className="my-4"
+                    />
+                  ) : (
+                    <img 
+                      src={blogPost.image_url} 
+                      alt={blogPost.title} 
+                      className="w-full h-auto rounded-md object-cover max-h-[500px]" 
+                      onError={(e) => {
+                        console.error("Error loading image:", blogPost.image_url);
+                        (e.target as HTMLImageElement).src = '/lovable-uploads/90dc4b4f-9007-42c3-9243-928954690a7b.png';
+                      }}
+                    />
+                  )
                 )}
               </div>
               

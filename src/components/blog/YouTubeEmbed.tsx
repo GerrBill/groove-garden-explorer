@@ -4,11 +4,12 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface YouTubeEmbedProps {
   videoId: string;
+  className?: string;
 }
 
-const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoId }) => {
+const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoId, className = "" }) => {
   return (
-    <div className="my-4 w-full">
+    <div className={`w-full ${className}`}>
       <AspectRatio ratio={16 / 9}>
         <iframe
           src={`https://www.youtube.com/embed/${videoId}`}

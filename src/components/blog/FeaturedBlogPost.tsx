@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { isYouTubeUrl, extractYouTubeVideoId } from '@/utils/youtubeUtils';
+import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
 
 interface FeaturedBlogPostProps {
   id: string;
@@ -34,20 +36,28 @@ const FeaturedBlogPost: React.FC<FeaturedBlogPostProps> = ({
   // Placeholder image URL
   const placeholderImage = '/placeholder.svg';
   
+  // Check if image is a YouTube URL
+  const isYouTube = isYouTubeUrl(image);
+  const youtubeId = isYouTube ? extractYouTubeVideoId(image) : null;
+  
   return (
     <div className="bg-zinc-900 rounded-lg overflow-hidden w-full mb-8">
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/3">
           <div className="h-full">
-            <img 
-              src={imageError ? placeholderImage : image} 
-              alt={title} 
-              className="w-full h-full object-cover object-center" 
-              onError={() => {
-                console.error("Error loading featured blog image:", image);
-                setImageError(true);
-              }} 
-            />
+            {isYouTube && youtubeId ? (
+              <YouTubeEmbed videoId={youtubeId} className="h-full" />
+            ) : (
+              <img 
+                src={imageError ? placeholderImage : image} 
+                alt={title} 
+                className="w-full h-full object-cover object-center" 
+                onError={() => {
+                  console.error("Error loading featured blog image:", image);
+                  setImageError(true);
+                }} 
+              />
+            )}
           </div>
         </div>
         

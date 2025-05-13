@@ -8,6 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { toast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { isYouTubeUrl, extractYouTubeVideoId } from '@/utils/youtubeUtils';
+import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -42,6 +44,10 @@ const BlogCard: React.FC<BlogCardProps> = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [imageError, setImageError] = useState(false);
+  
+  // Check if image is a YouTube URL
+  const isYouTube = image ? isYouTubeUrl(image) : false;
+  const youtubeId = isYouTube && image ? extractYouTubeVideoId(image) : null;
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,9 +86,11 @@ const BlogCard: React.FC<BlogCardProps> = ({
     <Link to={`/blog/${id}`} className="block">
       <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
         <div className="relative">
-          {/* Card image */}
+          {/* Card image or YouTube embed */}
           <div className="aspect-video w-full overflow-hidden bg-zinc-800">
-            {image && !imageError ? (
+            {isYouTube && youtubeId ? (
+              <YouTubeEmbed videoId={youtubeId} />
+            ) : image && !imageError ? (
               <img 
                 src={image} 
                 alt={title} 
