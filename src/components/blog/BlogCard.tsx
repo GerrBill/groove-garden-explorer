@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
-import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { useToast } from "@/hooks/use-toast";
@@ -53,60 +52,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   // Check if excerpt is just a URL
   const shouldHideExcerpt = excerpt && isContentOnlyUrl(excerpt);
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (isDeleting) return;
-    setIsDeleting(true);
-    
-    console.log("Delete clicked for article:", id);
-    
-    toast({
-      title: "Deleting article...",
-      description: "Please wait while we delete this article"
-    });
-    
-    try {
-      const success = await deleteBlogArticle(
-        id,
-        image,
-        () => {
-          // Invalidate both queries to refresh sidebar and main blog list
-          queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
-          queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
-          
-          // Call onDeleted callback to refresh the main blog list
-          if (onDeleted) {
-            console.log("Calling onDeleted callback for main blog list refresh");
-            onDeleted();
-          }
-        }
-      );
-      
-      if (success) {
-        toast({
-          title: "Article deleted",
-          description: "The article has been successfully deleted"
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to delete the article",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting article:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the article",
-        variant: "destructive"
-      });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+  // Removed handleDelete since we're removing the trash icon
 
   return (
     <Link to={`/blog/${id}`} className="block">
@@ -140,16 +86,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
             </div>
           )}
           
-          {/* Admin delete button */}
-          {isAdmin && (
-            <button 
-              onClick={handleDelete}
-              className="absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-700 text-white"
-              disabled={isDeleting}
-            >
-              <Trash2 size={16} className={isDeleting ? 'opacity-50' : ''} />
-            </button>
-          )}
+          {/* Admin delete button removed */}
         </div>
         
         <CardContent className="p-4">

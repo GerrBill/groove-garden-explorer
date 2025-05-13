@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { deleteBlogArticle } from '@/utils/blogUtils';
 import { toast } from '@/hooks/use-toast';
@@ -38,6 +36,7 @@ const BlogItem: React.FC<BlogItemProps> = ({ article, onDeleted }) => {
   const queryClient = useQueryClient();
   const [imageError, setImageError] = useState(false);
   
+  // Keeping handleDelete as it's used for sidebar items, not card thumbnails
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();

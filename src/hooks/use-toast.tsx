@@ -4,6 +4,7 @@ import { createContext, useContext, useState } from "react";
 
 // Types for toast related functionality
 export interface ToastProps {
+  id?: string; // Add id to the ToastProps interface to fix the TS error
   title?: React.ReactNode;
   description?: React.ReactNode;
   variant?: "default" | "destructive";
@@ -20,7 +21,7 @@ interface ToastContextType {
   addToast: (props: ToastProps) => void;
   dismissToast: (id: string) => void;
   dismissAll: () => void;
-  toast: (props: ToastProps) => { id: string; dismiss: () => void }; // Added the toast function to the context type
+  toast: (props: ToastProps) => { id: string; dismiss: () => void };
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);

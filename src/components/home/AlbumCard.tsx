@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from '@/integrations/supabase/client';
 import { Track } from '@/types/supabase';
+import { useToast } from '@/hooks/use-toast';
 
 interface AlbumCardProps {
   image: string;
@@ -24,6 +25,8 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
   type = 'album'
 }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Clean image URL if it's a blob URL
   const imageUrl = image && image.startsWith('blob:') 
@@ -44,22 +47,41 @@ const AlbumCard: React.FC<AlbumCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     if (!id) return;
+
     try {
+      // Fetch the first track from the album/playlist
       const { data: tracks, error } = await supabase
         .from('tracks')
         .select('*')
         .eq('album_id', id)
         .order('track_number', { ascending: true })
         .limit(1);
+        
       if (error) throw error;
+      
       if (tracks && tracks.length > 0) {
         const firstTrack = tracks[0] as Track;
+        
+        // First navigate to the album/playlist page to ensure proper context
         navigate(`/${type}/${id}`);
+        
+        // Then immediately play the track
+        setIsPlaying(true);
+        
+        // Dispatch the event to select and play the track
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('trackSelected', { detail: firstTrack }));
-        }, 300);
+          // Immediately trigger play after track selection
+          window.dispatchEvent(new CustomEvent('playTrack', { 
+            detail: { immediate: true }
+          }));
+        }, 100);
       } else {
         navigate(`/${type}/${id}`);
+        toast({ 
+          title: "No tracks found",
+          description: `This ${type} doesn't have any tracks yet.`,
+        });
       }
     } catch (error) {
       console.error('Error fetching first track:', error);

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +37,38 @@ const TrackList: React.FC<TrackListProps> = ({
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
+  
+  // VU Meter animation state
+  const [vuHeights, setVuHeights] = useState<number[]>([20, 40, 30, 50, 25]);
+
+  // Listen for track selection events to update UI
+  useEffect(() => {
+    const handleTrackSelected = (event: Event) => {
+      const trackEvent = event as CustomEvent;
+      const track = trackEvent.detail as TrackType;
+      setCurrentlyPlayingId(track.id);
+    };
+
+    window.addEventListener('trackSelected', handleTrackSelected);
+    
+    return () => {
+      window.removeEventListener('trackSelected', handleTrackSelected);
+    };
+  }, []);
+
+  // VU meter animation effect
+  useEffect(() => {
+    if (currentlyPlayingId) {
+      const interval = setInterval(() => {
+        setVuHeights(prevHeights => 
+          prevHeights.map(() => Math.floor(Math.random() * 40) + 20)
+        );
+      }, 100);
+      
+      return () => clearInterval(interval);
+    }
+  }, [currentlyPlayingId]);
 
   const handleToggleLike = async (trackId: string) => {
     if (!user) {
@@ -107,17 +139,19 @@ const TrackList: React.FC<TrackListProps> = ({
           audio_path: data.audio_path,
           track_number: data.track_number
         };
+        
+        // Set currently playing track
+        setCurrentlyPlayingId(trackId);
+        
         console.log("Dispatching track for playback:", fullTrack);
         window.dispatchEvent(new CustomEvent('trackSelected', {
           detail: fullTrack
         }));
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('playTrack', {
-            detail: {
-              immediate: true
-            }
-          }));
-        }, 100);
+        
+        // Immediately play the track
+        window.dispatchEvent(new CustomEvent('playTrack', {
+          detail: { immediate: true }
+        }));
       } catch (error) {
         console.error('Error fetching track details:', error);
         toast({
@@ -143,13 +177,31 @@ const TrackList: React.FC<TrackListProps> = ({
         </TableHeader>
         <TableBody>
           {Array.isArray(tracks) && tracks.length > 0 ? tracks.map((track, index) => (
-            <TableRow key={track.id || `track-${index}`} className={`group ${track.isPlaying ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
+            <TableRow key={track.id || `track-${index}`} className={`group ${track.trackId === currentlyPlayingId ? 'text-spotify-accent' : 'text-spotify-text-primary'}`}>
               <TableCell className="w-[5%] px-4">
                 <div className="flex items-center">
-                  <span className="group-hover:hidden">{index + 1}</span>
-                  <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
-                    <Play size={14} />
-                  </button>
+                  {track.trackId === currentlyPlayingId ? (
+                    // VU Meter animation when track is playing
+                    <div className="flex items-end h-4 gap-[2px]">
+                      {vuHeights.map((height, i) => (
+                        <div 
+                          key={i}
+                          className="w-[2px] bg-spotify-accent"
+                          style={{ height: `${height}%` }}
+                        ></div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      <span className="group-hover:hidden">{index + 1}</span>
+                      <button 
+                        className="hidden group-hover:flex items-center justify-center" 
+                        onClick={() => handlePlayClick(track)}
+                      >
+                        <Play size={14} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </TableCell>
               <TableCell className="w-[55%] px-4">
