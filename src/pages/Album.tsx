@@ -97,7 +97,7 @@ const Album = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/3 lg:w-1/4">
+        <div className="w-full md:w-1/3 lg:w-1/4 h-fit">
           <AspectRatio ratio={1 / 1} className="bg-zinc-900 rounded-lg overflow-hidden">
             {album.image_url ? (
               <img

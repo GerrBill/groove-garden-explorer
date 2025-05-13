@@ -22,6 +22,7 @@ export interface Track {
   created_at: string;
   genre?: string | null;
   audio_path?: string | null;
+  album_name?: string | null;
 }
 
 export interface BlogArticle {
