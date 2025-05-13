@@ -16,6 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import AudioUpload from './AudioUpload';
 import { trackFormSchema, type TrackFormValues } from '../schemas/trackFormSchema';
 
+// Re-export TrackFormValues type to resolve the import issue in AddTrackDialog
+export type { TrackFormValues };
+
 export interface TrackFormProps {
   initialValues: TrackFormValues;
   audioFile: File | null;
