@@ -1,5 +1,5 @@
 
 // Re-export from the implementation file
-import { toast, useToast, type ToastActionElement } from "@/components/ui/toast";
+import { useToast, toast, type ToastActionElement } from "@/hooks/use-toast.tsx";
 
-export { toast, useToast, type ToastActionElement };
+export { useToast, toast, type ToastActionElement };
