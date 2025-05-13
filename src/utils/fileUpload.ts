@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -76,4 +77,56 @@ export function fileToBase64(file: File): Promise<string> {
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
   });
+}
+
+/**
+ * Generates a file path for uploading to storage
+ * @param albumId Album ID
+ * @param fileName Original file name
+ * @returns Generated file path
+ */
+export function generateFilePath(albumId: string, fileName: string): string {
+  const fileExt = fileName.split('.').pop();
+  const uniqueId = crypto.randomUUID();
+  return `albums/${albumId}/tracks/${uniqueId}.${fileExt}`;
+}
+
+/**
+ * Uploads an audio file to Supabase Storage
+ * @param file Audio file to upload
+ * @param filePath Path to store the file
+ * @returns Public URL of the uploaded file
+ */
+export async function uploadAudioFile(file: File, filePath: string): Promise<string> {
+  try {
+    const { error } = await supabase.storage
+      .from('public')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+    
+    if (error) {
+      console.error('Error uploading audio file:', error);
+      throw new Error(`Failed to upload audio file: ${error.message}`);
+    }
+    
+    return getAudioUrl(filePath);
+  } catch (error) {
+    console.error('Error in uploadAudioFile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets the public URL for an audio file
+ * @param filePath Path of the file in storage
+ * @returns Public URL of the file
+ */
+export function getAudioUrl(filePath: string): string {
+  const { data: { publicUrl } } = supabase.storage
+    .from('public')
+    .getPublicUrl(filePath);
+  
+  return publicUrl;
 }

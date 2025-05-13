@@ -149,8 +149,6 @@ const App = () => {
         <ThemeProvider>
           <TooltipProvider>
             <SidebarProvider defaultOpen={sidebarOpen}>
-              <Toaster />
-              <Sonner />
               <BrowserRouter>
                 <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
                   <TopBar />
@@ -179,6 +177,8 @@ const App = () => {
                   </div>
                 </div>
               </BrowserRouter>
+              <Toaster />
+              <Sonner />
             </SidebarProvider>
           </TooltipProvider>
         </ThemeProvider>

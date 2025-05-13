@@ -150,10 +150,13 @@ function dispatch(action: Action) {
 }
 
 interface ToasterContract {
-  toast: (props: ToastOptions) => void;
+  toast: (props: ToastOptions) => string;
   toasts: ToasterToast[];
   dismiss: (toastId?: string) => void;
 }
+
+// Singleton pattern
+let useToastInstance: ToasterContract | null = null;
 
 export function useToast(): ToasterContract {
   const [state, setState] = React.useState<State>(memoryState);
@@ -168,33 +171,41 @@ export function useToast(): ToasterContract {
     };
   }, []);
 
-  return {
-    toast: (props) => {
-      const id = genId();
-      const toast = {
-        ...props,
-        id,
-        open: true,
-      };
-      
-      dispatch({
-        type: actionTypes.ADD_TOAST,
-        toast,
-      });
+  if (!useToastInstance) {
+    useToastInstance = {
+      toast: (props) => {
+        const id = genId();
+        const toast = {
+          ...props,
+          id,
+          open: true,
+        };
+        
+        dispatch({
+          type: actionTypes.ADD_TOAST,
+          toast,
+        });
 
-      return id;
-    },
-    dismiss: (toastId?: string) => {
-      dispatch({
-        type: actionTypes.DISMISS_TOAST,
-        toastId,
-      });
-    },
+        return id;
+      },
+      dismiss: (toastId?: string) => {
+        dispatch({
+          type: actionTypes.DISMISS_TOAST,
+          toastId,
+        });
+      },
+      toasts: memoryState.toasts,
+    };
+  }
+
+  return {
+    ...useToastInstance,
     toasts: state.toasts,
   };
 }
 
-export const toast = (props: ToastOptions) => {
+// Standalone toast function
+export const toast = (props: ToastOptions): string => {
   const id = genId();
   const toastProps = {
     ...props,
@@ -209,36 +220,3 @@ export const toast = (props: ToastOptions) => {
 
   return id;
 };
-
-export function ToastContainer({ children }: { children: React.ReactNode }) {
-  const { toasts } = useToast();
-
-  return (
-    <React.Fragment>
-      {children}
-      <ToastProvider>
-        {toasts.map(function ({
-          id,
-          title,
-          description,
-          action,
-          ...props
-        }) {
-          return (
-            <Toast key={id} {...props}>
-              <div className="grid gap-1">
-                {title && <ToastTitle>{title}</ToastTitle>}
-                {description && (
-                  <ToastDescription>{description}</ToastDescription>
-                )}
-              </div>
-              {action}
-              <ToastClose />
-            </Toast>
-          );
-        })}
-        <ToastViewport />
-      </ToastProvider>
-    </React.Fragment>
-  );
-}

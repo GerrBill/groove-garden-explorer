@@ -10,7 +10,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 interface AlbumActionsProps {
   albumId?: string;
-  onTrackAdded?: (track: Track) => void;
+  albumTitle?: string;
+  artist?: string;
   updateAlbumArtDialog?: React.ReactNode;
   onDeleteAlbum?: () => void;
 }
@@ -19,7 +20,8 @@ const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
 
 const AlbumActions: React.FC<AlbumActionsProps> = ({
   albumId,
-  onTrackAdded,
+  albumTitle,
+  artist,
   updateAlbumArtDialog,
   onDeleteAlbum
 }) => {
@@ -41,8 +43,17 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
         <>
           <AddTrackDialog 
             albumId={albumId} 
-            onTrackAdded={onTrackAdded}
-          />
+            albumTitle={albumTitle}
+            artist={artist}
+          >
+            <Button 
+              size="sm" 
+              className="flex items-center gap-1"
+              aria-label="Add Track"
+            >
+              Add Track
+            </Button>
+          </AddTrackDialog>
           
           {updateAlbumArtDialog}
           

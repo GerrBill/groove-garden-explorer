@@ -1,237 +1,133 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
-import { Track } from '@/types/supabase';
+import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX } from 'lucide-react';
+import { Slider } from "@/components/ui/slider";
+import { useAudio } from '@/hooks/use-audio';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/context/AuthContext';
 import { getAudioUrl } from '@/utils/fileUpload';
-import { useToast } from '@/hooks/use-toast';
-import { Slider } from '@/components/ui/slider';
 
 interface AudioPlayerProps {
-  track?: Track | null;
+  audioSrc: string;
+  trackTitle: string;
+  trackArtist: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({
-  track
-}) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [hasAudio, setHasAudio] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [trackDuration, setTrackDuration] = useState<number>(0);
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackArtist }) => {
   const {
-    toast
-  } = useToast();
-  const playRequestPending = useRef<boolean>(false);
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    togglePlayPause,
+    seek,
+    setVolume,
+    skipForward,
+    skipBack,
+    isMuted,
+    toggleMute,
+  } = useAudio(audioSrc);
+
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [displayVolume, setDisplayVolume] = useState(volume);
+  const isMobile = useIsMobile();
+  const volumeRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.addEventListener('canplaythrough', () => {
-        console.log("Audio can play through");
-      });
-      audioRef.current.addEventListener('error', e => {
-        console.error("Audio error:", e);
-      });
-    }
-    const handleEnded = () => {
-      setIsPlaying(false);
-    };
-    const handleTimeUpdate = () => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
-      }
-    };
-    const handleDurationChange = () => {
-      if (audioRef.current) {
-        setTrackDuration(audioRef.current.duration);
-      }
-    };
-    const audio = audioRef.current;
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
-    const handlePlayTrack = (event: CustomEvent) => {
-      const shouldPlayImmediately = event?.detail?.immediate === true;
-      if (audioRef.current && hasAudio) {
-        if (shouldPlayImmediately) {
-          console.log("Playing track immediately due to tracklist play button");
-          playAudio();
-        } else {
-          console.log("Track loaded but not auto-playing");
-        }
-      }
-    };
-    window.addEventListener('playTrack', handlePlayTrack as EventListener);
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      window.removeEventListener('playTrack', handlePlayTrack as EventListener);
-      audio.pause();
-    };
-  }, [hasAudio]);
+    setDisplayVolume(volume);
+  }, [volume]);
 
-  useEffect(() => {
-    if (track?.audio_path && audioRef.current) {
-      console.log("Loading audio track:", track.title, track.audio_path);
-      const url = getAudioUrl(track.audio_path);
-      console.log("Audio URL:", url);
-      setAudioUrl(url);
-      if (url) {
-        audioRef.current.pause();
-        audioRef.current.src = url;
-        audioRef.current.crossOrigin = "anonymous";
-        setHasAudio(true);
-        setIsPlaying(false);
-        audioRef.current.load();
-        audioRef.current.addEventListener('loadeddata', function onLoaded() {
-          console.log("Audio loaded successfully");
-          this.removeEventListener('loadeddata', onLoaded);
-        });
-      } else {
-        console.log("No audio URL found for path:", track.audio_path);
-        setHasAudio(false);
-        toast({
-          title: "Playback Error",
-          description: "Could not load the audio file",
-          variant: "destructive"
-        });
-      }
-    } else {
-      setHasAudio(false);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      }
-    }
-  }, [track, toast]);
+  const formatTime = (time: number): string => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
 
-  const playAudio = () => {
-    if (!audioRef.current || !hasAudio || playRequestPending.current) return;
-    console.log("Attempting to play audio");
-    playRequestPending.current = true;
-    setIsPlaying(true);
-    const playPromise = audioRef.current.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        console.log("Audio playing successfully");
-        playRequestPending.current = false;
-      }).catch(error => {
-        console.error("Error playing audio:", error);
-        setIsPlaying(false);
-        playRequestPending.current = false;
-        if (error.name !== 'AbortError') {
-          toast({
-            title: "Playback Error",
-            description: "Could not play the audio file: " + error.message,
-            variant: "destructive"
-          });
-        }
-      });
-    } else {
-      playRequestPending.current = false;
+  const handleSeekStart = () => {
+    setIsSeeking(true);
+  };
+
+  const handleSeekChange = (newValue: number[]) => {
+    if (newValue && newValue[0]) {
+      seek(newValue[0]);
     }
   };
 
-  const pauseAudio = () => {
-    if (!audioRef.current || !hasAudio) return;
-    console.log("Pausing audio");
-    audioRef.current.pause();
-    setIsPlaying(false);
-    playRequestPending.current = false;
+  const handleSeekEnd = () => {
+    setIsSeeking(false);
   };
 
-  useEffect(() => {
-    if (!audioRef.current || !hasAudio) return;
-    if (isPlaying) {
-      playAudio();
-    } else {
-      pauseAudio();
+  const handleVolumeChange = (newValue: number[]) => {
+    if (newValue && newValue[0] !== undefined) {
+      setVolume(newValue[0]);
+      setDisplayVolume(newValue[0]);
     }
-  }, [isPlaying, hasAudio]);
-
-  const togglePlayPause = () => {
-    if (!audioRef.current || !hasAudio) return;
-    setIsPlaying(!isPlaying);
-  };
-  
-  const skipBackward = () => {
-    if (!audioRef.current || !hasAudio) return;
-    audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
-  };
-  
-  const skipForward = () => {
-    if (!audioRef.current || !hasAudio) return;
-    audioRef.current.currentTime = Math.min(
-      audioRef.current.duration,
-      audioRef.current.currentTime + 10
-    );
-  };
-  
-  const handleProgressChange = (value: number[]) => {
-    if (!audioRef.current || !hasAudio) return;
-    const newPosition = value[0];
-    const newTimeInSeconds = (newPosition / 100) * trackDuration;
-    audioRef.current.currentTime = newTimeInSeconds;
-    setCurrentTime(newTimeInSeconds);
   };
 
-  const progress = trackDuration > 0 ? (currentTime / trackDuration) * 100 : 0;
-  
-  const formatTime = (timeInSeconds: number): string => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const toggleMuteHandler = () => {
+    toggleMute();
   };
 
   return (
-    <div className="flex flex-col items-center gap-1 w-full max-w-[300px]">
-      <div className="flex items-center justify-center gap-2 w-full">
-        <button 
-          className="w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" 
-          onClick={skipBackward}
-          disabled={!hasAudio}
-        >
-          <SkipBack className="w-3 h-3" />
+    <div className="bg-black border-t border-zinc-800 p-4 flex items-center text-white">
+      {/* Track Info */}
+      <div className="flex-grow flex items-center">
+        <div className="mr-4">
+          <img
+            src="https://lastfm.freetls.fastly.net/i/u/300x300/42c4943559f139b6b790a34442f40807.png"
+            alt="Album Art"
+            className="w-12 h-12 rounded"
+          />
+        </div>
+        <div>
+          <div className="text-sm font-semibold">{trackTitle}</div>
+          <div className="text-xs text-zinc-500">{trackArtist}</div>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center gap-4">
+        <button onClick={skipBack} className="text-zinc-400 hover:text-white transition-colors">
+          <SkipBack size={isMobile ? 20 : 24} />
         </button>
-        
-        <button 
-          className={`w-7 h-7 flex items-center justify-center rounded-full bg-white hover:scale-105 transition-all ${!hasAudio ? 'opacity-50 cursor-not-allowed' : ''}`} 
-          onClick={togglePlayPause} 
-          disabled={!hasAudio}
-        >
-          {isPlaying ? 
-            <Pause className="w-3.5 h-3.5 text-black" /> : 
-            <Play className="w-3.5 h-3.5 text-black ml-0.5" />
-          }
+        <button onClick={togglePlayPause} className="text-white hover:text-theme-color transition-colors">
+          {isPlaying ? <Pause size={isMobile ? 28 : 32} /> : <Play size={isMobile ? 28 : 32} />}
         </button>
-        
-        <button 
-          className="w-6 h-6 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" 
-          onClick={skipForward}
-          disabled={!hasAudio}
-        >
-          <SkipForward className="w-3 h-3" />
+        <button onClick={skipForward} className="text-zinc-400 hover:text-white transition-colors">
+          <SkipForward size={isMobile ? 20 : 24} />
         </button>
       </div>
-      
-      {track && (
-        <div className="w-full flex flex-col gap-1">
-          <div className="flex w-full items-center gap-2">
-            <span className="text-xs text-zinc-400 w-8 text-right">{formatTime(currentTime)}</span>
-            <Slider 
-              value={[progress]} 
-              max={100} 
-              step={0.1}
-              onValueChange={handleProgressChange}
-              disabled={!hasAudio}
-              className="h-1 w-full"
-            />
-            <span className="text-xs text-zinc-400 w-8">{formatTime(trackDuration)}</span>
-          </div>
-        </div>
-      )}
+
+      {/* Seek Slider */}
+      <div className="flex items-center gap-2 w-40 md:w-64 lg:w-80 ml-4">
+        <span className="text-xs text-zinc-400">{formatTime(currentTime)}</span>
+        <Slider
+          defaultValue={[0]}
+          max={duration}
+          step={1}
+          value={[currentTime]}
+          onValueChange={handleSeekChange}
+          onPointerDown={handleSeekStart}
+          onPointerUp={handleSeekEnd}
+          className="flex-grow h-1"
+        />
+        <span className="text-xs text-zinc-400">{formatTime(duration)}</span>
+      </div>
+
+      {/* Volume Controls */}
+      <div className="flex items-center gap-2 ml-4" ref={volumeRef}>
+        <button onClick={toggleMuteHandler} className="text-zinc-400 hover:text-white transition-colors">
+          {isMuted ? <VolumeX size={isMobile ? 18 : 20} /> : <Volume2 size={isMobile ? 18 : 20} />}
+        </button>
+        <Slider
+          defaultValue={[displayVolume]}
+          max={1}
+          step={0.01}
+          value={[displayVolume]}
+          onValueChange={handleVolumeChange}
+          className="w-16 md:w-24 h-1"
+        />
+      </div>
     </div>
   );
 };

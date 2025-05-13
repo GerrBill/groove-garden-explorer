@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
-import { uploadImageFile, imageToBase64 } from '@/utils/fileUpload';
+import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQueryClient } from '@tanstack/react-query';
@@ -52,7 +51,7 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
         
         try {
           // First convert to base64 as a fallback
-          const base64Image = await imageToBase64(values.imageFile);
+          const base64Image = await fileToBase64(values.imageFile);
           
           // Try to upload to Supabase Storage and get URL
           imageUrl = await uploadImageFile(values.imageFile, 'blog');
