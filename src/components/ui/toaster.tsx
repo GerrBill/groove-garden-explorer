@@ -12,10 +12,6 @@ import { useToast } from "@/hooks/use-toast"
 export function Toaster() {
   const { toasts } = useToast()
 
-  if (!toasts || toasts.length === 0) {
-    return null;
-  }
-
   return (
     <ToastProvider>
       {toasts.map(({ id, title, description, action, ...props }) => {

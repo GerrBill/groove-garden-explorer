@@ -15,12 +15,12 @@ export type Toast = ToastProps & {
   id: string;
 };
 
-type ToastContextType = {
+interface ToastContextType {
   toasts: Toast[];
   addToast: (props: ToastProps) => void;
   dismissToast: (id: string) => void;
   dismissAll: () => void;
-};
+}
 
 const ToastContext = createContext<ToastContextType | null>(null);
 
@@ -32,19 +32,20 @@ export function useToast() {
   return context;
 }
 
-// Define the toast function
+// Define the toast function separately to avoid circular dependencies
 export const toast = (props: ToastProps) => {
   // Generate an ID for this toast
   const id = Math.random().toString(36).slice(2, 10);
   
   // Get the current toast context if available
   try {
-    const context = useContext(ToastContext);
-    if (context) {
-      context.addToast({ ...props, id: id });
-    } else {
-      console.warn("Toast context not available, toast may not appear");
-    }
+    // Using a direct DOM event to add the toast
+    // Instead of trying to use the context directly which causes circular dependencies
+    window.dispatchEvent(
+      new CustomEvent("add-toast", { 
+        detail: { ...props, id } 
+      })
+    );
   } catch (e) {
     console.warn("Error showing toast:", e);
   }
@@ -53,10 +54,11 @@ export const toast = (props: ToastProps) => {
     id,
     dismiss: () => {
       try {
-        const context = useContext(ToastContext);
-        if (context) {
-          context.dismissToast(id);
-        }
+        window.dispatchEvent(
+          new CustomEvent("dismiss-toast", { 
+            detail: { id } 
+          })
+        );
       } catch (e) {
         console.warn("Error dismissing toast:", e);
       }
@@ -68,12 +70,42 @@ export const toast = (props: ToastProps) => {
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = (props: ToastProps & { id: string }) => {
-    setToasts((prev) => [...prev, props]);
+  // Add event listeners for toast operations
+  React.useEffect(() => {
+    const handleAddToast = (event: Event) => {
+      const toastEvent = event as CustomEvent<Toast>;
+      const newToast = toastEvent.detail;
+      setToasts((prev) => [...prev, newToast]);
+      
+      if (newToast.duration !== Infinity) {
+        setTimeout(() => {
+          dismissToast(newToast.id);
+        }, newToast.duration || 5000);
+      }
+    };
+
+    const handleDismissToast = (event: Event) => {
+      const dismissEvent = event as CustomEvent<{ id: string }>;
+      dismissToast(dismissEvent.detail.id);
+    };
+
+    window.addEventListener("add-toast", handleAddToast);
+    window.addEventListener("dismiss-toast", handleDismissToast);
+
+    return () => {
+      window.removeEventListener("add-toast", handleAddToast);
+      window.removeEventListener("dismiss-toast", handleDismissToast);
+    };
+  }, []);
+
+  const addToast = (props: ToastProps) => {
+    const id = Math.random().toString(36).slice(2, 10);
+    const newToast = { ...props, id };
+    setToasts((prev) => [...prev, newToast]);
     
     if (props.duration !== Infinity) {
       setTimeout(() => {
-        dismissToast(props.id);
+        dismissToast(id);
       }, props.duration || 5000);
     }
   };
@@ -86,8 +118,15 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     setToasts([]);
   };
 
+  const contextValue: ToastContextType = {
+    toasts,
+    addToast,
+    dismissToast,
+    dismissAll
+  };
+
   return (
-    <ToastContext.Provider value={{ toasts, addToast, dismissToast, dismissAll }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
     </ToastContext.Provider>
   );

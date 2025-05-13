@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast"; 
+import { toast } from "@/hooks/use-toast"; 
 import { uploadAudioFile, getAudioUrl } from '@/utils/fileUpload';
 import { useQueryClient } from '@tanstack/react-query';
 import TrackForm, { TrackFormValues } from './components/TrackForm';

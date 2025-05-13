@@ -22,6 +22,7 @@ import { useIsMobile } from "./hooks/use-mobile";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { ToastProvider } from "@/hooks/use-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -148,38 +149,40 @@ const App = () => {
       <BrowserRouter>
         <AuthProvider>
           <ThemeProvider>
-            <TooltipProvider>
-              <SidebarProvider defaultOpen={sidebarOpen}>
-                <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
-                  <TopBar />
-                  <div className="flex flex-grow relative">
-                    {sidebarOpen && (
-                      <div className="transition-all duration-300">
-                        <Sidebar />
+            <ToastProvider>
+              <TooltipProvider>
+                <SidebarProvider defaultOpen={sidebarOpen}>
+                  <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
+                    <TopBar />
+                    <div className="flex flex-grow relative">
+                      {sidebarOpen && (
+                        <div className="transition-all duration-300">
+                          <Sidebar />
+                        </div>
+                      )}
+                      <div className="flex flex-col flex-grow w-full">
+                        <div className="flex-grow overflow-y-auto bg-black">
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/album/:id" element={<Album />} />
+                            <Route path="/playlists" element={<Playlists />} />
+                            <Route path="/playlist/:id" element={<Playlist />} />
+                            <Route path="/blog" element={<Blog />} />
+                            <Route path="/blog/:id" element={<BlogPost />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </div>
+                        {!window.location.pathname.includes('/blog') && <Player />}
                       </div>
-                    )}
-                    <div className="flex flex-col flex-grow w-full">
-                      <div className="flex-grow overflow-y-auto bg-black">
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/album/:id" element={<Album />} />
-                          <Route path="/playlists" element={<Playlists />} />
-                          <Route path="/playlist/:id" element={<Playlist />} />
-                          <Route path="/blog" element={<Blog />} />
-                          <Route path="/blog/:id" element={<BlogPost />} />
-                          <Route path="/settings" element={<Settings />} />
-                          <Route path="/reset-password" element={<ResetPassword />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </div>
-                      {!window.location.pathname.includes('/blog') && <Player />}
                     </div>
                   </div>
-                </div>
-                <Toaster />
-                <Sonner />
-              </SidebarProvider>
-            </TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                </SidebarProvider>
+              </TooltipProvider>
+            </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
