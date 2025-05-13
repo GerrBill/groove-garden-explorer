@@ -4,9 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Trash2, Mail, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/AuthContext';
+import { Spinner } from '@/components/ui/spinner';
 
 interface UserData {
   id: string;
@@ -49,66 +50,33 @@ const UserManagement = () => {
         return;
       }
       
-      console.log("Fetching registered users...");
+      console.log("Fetching all authenticated users...");
       
-      // Fetch users from the registered_users table
-      const { data: registeredUsers, error } = await supabase
-        .from('registered_users')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use admin endpoints with service role to fetch all users
+      // This must be done via a Supabase Edge Function since we can't use service role key in browser
+      const { data: authUsers, error: adminError } = await supabase.functions.invoke('get-all-users');
       
-      if (error) {
-        console.error("Error fetching users:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch users. Please try again.",
-          variant: "destructive",
-        });
-        
-        // Provide fallback data
-        if (user) {
-          setUsers([
-            {
-              id: user.id,
-              email: user.email || 'Current User',
-              created_at: new Date().toLocaleDateString(),
-              last_login: new Date().toLocaleDateString()
-            }
-          ]);
-        }
-        setIsLoading(false);
-        return;
+      if (adminError) {
+        console.error("Admin API error:", adminError);
+        throw new Error("Failed to fetch users via admin API");
       }
       
-      if (registeredUsers && registeredUsers.length > 0) {
-        console.log("Users found:", registeredUsers.length);
-        
-        // Format the date for display
-        const formattedUsers = registeredUsers.map(user => ({
-          id: user.id,
-          email: user.email,
-          created_at: new Date(user.created_at).toLocaleDateString(),
-          last_login: user.last_login ? new Date(user.last_login).toLocaleDateString() : undefined
-        }));
-        
-        setUsers(formattedUsers);
-      } else {
-        console.log("No registered users found");
-        
-        // If no users are found, show the current user if they exist
-        if (user) {
-          setUsers([
-            {
-              id: user.id,
-              email: user.email || 'Current User',
-              created_at: new Date().toLocaleDateString(),
-              last_login: new Date().toLocaleDateString()
-            }
-          ]);
-        } else {
-          setUsers([]);
-        }
+      if (!authUsers || !Array.isArray(authUsers)) {
+        console.error("Invalid response format:", authUsers);
+        throw new Error("Invalid response format from admin API");
       }
+      
+      console.log("Auth users found:", authUsers.length);
+      
+      // Format the date for display
+      const formattedUsers = authUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        created_at: new Date(user.created_at).toLocaleDateString(),
+        last_login: user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : undefined
+      }));
+      
+      setUsers(formattedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -136,29 +104,19 @@ const UserManagement = () => {
     if (!deleteUserId) return;
     
     try {
-      // This would normally be handled by an edge function that:
-      // 1. Deletes user's playlists
-      // 2. Deletes the user from auth.users
-      
       console.log(`Deleting user with ID: ${deleteUserId}`);
       
-      // First, delete user's playlists
-      const { error: playlistError } = await supabase
-        .from('playlists')
-        .delete()
-        .eq('owner', userToDelete?.email || '');
+      // Delete the user via Edge Function which has service role access
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: deleteUserId }
+      });
       
-      if (playlistError) {
-        throw playlistError;
+      if (error) {
+        throw error;
       }
       
-      // Delete the user's account
-      // Note: In a real implementation, this should be done via an edge function
-      // as the client doesn't have permission to delete users
-      const { error: authError } = await supabase.auth.admin.deleteUser(deleteUserId);
-      
-      if (authError) {
-        throw authError;
+      if (!data || !data.success) {
+        throw new Error(data?.message || "Failed to delete user");
       }
       
       toast({
@@ -212,7 +170,10 @@ const UserManagement = () => {
       </div>
       
       {isLoading ? (
-        <div className="text-center p-4">Loading users...</div>
+        <div className="text-center p-8">
+          <Spinner className="mx-auto" />
+          <p className="mt-2">Loading users...</p>
+        </div>
       ) : (
         <Table>
           <TableHeader>
