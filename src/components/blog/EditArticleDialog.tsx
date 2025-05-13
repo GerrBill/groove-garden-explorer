@@ -23,6 +23,7 @@ interface ArticleFormValues {
   category: string;
   author: string;
   imageFile?: File | null;
+  youtubeVideoId?: string;
 }
 
 const EditArticleDialog: React.FC<EditArticleDialogProps> = ({ 
@@ -57,8 +58,10 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
             variant: "destructive"
           });
         }
-      } else {
-        console.log('No new image file provided, keeping existing image:', imageUrl);
+      } else if (values.youtubeVideoId) {
+        // If YouTube video ID is provided, use its thumbnail
+        console.log('Using YouTube thumbnail as image, video ID:', values.youtubeVideoId);
+        imageUrl = `https://img.youtube.com/vi/${values.youtubeVideoId}/hqdefault.jpg`;
       }
       
       // Generate excerpt if content changed (use first 150 chars of content)
@@ -86,12 +89,12 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       
       console.log('Update data being sent to Supabase:', updateData);
       
-      // Update article in database - Use UPSERT instead of UPDATE to ensure it works
+      // Update article in database using PATCH method which is more appropriate for updates
       const { data, error } = await supabase
         .from('blog_articles')
         .update(updateData)
         .eq('id', article.id)
-        .select('*');
+        .select();
       
       if (error) {
         console.error('Supabase error:', error);

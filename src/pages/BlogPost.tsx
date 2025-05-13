@@ -482,8 +482,8 @@ const BlogPost = () => {
                 )}
               </div>
               
-              {/* Fix the article-content styling and rendering */}
-              <style>{`
+              {/* Fix the article-content styling and rendering with proper style tag */}
+              <style jsx="true">{`
                 .article-content iframe {
                   max-width: 100%;
                   margin: 1.5rem 0;
