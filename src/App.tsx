@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +22,7 @@ import { useIsMobile } from "./hooks/use-mobile";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { ToastProvider } from "@/hooks/use-toast";
+import { ToastProvider } from "@/hooks/use-toast.tsx"; // Import directly from tsx file
 
 const queryClient = new QueryClient({
   defaultOptions: {

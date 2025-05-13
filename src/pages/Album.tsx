@@ -1,342 +1,141 @@
-
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import AlbumHeader from "@/components/album/AlbumHeader";
-import AlbumActions from "@/components/album/AlbumActions";
-import TrackList from "@/components/album/TrackList";
-import RelatedAlbums from "@/components/album/RelatedAlbums";
-import { Track, Album as AlbumType } from "@/types/supabase";
-import { useToast } from "@/hooks/use-toast";
-import AlbumNotFound from "@/components/album/AlbumNotFound";
-import AlbumNavigation from "@/components/album/AlbumNavigation";
-import UpdateAlbumArtDialog from "@/components/album/UpdateAlbumArtDialog";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAuth } from "@/context/AuthContext";
-
-interface TrackWithMeta extends Track {
-  isLiked?: boolean;
-  isPlaying?: boolean;
-  trackId: string;
-}
-
-const ADMIN_EMAILS = [
-  "wjparker@outlook.com",
-  "ghodgett59@gmail.com"
-];
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Album as AlbumType, Track } from '@/types/supabase';
+import { useAuth } from '@/context/AuthContext';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import TrackList from '@/components/album/TrackList';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from '@/hooks/use-toast';
 
 const Album = () => {
   const { id } = useParams<{ id: string }>();
-  const [album, setAlbum] = useState<AlbumType | null>(null);
-  const [tracks, setTracks] = useState<TrackWithMeta[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-  const isMobile = useIsMobile(768);
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
 
-  const fetchAlbum = async () => {
-    if (!id) return;
-    
-    try {
+  const { data: album, isLoading, error } = useQuery({
+    queryKey: ['album', id],
+    queryFn: async () => {
+      // Fetch album details
       const { data: albumData, error: albumError } = await supabase
         .from('albums')
         .select('*')
         .eq('id', id)
         .single();
-      
+
       if (albumError) throw albumError;
-      setAlbum(albumData);
-      
+
+      // Fetch tracks for this album
       const { data: tracksData, error: tracksError } = await supabase
         .from('tracks')
         .select('*')
         .eq('album_id', id)
         .order('track_number', { ascending: true });
-      
+
       if (tracksError) throw tracksError;
-      
-      const transformedTracks = tracksData.map(track => ({
+
+      // If user is logged in, check which tracks are liked
+      let likedTrackIds: string[] = [];
+      if (user) {
+        const { data: likedData, error: likedError } = await supabase
+          .from('liked_tracks')
+          .select('track_id')
+          .eq('user_id', user.id);
+
+        if (!likedError && likedData) {
+          likedTrackIds = likedData.map(item => item.track_id);
+        }
+      }
+
+      // Add is_liked property to each track
+      const tracksWithLikeStatus = tracksData.map((track: Track) => ({
         ...track,
-        isLiked: track.is_liked || false,
-        isPlaying: false,
-        trackId: track.id
+        is_liked: likedTrackIds.includes(track.id)
       }));
-      
-      setTracks(transformedTracks);
-    } catch (error) {
-      console.error('Error fetching album and tracks:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load album data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchAlbum();
-  }, [id]);
+      return {
+        ...albumData,
+        tracks: tracksWithLikeStatus
+      };
+    },
+    enabled: !!id,
+  });
 
-  const handleTrackAdded = (track: Track) => {
-    setTracks(prevTracks => [
-      ...prevTracks, 
-      { 
-        ...track, 
-        isLiked: false, 
-        isPlaying: false, 
-        trackId: track.id 
-      }
-    ]);
-    
-    if (album) {
-      const newTrackCount = parseInt(album.track_count || '0', 10) + 1;
-      setAlbum({
-        ...album,
-        track_count: newTrackCount.toString()
-      });
-    }
-    
-    toast({
-      title: "Track Added",
-      description: `"${track.title}" has been added to the album.`,
-    });
-  };
-
-  const handleToggleLike = (trackId: string) => {
-    setTracks(prevTracks => 
-      prevTracks.map(track => 
-        track.id === trackId 
-          ? { ...track, isLiked: !track.isLiked } 
-          : track
-      )
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="w-full md:w-1/3 lg:w-1/4">
+            <Skeleton className="w-full aspect-square rounded-lg" />
+          </div>
+          <div className="w-full md:w-2/3 lg:w-3/4 space-y-4">
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-6 w-1/3" />
+            <div className="mt-8">
+              <Skeleton className="h-8 w-full" />
+              <div className="space-y-2 mt-4">
+                {[...Array(8)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const handleAlbumArtUpdated = (imageUrl: string) => {
-    if (album) {
-      setAlbum({
-        ...album,
-        image_url: imageUrl
-      });
-      
-      toast({
-        title: "Album Art Updated",
-        description: "The album artwork has been updated successfully.",
-      });
-    }
-  };
-
-  const handleDeleteAlbum = async () => {
-    if (!album || !id || !user) return;
-
-    const confirmDelete = window.confirm("Are you sure you want to delete this album? This will also delete all associated tracks and remove them from any playlists. This action cannot be undone.");
-    
-    if (!confirmDelete) return;
-    
-    try {
-      setLoading(true);
-      
-      const { data: albumTracks, error: tracksError } = await supabase
-        .from('tracks')
-        .select('id, audio_path')
-        .eq('album_id', id);
-      
-      if (tracksError) throw tracksError;
-      
-      if (albumTracks && albumTracks.length > 0) {
-        const trackIds = albumTracks.map(track => track.id);
-        
-        const { error: playlistTracksError } = await supabase
-          .from('playlist_tracks')
-          .delete()
-          .in('track_id', trackIds);
-        
-        if (playlistTracksError) throw playlistTracksError;
-        
-        for (const track of albumTracks) {
-          if (track.audio_path) {
-            const { error: storageError } = await supabase.storage
-              .from('audio')
-              .remove([track.audio_path]);
-            
-            if (storageError) {
-              console.error(`Failed to delete audio file ${track.audio_path}:`, storageError);
-            }
-          }
-        }
-        
-        const { error: deleteTracksError } = await supabase
-          .from('tracks')
-          .delete()
-          .eq('album_id', id);
-        
-        if (deleteTracksError) throw deleteTracksError;
-      }
-      
-      if (album.image_url && album.image_url.includes('supabase.co/storage')) {
-        try {
-          const urlParts = album.image_url.split('/storage/v1/object/public/');
-          if (urlParts.length > 1) {
-            const pathPart = urlParts[1];
-            const [bucket, ...pathSegments] = pathPart.split('/');
-            const filePath = pathSegments.join('/');
-            
-            await supabase.storage
-              .from(bucket)
-              .remove([filePath]);
-          }
-        } catch (imageError) {
-          console.error('Error deleting album image:', imageError);
-        }
-      }
-      
-      const { error: deleteAlbumError } = await supabase
-        .from('albums')
-        .delete()
-        .eq('id', id);
-      
-      if (deleteAlbumError) throw deleteAlbumError;
-      
-      toast({
-        title: "Album deleted",
-        description: "The album and all its tracks have been deleted successfully."
-      });
-      
-      navigate('/');
-      
-    } catch (error) {
-      console.error('Error deleting album:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the album. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteTrack = async (trackId: string) => {
-    if (!trackId || !user) return;
-    
-    const track = tracks.find(t => t.id === trackId);
-    if (!track) return;
-    
-    const confirmDelete = window.confirm(`Are you sure you want to delete the track "${track.title}"? This will also remove it from any playlists. This action cannot be undone.`);
-    
-    if (!confirmDelete) return;
-    
-    try {
-      const { error: playlistTrackError } = await supabase
-        .from('playlist_tracks')
-        .delete()
-        .eq('track_id', trackId);
-      
-      if (playlistTrackError) throw playlistTrackError;
-      
-      if (track.audio_path) {
-        const { error: storageError } = await supabase.storage
-          .from('audio')
-          .remove([track.audio_path]);
-        
-        if (storageError) {
-          console.error(`Failed to delete audio file ${track.audio_path}:`, storageError);
-        }
-      }
-      
-      const { error: deleteTrackError } = await supabase
-        .from('tracks')
-        .delete()
-        .eq('id', trackId);
-      
-      if (deleteTrackError) throw deleteTrackError;
-      
-      setTracks(prevTracks => prevTracks.filter(t => t.id !== trackId));
-      
-      if (album) {
-        const newTrackCount = parseInt(album.track_count || '0', 10) - 1;
-        setAlbum({
-          ...album,
-          track_count: Math.max(0, newTrackCount).toString()
-        });
-      }
-      
-      toast({
-        title: "Track deleted",
-        description: `"${track.title}" has been deleted successfully.`
-      });
-      
-    } catch (error) {
-      console.error('Error deleting track:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the track. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  if (!album && !loading) {
-    return <AlbumNotFound />;
+  if (error || !album) {
+    toast({
+      title: "Error",
+      description: "Failed to load album details. Please try again later.",
+      variant: "destructive",
+    });
+    return (
+      <div className="container mx-auto p-6 text-center">
+        <h2 className="text-2xl font-bold">Failed to load album</h2>
+        <p className="text-zinc-400 mt-2">Please try again later</p>
+      </div>
+    );
   }
 
   return (
-    <div className="flex-1 w-full pb-24">
-      <AlbumNavigation />
-      
-      {album && (
-        <>
-          <div className="container mx-auto px-4 md:px-0 md:max-w-none">
-            <AlbumHeader 
-              title={album.title}
-              artist={album.artist}
-              image={album.image_url}
-              year={album.year}
-              trackCount={album.track_count}
-              duration={album.duration}
-            />
-            
-            <AlbumActions 
-              albumId={id}
-              onTrackAdded={isAdmin ? handleTrackAdded : undefined}
-              updateAlbumArtDialog={
-                isAdmin ? (
-                  <UpdateAlbumArtDialog 
-                    albumId={id!}
-                    currentImage={album.image_url || ''}
-                    onImageUpdated={handleAlbumArtUpdated}
-                  />
-                ) : null
-              }
-              onDeleteAlbum={isAdmin ? handleDeleteAlbum : undefined}
-            />
-            
-            <div className="md:pl-0 pl-4">
-              <ScrollArea className="h-[calc(100vh-280px)] pr-4">
-                <TrackList 
-                  tracks={tracks} 
-                  onToggleLike={handleToggleLike}
-                  albumName={album.title}
-                  onDeleteTrack={isAdmin ? handleDeleteTrack : undefined}
-                />
-                <div className="h-8"></div>
-              </ScrollArea>
-            </div>
-            
-            {isMobile !== undefined && (
-              <RelatedAlbums 
-                album={album}
-                isMobile={isMobile}
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="w-full md:w-1/3 lg:w-1/4">
+          <AspectRatio ratio={1 / 1} className="bg-zinc-900 rounded-lg overflow-hidden">
+            {album.image_url ? (
+              <img
+                src={album.image_url}
+                alt={album.title}
+                className="object-cover w-full h-full"
               />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-zinc-800">
+                <span className="text-zinc-500">No Image</span>
+              </div>
+            )}
+          </AspectRatio>
+        </div>
+        <div className="w-full md:w-2/3 lg:w-3/4">
+          <h1 className="text-3xl font-bold">{album.title}</h1>
+          <p className="text-xl text-zinc-400 mt-2">{album.artist}</p>
+          <div className="flex gap-2 text-sm text-zinc-500 mt-1">
+            <span>{album.year}</span>
+            {album.track_count && <span>• {album.track_count} songs</span>}
+            {album.duration && <span>• {album.duration}</span>}
+          </div>
+          
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Tracks</h2>
+            {album.tracks && album.tracks.length > 0 ? (
+              <TrackList tracks={album.tracks} albumId={album.id} />
+            ) : (
+              <p className="text-zinc-500">No tracks available for this album.</p>
             )}
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };

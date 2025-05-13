@@ -1,105 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Track as TrackType } from '@/types/supabase';
+import { Track } from '@/types/supabase';
 
 interface PlaylistTrack {
   id: string;
   title: string;
   artist: string;
-  plays: number | string;
+  album_id: string;
   duration: string;
-  isPlaying?: boolean;
-  isLiked?: boolean;
-  trackId: string;
-  albumName?: string | null;
-  position: number;
-  audio_path?: string;
+  plays: number;
+  audio_path: string;
+  track_number: number;
+  album_name?: string;
 }
 
 interface PlaylistTracklistProps {
   tracks: PlaylistTrack[];
-  isLoading: boolean;
+  playlistId: string;
+  canEdit?: boolean;
   onRemoveTrack?: (trackId: string) => void;
 }
 
-const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
-  tracks,
-  isLoading,
+const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({ 
+  tracks, 
+  playlistId, 
+  canEdit = true,
   onRemoveTrack
 }) => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
-  
-  // VU Meter animation state
-  const [vuHeights, setVuHeights] = useState<number[]>([20, 40, 30, 50, 25]);
+  const [loadingLike, setLoadingLike] = useState<string | null>(null);
+  const [loadingRemove, setLoadingRemove] = useState<string | null>(null);
 
-  // Listen for track selection events to update UI
-  useEffect(() => {
-    const handleTrackSelected = (event: Event) => {
-      const trackEvent = event as CustomEvent;
-      const track = trackEvent.detail as TrackType;
-      setCurrentlyPlayingId(track.id);
-    };
-
-    window.addEventListener('trackSelected', handleTrackSelected);
-    
-    return () => {
-      window.removeEventListener('trackSelected', handleTrackSelected);
-    };
-  }, []);
-
-  // VU meter animation effect
-  useEffect(() => {
-    if (currentlyPlayingId) {
-      const interval = setInterval(() => {
-        setVuHeights(prevHeights => 
-          prevHeights.map(() => Math.floor(Math.random() * 40) + 20)
-        );
-      }, 100);
-      
-      return () => clearInterval(interval);
-    }
-  }, [currentlyPlayingId]);
-
-  const handleToggleLike = async (trackId: string) => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to like tracks",
-        variant: "destructive"
-      });
-      return;
-    }
-    const track = tracks.find(t => t.trackId === trackId);
-    if (!track) return;
-    const newLikedStatus = !track.isLiked;
-    try {
-      const {
-        error
-      } = await supabase.from('tracks').update({
-        is_liked: newLikedStatus
-      }).eq('id', trackId);
-      if (error) throw error;
-      toast({
-        title: newLikedStatus ? "Added to Liked Songs" : "Removed from Liked Songs",
-        description: `${track.title} has been ${newLikedStatus ? 'added to' : 'removed from'} your Liked Songs`
-      });
-    } catch (error) {
-      console.error('Error toggling track like:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update liked status",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handlePlay = (track: Track) => {
+  const handlePlay = (track: PlaylistTrack) => {
     // Create full audio URL if needed
     const fullAudioUrl = track.audio_path?.startsWith('http') 
       ? track.audio_path 
@@ -112,8 +48,8 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
           ...track,
           audio_path: fullAudioUrl,
           // Ensure all required properties from Track interface are included
-          is_liked: track.is_liked || false,
-          created_at: track.created_at || new Date().toISOString()
+          is_liked: false, // Assuming default value since playlist tracks don't track this
+          created_at: new Date().toISOString() // Default value
         }
       })
     );
@@ -126,131 +62,82 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
     );
   };
 
-  const handlePlayClick = (track: PlaylistTrack) => {
-    console.log("Play button clicked for playlist track:", track.title);
-    
-    // Create a full track object with essential properties
-    const fullTrack: TrackType = {
-      id: track.trackId,
-      title: track.title,
-      artist: track.artist,
-      album_id: "", // Default value
-      duration: track.duration,
-      plays: Number(track.plays) || 0,
-      audio_path: track.audio_path || "",
-      track_number: track.position || 0
-    };
-    
-    // Set currently playing track
-    setCurrentlyPlayingId(track.trackId);
-    
-    console.log("Dispatching playlist track for playback:", fullTrack);
-    window.dispatchEvent(new CustomEvent('trackSelected', {
-      detail: fullTrack
-    }));
-    
-    // Play the track immediately
-    window.dispatchEvent(new CustomEvent('playTrack', {
-      detail: { immediate: true }
-    }));
+  const handleRemoveFromPlaylist = async (trackId: string) => {
+    if (!onRemoveTrack) return;
+
+    setLoadingRemove(trackId);
+    try {
+      onRemoveTrack(trackId);
+    } catch (error) {
+      console.error("Failed to remove track:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove track from playlist.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingRemove(null);
+    }
   };
 
   return (
-    <div className="w-full relative">
-      <Table>
-        <TableHeader className="sticky top-0 bg-black z-10">
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[5%] px-4">#</TableHead>
-            <TableHead className="w-[75%] px-4">Title</TableHead>
-            <TableHead className="w-[20%] px-4 text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            [...Array(5)].map((_, i) => (
-              <TableRow key={i}>
-                <TableCell className="w-[5%] px-4">
-                  <div className="w-6 h-6 bg-black animate-pulse rounded"></div>
-                </TableCell>
-                <TableCell className="w-[75%] px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="space-y-2">
-                      <div className="w-24 h-4 bg-black animate-pulse rounded"></div>
-                      <div className="w-16 h-3 bg-black animate-pulse rounded"></div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="w-[20%] px-4"></TableCell>
-              </TableRow>
-            ))
-          ) : tracks.length > 0 ? (
-            tracks.map(track => (
-              <TableRow key={track.id} className={`group ${track.trackId === currentlyPlayingId ? 'text-orange-600' : 'text-white'} hover:bg-black/30`}>
-                <TableCell className="w-[5%] px-4 bg-black/50">
-                  <div className="flex items-center">
-                    {track.trackId === currentlyPlayingId ? (
-                      // VU Meter animation when track is playing
-                      <div className="flex items-end h-4 gap-[2px]">
-                        {vuHeights.map((height, i) => (
-                          <div 
-                            key={i}
-                            className="w-[2px] bg-orange-600"
-                            style={{ height: `${height}%` }}
-                          ></div>
-                        ))}
-                      </div>
-                    ) : (
-                      <>
-                        <span className="group-hover:hidden">{track.position}</span>
-                        <button className="hidden group-hover:flex items-center justify-center" onClick={() => handlePlayClick(track)}>
-                          <Play size={14} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="w-[75%] px-4 bg-black/50">
-                  <div className="min-w-0 truncate">
-                    <div className="font-medium truncate">{track.title}</div>
-                    <div className="text-zinc-400 text-xs truncate">{track.artist}</div>
-                  </div>
-                </TableCell>
-                <TableCell className="w-[20%] px-4 text-right bg-black/50">
-                  <div className="flex items-center justify-end gap-2">
-                    <button 
-                      className={`${track.isLiked ? 'text-orange-600' : 'text-zinc-400'} ${!track.isLiked ? 'opacity-0 group-hover:opacity-100' : ''} hover:text-white`} 
-                      onClick={() => handleToggleLike(track.trackId)}
+    <div className="relative overflow-x-auto">
+      <table className="w-full text-sm text-left text-zinc-400">
+        <thead className="text-xs text-zinc-700 uppercase bg-zinc-900">
+          <tr>
+            <th scope="col" className="px-6 py-3">#</th>
+            <th scope="col" className="px-6 py-3">Title</th>
+            <th scope="col" className="px-6 py-3">Artist</th>
+            {tracks.some(track => track.album_name) && (
+              <th scope="col" className="px-6 py-3">Album</th>
+            )}
+            <th scope="col" className="px-6 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tracks.map((track, index) => (
+            <tr key={track.id} className="bg-zinc-800 border-b border-zinc-700 hover:bg-zinc-700">
+              <td className="px-6 py-4">{index + 1}</td>
+              <td className="px-6 py-4 font-medium text-white whitespace-nowrap">{track.title}</td>
+              <td className="px-6 py-4">{track.artist}</td>
+              {tracks.some(track => track.album_name) && (
+                <td className="px-6 py-4">{track.album_name}</td>
+              )}
+              <td className="px-6 py-4">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => handlePlay(track)}
+                    className="text-zinc-400 hover:text-white"
+                  >
+                    <Play size={20} />
+                  </button>
+                  <a 
+                    href={`https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-zinc-400 hover:text-white"
+                  >
+                    <Download size={20} />
+                  </a>
+                  {canEdit && onRemoveTrack && (
+                    <button
+                      onClick={() => handleRemoveFromPlaylist(track.id)}
+                      className={`text-zinc-400 hover:text-rose-500 ${loadingRemove === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={loadingRemove === track.id}
                     >
-                      <Heart size={16} fill={track.isLiked ? 'currentColor' : 'none'} />
+                      {loadingRemove === track.id ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <X size={20} />
+                      )}
                     </button>
-                    
-                    {onRemoveTrack && (
-                      <button 
-                        className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white" 
-                        onClick={() => onRemoveTrack(track.id)} 
-                        aria-label="Remove from playlist"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                    
-                    <button className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white">
-                      <MoreHorizontal size={16} />
-                    </button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={3} className="text-center text-zinc-400 py-8 bg-black/50">
-                This playlist doesn't have any tracks yet. Start adding some tracks!
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <div className="h-4"></div>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

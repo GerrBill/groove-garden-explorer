@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 
 // Types for toast related functionality
 export interface ToastProps {
-  id?: string; // Add id to the ToastProps interface to fix the TS error
+  id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   variant?: "default" | "destructive";
@@ -21,7 +21,6 @@ interface ToastContextType {
   addToast: (props: ToastProps) => void;
   dismissToast: (id: string) => void;
   dismissAll: () => void;
-  toast: (props: ToastProps) => { id: string; dismiss: () => void };
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);
@@ -34,21 +33,7 @@ export function useToast() {
   return context;
 }
 
-// Define the toast function that will be included in the context
-const createToast = (addToast: (props: ToastProps) => void, dismissToast: (id: string) => void) => {
-  return (props: ToastProps) => {
-    const id = Math.random().toString(36).slice(2, 10);
-    
-    addToast({ ...props, id });
-    
-    return {
-      id,
-      dismiss: () => dismissToast(id),
-    };
-  };
-};
-
-// Export the standalone toast function for direct imports
+// Define the toast function that will be exported
 export const toast = (props: ToastProps) => {
   // Generate an ID for this toast
   const id = Math.random().toString(36).slice(2, 10);
@@ -113,7 +98,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const addToast = (props: ToastProps) => {
-    const id = Math.random().toString(36).slice(2, 10);
+    const id = props.id || Math.random().toString(36).slice(2, 10);
     const newToast = { ...props, id };
     setToasts((prev) => [...prev, newToast]);
     
@@ -132,15 +117,11 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     setToasts([]);
   };
 
-  // Create the toast function for the context
-  const toastFn = createToast(addToast, dismissToast);
-
   const contextValue: ToastContextType = {
     toasts,
     addToast,
     dismissToast,
     dismissAll,
-    toast: toastFn // Include the toast function in the context
   };
 
   return (

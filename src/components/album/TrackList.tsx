@@ -1,3 +1,4 @@
+
 // First, we need to import the Track type from the supabase types file
 import { Track } from "@/types/supabase";
 import { MoreHorizontal, Heart, Download, Play, Loader2 } from 'lucide-react';
@@ -56,23 +57,27 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, albumId }) => {
     setLoadingLike(track.id);
 
     try {
-      const { data, error } = await supabase
+      // First check if this track is already liked by the user
+      const { data: likedData, error: likedError } = await supabase
         .from('liked_tracks')
-        .select('id')
+        .select('*')
         .eq('user_id', user.id)
         .eq('track_id', track.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (likedError && likedError.code !== 'PGRST116') {
+        throw likedError;
       }
 
-      if (data) {
+      if (likedData) {
         // Unlike the track
-        await supabase
+        const { error: deleteError } = await supabase
           .from('liked_tracks')
           .delete()
-          .eq('id', data.id);
+          .eq('user_id', user.id)
+          .eq('track_id', track.id);
+
+        if (deleteError) throw deleteError;
 
         // Optimistically update the cache
         queryClient.setQueryData(['album', albumId], (old: any) => {
@@ -91,9 +96,11 @@ const TrackList: React.FC<TrackListProps> = ({ tracks, albumId }) => {
         });
       } else {
         // Like the track
-        await supabase
+        const { error: insertError } = await supabase
           .from('liked_tracks')
           .insert([{ user_id: user.id, track_id: track.id }]);
+
+        if (insertError) throw insertError;
 
         // Optimistically update the cache
         queryClient.setQueryData(['album', albumId], (old: any) => {
