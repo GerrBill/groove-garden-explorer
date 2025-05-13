@@ -1,5 +1,6 @@
 
-import { toast, useToast } from "./use-toast.tsx";
+// Re-export toast components from the ui component
+import { toast, useToast } from "@/components/ui/toast";
 
 export type ToastOptions = {
   title?: string

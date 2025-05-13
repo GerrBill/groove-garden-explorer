@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/toast";
 import { formatDistanceToNow } from 'date-fns';
 import TopNav from '@/components/navigation/TopNav';
 import { BlogArticle, BlogComment } from '@/types/supabase';
@@ -149,37 +149,10 @@ const BlogPost = () => {
     window.open(shareUrl, '_blank', 'noopener,noreferrer');
   };
 
+  // Simplify the renderFormattedContent function to properly display HTML content
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
-    
-    let formatted = content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-orange-700 underline">$1</a>')
-      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full my-4 rounded-md" />')
-      .replace(/<div style="text-align: (left|center|right);">(.*?)<\/div>/g, '<div style="text-align: $1;">$2</div>')
-      .replace(/- (.*?)(?:\n|$)/g, '<li>$1</li>')
-      .replace(/\n/g, '<br />');
-    
-    // YouTube URL regex
-    const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=|embed\/|v\/|shorts\/|playlist\?list=|channel\/)?([a-zA-Z0-9_-]{11})(\S*)?/g;
-    formatted = formatted.replace(youtubeRegex, (match) => {
-      return `<div class="aspect-w-16 aspect-h-9 my-4">
-        <iframe src="https://www.youtube.com/embed/${match.match(/([a-zA-Z0-9_-]{11})/)?.[0]}" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen
-          class="w-full h-64 rounded-md"
-        ></iframe>
-      </div>`;
-    });
-    
-    if (formatted.includes('<li>')) {
-      formatted = formatted.replace(/<li>(.*?)(?:<br \/>|$)/g, '<li>$1</li>');
-      formatted = '<ul class="list-disc pl-5 my-4">' + formatted + '</ul>';
-    }
-    
-    return formatted;
+    return content;
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -509,8 +482,9 @@ const BlogPost = () => {
                 )}
               </div>
               
-              <div className="article-content prose max-w-none mb-8">
-                <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
+              {/* Fix the article-content styling and rendering */}
+              <div className="article-content prose dark:prose-invert max-w-none mb-8">
+                <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
               </div>
               
               <Separator className="my-8" />
