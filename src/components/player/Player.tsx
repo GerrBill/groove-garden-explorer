@@ -3,14 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import PlayerContent from './PlayerContent';
 import { Track } from '@/types/supabase';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 const Player = () => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const location = useLocation();
   const shouldHidePlayer = location.pathname.includes('/blog');
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     const handleTrackSelected = (event: CustomEvent) => {
@@ -69,7 +68,7 @@ const Player = () => {
       window.removeEventListener('trackSelected', handleTrackSelected as EventListener);
       window.removeEventListener('playTrack', handlePlayTrack as EventListener);
     };
-  }, [toast]);
+  }, []);
 
   if (shouldHidePlayer) {
     return null;

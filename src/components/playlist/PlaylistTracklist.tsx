@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Track } from '@/types/supabase';
 
 interface PlaylistTrack {
   id: string;
@@ -16,6 +14,8 @@ interface PlaylistTrack {
   audio_path: string;
   track_number: number;
   album_name?: string;
+  is_liked?: boolean;
+  created_at?: string;
 }
 
 interface PlaylistTracklistProps {
@@ -36,21 +36,35 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
   const [loadingRemove, setLoadingRemove] = useState<string | null>(null);
 
   const handlePlay = (track: PlaylistTrack) => {
+    // Check if track has audio path
+    if (!track.audio_path) {
+      toast({
+        title: "Playback Error",
+        description: "This track doesn't have an audio file associated with it.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Create full audio URL if needed
     const fullAudioUrl = track.audio_path?.startsWith('http') 
       ? track.audio_path 
       : `https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`;
     
+    // Create the track object with all required properties
+    const trackForPlayer = {
+      ...track,
+      audio_path: fullAudioUrl,
+      is_liked: track.is_liked || false,
+      created_at: track.created_at || new Date().toISOString()
+    };
+    
+    console.log("Playing track:", trackForPlayer);
+    
     // Include all required Track properties when dispatching the event
     window.dispatchEvent(
       new CustomEvent('trackSelected', {
-        detail: {
-          ...track,
-          audio_path: fullAudioUrl,
-          // Ensure all required properties from Track interface are included
-          is_liked: false, // Assuming default value since playlist tracks don't track this
-          created_at: new Date().toISOString() // Default value
-        }
+        detail: trackForPlayer
       })
     );
     
@@ -111,14 +125,16 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
                   >
                     <Play size={20} />
                   </button>
-                  <a 
-                    href={`https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-zinc-400 hover:text-white"
-                  >
-                    <Download size={20} />
-                  </a>
+                  {track.audio_path && (
+                    <a 
+                      href={`https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-zinc-400 hover:text-white"
+                    >
+                      <Download size={20} />
+                    </a>
+                  )}
                   {canEdit && onRemoveTrack && (
                     <button
                       onClick={() => handleRemoveFromPlaylist(track.id)}
