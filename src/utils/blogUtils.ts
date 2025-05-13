@@ -1,7 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { BlogArticle } from '@/types/supabase';
 import { uploadImageFile } from './fileUpload';
-import { toast } from '@/hooks/use-toast';
 import { isYouTubeUrl } from './youtubeUtils';
 
 export interface ArticleFormData {
@@ -78,11 +77,6 @@ export const createBlogArticle = async (
     return true;
   } catch (error) {
     console.error('Error creating blog article:', error);
-    toast({
-      title: "Failed to create article",
-      description: "There was a problem creating your article. Please try again.",
-      variant: "destructive"
-    });
     return false;
   }
 };
@@ -148,11 +142,6 @@ export const updateBlogArticle = async (
     return true;
   } catch (error) {
     console.error('Error updating blog article:', error);
-    toast({
-      title: "Failed to update article",
-      description: "There was a problem updating your article. Please try again.",
-      variant: "destructive"
-    });
     return false;
   }
 };
@@ -211,19 +200,9 @@ export const deleteBlogArticle = async (
       onSuccess();
     }
     
-    toast({
-      title: "Article deleted",
-      description: "The article has been successfully deleted"
-    });
-    
     return true;
   } catch (error) {
     console.error('Error deleting blog article:', error);
-    toast({
-      title: "Failed to delete article",
-      description: "There was a problem deleting your article. Please try again.",
-      variant: "destructive"
-    });
     return false;
   }
 };

@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
 import { uploadImageFile } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +8,7 @@ import { BlogArticle } from '@/types/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "@/components/ui/spinner";
 import { convertYouTubeUrlsToEmbeds } from '@/utils/youtubeUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EditArticleDialogProps {
   children: React.ReactNode;
@@ -52,11 +51,6 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
           console.log('New image uploaded successfully:', imageUrl);
         } catch (error) {
           console.error('Failed to upload new image:', error);
-          toast({
-            title: "Image Upload Issue",
-            description: "Keeping existing image",
-            variant: "destructive"
-          });
         }
       } else if (values.youtubeVideoId) {
         // If YouTube video ID is provided, use its thumbnail
@@ -112,11 +106,6 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
       
-      toast({
-        title: "Success!",
-        description: "Your article has been updated.",
-      });
-      
       setOpen(false);
 
       // Call callback if provided
@@ -125,11 +114,6 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       }
     } catch (error) {
       console.error('Error updating article:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update article. Please try again.",
-        variant: "destructive"
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -152,7 +136,7 @@ const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto bg-black">
+      <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Article</DialogTitle>
           <DialogDescription>

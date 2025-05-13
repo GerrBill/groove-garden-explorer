@@ -1,14 +1,13 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
-import { supabase } from '@/integrations/supabase/client';
 import ArticleForm from './ArticleForm';
 import { uploadImageFile, fileToBase64 } from '@/utils/fileUpload';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQueryClient } from '@tanstack/react-query';
 import { extractYouTubeVideoId, convertYouTubeUrlsToEmbeds } from '@/utils/youtubeUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CreateArticleDialogProps {
   children: React.ReactNode;
@@ -60,11 +59,6 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
           console.log('Image processed successfully:', imageUrl);
         } catch (error) {
           console.error('Failed to process image:', error);
-          toast({
-            title: "Image Upload Issue",
-            description: "Continuing with placeholder image",
-            variant: "destructive"
-          });
           imageUrl = '/placeholder.svg';
         }
       } else if (values.youtubeVideoId) {
@@ -111,11 +105,6 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       queryClient.invalidateQueries({ queryKey: ['sidebar-blogs'] });
       
-      toast({
-        title: "Success!",
-        description: "Your article has been published."
-      });
-      
       setOpen(false);
 
       // Navigate to the newly created article
@@ -127,11 +116,6 @@ const CreateArticleDialog: React.FC<CreateArticleDialogProps> = ({
       }
     } catch (error) {
       console.error('Error creating article:', error);
-      toast({
-        title: "Error",
-        description: `Failed to create article: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
     } finally {
       setIsSubmitting(false);
     }
