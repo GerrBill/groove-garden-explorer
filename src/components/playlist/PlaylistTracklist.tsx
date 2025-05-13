@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MoreHorizontal, Heart, Play, Music, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -98,6 +97,33 @@ const PlaylistTracklist: React.FC<PlaylistTracklistProps> = ({
         variant: "destructive"
       });
     }
+  };
+
+  const handlePlay = (track: Track) => {
+    // Create full audio URL if needed
+    const fullAudioUrl = track.audio_path?.startsWith('http') 
+      ? track.audio_path 
+      : `https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`;
+    
+    // Include all required Track properties when dispatching the event
+    window.dispatchEvent(
+      new CustomEvent('trackSelected', {
+        detail: {
+          ...track,
+          audio_path: fullAudioUrl,
+          // Ensure all required properties from Track interface are included
+          is_liked: track.is_liked || false,
+          created_at: track.created_at || new Date().toISOString()
+        }
+      })
+    );
+    
+    // Trigger immediate play
+    window.dispatchEvent(
+      new CustomEvent('playTrack', {
+        detail: { immediate: true }
+      })
+    );
   };
 
   const handlePlayClick = (track: PlaylistTrack) => {
