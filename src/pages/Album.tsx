@@ -2,10 +2,10 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Album as AlbumType, Track } from '@/types/supabase';
+import { Album as AlbumType } from '@/types/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import TrackList from '@/components/album/TrackList';
+import TrackList from '@/components/shared/TrackList';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 

@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import PlaylistTracklist from '@/components/playlist/PlaylistTracklist';
+import TrackList from '@/components/shared/TrackList';
 import PlaylistHeader from '@/components/playlist/PlaylistHeader';
-import { Heart, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Track } from '@/types/supabase';
+import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
@@ -19,26 +20,14 @@ interface Playlist {
   created_at: string;
 }
 
-interface PlaylistTrack {
-  id: string;
-  title: string;
-  artist: string;
-  plays: number;
-  duration: string;
-  trackId: string;
-  albumName: string | null;
-  position: number;
-}
-
 const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
 
 const Playlist = () => {
   const { id } = useParams<{ id: string }>();
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
-  const [tracks, setTracks] = useState<PlaylistTrack[]>([]);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
@@ -78,7 +67,11 @@ const Playlist = () => {
             artist,
             plays,
             duration,
-            is_liked
+            is_liked,
+            album_id,
+            track_number,
+            audio_path,
+            created_at
           )
         `).eq('playlist_id', id).order('position', {
         ascending: true
@@ -86,17 +79,20 @@ const Playlist = () => {
       if (error) throw error;
 
       // Transform data into the format expected by TrackList
-      const formattedTracks = data.map(item => ({
+      const formattedTracks: Track[] = data.map(item => ({
         id: item.id,
         title: item.tracks.title,
         artist: item.tracks.artist,
         plays: item.tracks.plays || 0,
         duration: item.tracks.duration,
-        isLiked: item.tracks.is_liked || false,
-        trackId: item.tracks.id,
-        albumName: item.album_name,
-        position: item.position
+        is_liked: item.tracks.is_liked || false,
+        album_id: item.tracks.album_id,
+        track_number: item.position,
+        audio_path: item.tracks.audio_path || null,
+        created_at: item.tracks.created_at,
+        album_name: item.album_name
       }));
+      
       setTracks(formattedTracks);
     } catch (error) {
       console.error('Error fetching playlist tracks:', error);
@@ -217,7 +213,11 @@ const Playlist = () => {
           </div>
           
           <div className="md:pl-0 pl-4">
-            <PlaylistTracklist tracks={tracks} isLoading={loading} onRemoveTrack={handleRemoveTrack} />
+            <TrackList 
+              tracks={tracks} 
+              canEdit={true}
+              onRemoveTrack={handleRemoveTrack} 
+            />
           </div>
         </div>}
     </div>;
