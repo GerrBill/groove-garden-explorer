@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast"; 
-import { uploadAudioFile, getAudioUrl, generateFilePath } from '@/utils/fileUpload';
+import { uploadAudioFile, getAudioUrl } from '@/utils/fileUpload';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface AddTrackDialogProps {
@@ -17,10 +17,12 @@ interface AddTrackDialogProps {
 
 interface TrackFormData {
   title: string;
+  artist?: string;
   trackNumber: string;
   duration: string;
   genre?: string;
-  audioFile?: File;
+  comment?: string;
+  audioFile?: File | null;
 }
 
 const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
@@ -34,8 +36,14 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
 
+  const generateFilePath = (albumId: string, fileName: string): string => {
+    const fileExt = fileName.split('.').pop();
+    const uniqueId = crypto.randomUUID();
+    return `albums/${albumId}/tracks/${uniqueId}.${fileExt}`;
+  };
+
   const handleSubmit = async (data: TrackFormData) => {
-    if (!data.audioFile) {
+    if (!audioFile) {
       toast({
         title: "Error",
         description: "Please select an audio file",
@@ -48,8 +56,8 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
     
     try {
       // Upload the audio file
-      const filePath = generateFilePath(albumId, data.audioFile.name);
-      await uploadAudioFile(data.audioFile, filePath);
+      const filePath = generateFilePath(albumId, audioFile.name);
+      await uploadAudioFile(audioFile, filePath);
       const audioUrl = getAudioUrl(filePath);
 
       // Convert trackNumber to a number before inserting
@@ -61,7 +69,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
         .insert({
           album_id: albumId,
           title: data.title,
-          artist: artist || "",
+          artist: data.artist || artist || "",
           duration: data.duration,
           genre: data.genre || null,
           audio_path: audioUrl,
@@ -114,7 +122,6 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
             <p className="text-center text-muted-foreground">Uploading track...</p>
           </div>
         ) : (
-          // Providing all required props to TrackForm
           <TrackForm 
             initialValues={{
               title: "",
@@ -127,13 +134,7 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
             audioFile={audioFile}
             isSubmitting={isSubmitting}
             handleFileChange={handleFileChange}
-            onSubmit={(data) => {
-              const formData = {
-                ...data,
-                audioFile: audioFile
-              } as TrackFormData;
-              handleSubmit(formData);
-            }}
+            onSubmit={handleSubmit}
             onCancel={() => setOpen(false)}
           />
         )}

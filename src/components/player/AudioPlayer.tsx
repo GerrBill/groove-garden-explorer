@@ -1,10 +1,10 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX } from 'lucide-react';
 import { Slider } from "@/components/ui/slider";
 import { useAudio } from '@/hooks/use-audio';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
-import { getAudioUrl } from '@/utils/fileUpload';
 
 interface AudioPlayerProps {
   audioSrc: string;
@@ -38,6 +38,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
   }, [volume]);
 
   const formatTime = (time: number): string => {
+    if (isNaN(time) || !isFinite(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -48,7 +49,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
   };
 
   const handleSeekChange = (newValue: number[]) => {
-    if (newValue && newValue[0]) {
+    if (newValue && newValue[0] !== undefined) {
       seek(newValue[0]);
     }
   };
@@ -103,7 +104,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
         <span className="text-xs text-zinc-400">{formatTime(currentTime)}</span>
         <Slider
           defaultValue={[0]}
-          max={duration}
+          max={duration || 100}
           step={1}
           value={[currentTime]}
           onValueChange={handleSeekChange}

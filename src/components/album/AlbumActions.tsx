@@ -14,6 +14,7 @@ interface AlbumActionsProps {
   artist?: string;
   updateAlbumArtDialog?: React.ReactNode;
   onDeleteAlbum?: () => void;
+  onTrackAdded?: (track: Track) => void;
 }
 
 const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
@@ -23,7 +24,8 @@ const AlbumActions: React.FC<AlbumActionsProps> = ({
   albumTitle,
   artist,
   updateAlbumArtDialog,
-  onDeleteAlbum
+  onDeleteAlbum,
+  onTrackAdded
 }) => {
   const { user } = useAuth();
   const { colorTheme } = useTheme();
