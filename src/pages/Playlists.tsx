@@ -12,6 +12,7 @@ import AlbumCard from '@/components/home/AlbumCard';
 import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
 import { useTheme } from '@/context/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Playlist {
   id: string;
@@ -43,18 +44,23 @@ const Playlists = () => {
     queryKey: ['playlists-page'],
     queryFn: async () => {
       console.log("Fetching playlists for Playlists page...");
-      const {
-        data,
-        error
-      } = await supabase.from('playlists').select('*').order('created_at', {
-        ascending: false
-      });
-      if (error) {
-        console.error('Error fetching playlists:', error);
-        throw error;
+      try {
+        const { data, error } = await supabase
+          .from('playlists')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          console.error('Error fetching playlists:', error);
+          throw error;
+        }
+        
+        console.log("Playlists fetched successfully:", data);
+        return data || [];
+      } catch (err) {
+        console.error('Exception fetching playlists:', err);
+        throw err;
       }
-      console.log("Playlists fetched for page:", data);
-      return data || [];
     }
   });
 
@@ -114,9 +120,9 @@ const Playlists = () => {
             {isLoading ? (
               [...Array(10)].map((_, i) => (
                 <div key={i} className="w-full p-1 rounded-md">
-                  <div className="aspect-square bg-zinc-800 rounded animate-pulse mb-2"></div>
-                  <div className="h-4 bg-zinc-800 rounded animate-pulse mb-2 w-3/4 mx-auto"></div>
-                  <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2 mx-auto"></div>
+                  <Skeleton className="aspect-square bg-zinc-800 rounded mb-2" />
+                  <Skeleton className="h-4 bg-zinc-800 rounded mb-2 w-3/4 mx-auto" />
+                  <Skeleton className="h-3 bg-zinc-800 rounded w-1/2 mx-auto" />
                 </div>
               ))
             ) : playlists && playlists.length > 0 ? (

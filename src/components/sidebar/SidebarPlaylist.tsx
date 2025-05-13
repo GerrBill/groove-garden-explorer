@@ -18,7 +18,7 @@ interface SidebarPlaylistProps {
 
 const SidebarPlaylist: React.FC<SidebarPlaylistProps> = ({ playlists }) => {
   // Add console log to debug
-  console.log("Sidebar Playlists received:", playlists);
+  console.log("Sidebar Playlists to render:", playlists);
   
   if (!playlists || playlists.length === 0) {
     return (
