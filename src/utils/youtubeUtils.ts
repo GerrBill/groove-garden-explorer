@@ -1,0 +1,76 @@
+
+/**
+ * Utility functions for working with YouTube videos
+ */
+
+// Regular expression to match YouTube URLs
+const YOUTUBE_REGEX = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+/**
+ * Extract YouTube video ID from a URL string
+ * @param url YouTube URL
+ * @returns YouTube video ID or null if not a valid YouTube URL
+ */
+export const extractYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const match = url.match(YOUTUBE_REGEX);
+  return match ? match[1] : null;
+};
+
+/**
+ * Get YouTube thumbnail URL from a video ID
+ * @param videoId YouTube video ID
+ * @returns URL to the YouTube video thumbnail (high quality)
+ */
+export const getYouTubeThumbnailUrl = (videoId: string): string => {
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+};
+
+/**
+ * Check if a URL is a YouTube video URL
+ * @param url URL to check
+ * @returns boolean indicating if the URL is a YouTube video
+ */
+export const isYouTubeUrl = (url: string): boolean => {
+  if (!url) return false;
+  return YOUTUBE_REGEX.test(url);
+};
+
+/**
+ * Generate an embeddable YouTube iframe HTML
+ * @param videoId YouTube video ID
+ * @param width Width of the iframe
+ * @param height Height of the iframe
+ * @returns HTML string with YouTube iframe
+ */
+export const generateYouTubeEmbed = (
+  videoId: string,
+  width: number = 560,
+  height: number = 315
+): string => {
+  return `<iframe 
+    width="${width}" 
+    height="${height}" 
+    src="https://www.youtube.com/embed/${videoId}" 
+    title="YouTube video player" 
+    frameborder="0" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowfullscreen
+  ></iframe>`;
+};
+
+/**
+ * Convert YouTube URLs in text to embedded videos
+ * This can be used to process content before saving
+ * @param content Text content that might contain YouTube URLs
+ * @returns Content with YouTube URLs converted to embeds
+ */
+export const convertYouTubeUrlsToEmbeds = (content: string): string => {
+  if (!content) return content;
+  
+  // Find YouTube URLs and replace them with embeds
+  return content.replace(YOUTUBE_REGEX, (match, videoId) => {
+    return generateYouTubeEmbed(videoId);
+  });
+};

@@ -3,6 +3,7 @@
  * Utility function to handle file uploads for the media player using Supabase Storage
  */
 import { supabase } from "@/integrations/supabase/client";
+import { isYouTubeUrl, extractYouTubeVideoId, getYouTubeThumbnailUrl } from "./youtubeUtils";
 
 // Function to convert a File object to a base64 string (for preview purposes)
 export const fileToBase64 = (file: File): Promise<string> => {
@@ -14,11 +15,55 @@ export const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
+// Function to fetch a remote image as a blob
+export const fetchImageAsBlob = async (url: string): Promise<Blob> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+  return await response.blob();
+};
+
 // Function to upload an image file to Supabase Storage
-export const uploadImageFile = async (file: File, folder: string): Promise<string> => {
+export const uploadImageFile = async (file: File | string, folder: string): Promise<string> => {
   if (!file) {
     console.error('No file provided for upload');
     return '/placeholder.svg';
+  }
+
+  // Handle YouTube URL case
+  if (typeof file === 'string' && isYouTubeUrl(file)) {
+    const videoId = extractYouTubeVideoId(file);
+    if (videoId) {
+      const thumbnailUrl = getYouTubeThumbnailUrl(videoId);
+      console.log('Using YouTube thumbnail URL:', thumbnailUrl);
+      return thumbnailUrl;
+    }
+  }
+
+  // Handle URL string that might be a YouTube thumbnail already
+  if (typeof file === 'string' && file.includes('img.youtube.com')) {
+    console.log('Using existing YouTube thumbnail URL:', file);
+    return file;
+  }
+
+  // If it's a string URL but not a YouTube URL or thumbnail, try to fetch it and convert to File
+  if (typeof file === 'string' && file.startsWith('http')) {
+    try {
+      console.log('Fetching remote image URL:', file);
+      const blob = await fetchImageAsBlob(file);
+      const filename = file.split('/').pop() || 'image.jpg';
+      file = new File([blob], filename, { type: blob.type });
+    } catch (error) {
+      console.error('Error fetching remote image:', error);
+      return file; // Return the original URL if we can't fetch it
+    }
+  }
+
+  // At this point, file should be a File object
+  if (!(file instanceof File)) {
+    console.error('Invalid file type for upload:', typeof file);
+    return typeof file === 'string' ? file : '/placeholder.svg';
   }
 
   // Validate file type
@@ -82,7 +127,11 @@ export const uploadImageFile = async (file: File, folder: string): Promise<strin
     console.error('Error in uploadImageFile:', error);
     // Try to get base64 as fallback
     try {
-      return await fileToBase64(file);
+      if (file instanceof File) {
+        return await fileToBase64(file);
+      } else {
+        return '/placeholder.svg';
+      }
     } catch (innerError) {
       console.error('Failed to create base64 fallback:', innerError);
       return '/placeholder.svg';

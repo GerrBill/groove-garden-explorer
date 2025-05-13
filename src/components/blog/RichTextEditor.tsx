@@ -13,8 +13,11 @@ import {
   AlignRight,
   List,
   Image as ImageIcon,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Youtube
 } from 'lucide-react';
+import { useRef, useCallback } from 'react';
+import { extractYouTubeVideoId, generateYouTubeEmbed, isYouTubeUrl } from '@/utils/youtubeUtils';
 
 interface RichTextEditorProps {
   content: string;
@@ -23,6 +26,10 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps) => {
+  // Reference to store the last selection position
+  const selectionRef = useRef<any>(null);
+
+  // Initialize the editor
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -42,19 +49,63 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
       attributes: {
         class: 'prose dark:prose-invert max-w-none min-h-[300px] focus:outline-none px-4 py-2',
       },
+      handlePaste: (view, event) => {
+        // Store the current selection
+        selectionRef.current = view.state.selection;
+        return false; // Don't prevent the default paste behavior
+      },
     },
     onUpdate({ editor }) {
       onChange(editor.getHTML());
     },
+    onSelectionUpdate({ editor }) {
+      // Store the selection whenever it changes
+      selectionRef.current = editor.state.selection;
+    }
   });
+
+  const handleYoutubeEmbed = useCallback(() => {
+    if (!editor) return;
+    
+    const url = window.prompt('Enter YouTube URL');
+    if (!url) return;
+    
+    const videoId = extractYouTubeVideoId(url);
+    if (!videoId) {
+      alert('Invalid YouTube URL');
+      return;
+    }
+
+    // Insert the YouTube embed at the current selection
+    editor.chain().focus().insertContent(generateYouTubeEmbed(videoId)).run();
+  }, [editor]);
+
+  // Handler for pasting content
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    if (!editor) return;
+    
+    const text = e.clipboardData.getData('text/plain');
+    if (isYouTubeUrl(text)) {
+      e.preventDefault(); // Prevent default paste
+      
+      const videoId = extractYouTubeVideoId(text);
+      if (videoId) {
+        // Insert the YouTube embed at the current selection
+        editor.chain().focus().insertContent(generateYouTubeEmbed(videoId)).run();
+      }
+    }
+  }, [editor]);
 
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="relative border rounded-md bg-background">
-      <div className="flex items-center gap-1 p-2 border-b">
+    <div 
+      className="relative border rounded-md bg-background"
+      onPaste={handlePaste}
+    >
+      <div className="flex items-center gap-1 p-2 border-b flex-wrap">
         <Button
           type="button"
           variant="ghost"
@@ -149,6 +200,16 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           }}
         >
           <LinkIcon className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 p-0 px-2"
+          onClick={handleYoutubeEmbed}
+        >
+          <Youtube className="h-4 w-4 mr-1" />
+          <span className="text-xs">YouTube</span>
         </Button>
       </div>
       <EditorContent editor={editor} />

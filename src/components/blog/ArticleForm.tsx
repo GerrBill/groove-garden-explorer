@@ -23,6 +23,7 @@ interface ArticleFormValues {
   category: string;
   author: string;
   imageFile?: File | null;
+  youtubeVideoId?: string;
 }
 
 interface ArticleFormProps {
@@ -45,6 +46,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(imageUrl || null);
   const [isImageUploading, setIsImageUploading] = useState(false);
+  const [youtubeVideoId, setYoutubeVideoId] = useState<string | null>(null);
   const { toast } = useToast();
   
   const form = useForm<ArticleFormValues>({
@@ -103,6 +105,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       
       // Set the file for upload
       setImageFile(file);
+      setYoutubeVideoId(null); // Clear YouTube video ID if a file is selected
       
       // Create preview
       const reader = new FileReader();
@@ -126,17 +129,30 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       setIsImageUploading(false);
     }
   };
+  
+  const handleYoutubeUrl = (thumbnailUrl: string, videoId: string) => {
+    // Set the image preview to the YouTube thumbnail URL
+    setImagePreview(thumbnailUrl);
+    // Store the YouTube video ID
+    setYoutubeVideoId(videoId);
+    // Clear any file that might have been selected
+    setImageFile(null);
+    
+    console.log('YouTube thumbnail set:', thumbnailUrl, 'Video ID:', videoId);
+  };
 
   const handleFormSubmit = (values: ArticleFormValues) => {
-    // Add the selected image file to the form values
+    // Add the selected image file or YouTube video ID to the form values
     const formData = {
       ...values,
-      imageFile: imageFile
+      imageFile: imageFile,
+      youtubeVideoId: youtubeVideoId || undefined,
     };
     
     // Log the data being submitted
     console.log('Submitting form with values:', formData);
     console.log('Image file included:', imageFile ? imageFile.name : 'No file');
+    console.log('YouTube video ID included:', youtubeVideoId || 'None');
     
     onSubmit(formData);
   };
@@ -148,6 +164,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
           imagePreview={imagePreview} 
           handleFileChange={handleImageChange}
           isLoading={isImageUploading}
+          onYoutubeUrlSubmit={handleYoutubeUrl}
         />
 
         <FormField

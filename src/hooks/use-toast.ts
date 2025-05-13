@@ -1,12 +1,12 @@
 
-// Re-export toast components from the hooks implementation
+// Export toast components and types
 import { toast, useToast } from "@/hooks/use-toast.tsx";
 
 export type ToastOptions = {
   title?: string
   description?: string
-  action?: React.ReactElement
+  action?: React.ReactNode
   variant?: "default" | "destructive"
 }
 
-export { useToast, toast };
+export { toast, useToast };
