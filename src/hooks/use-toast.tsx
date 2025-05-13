@@ -132,7 +132,8 @@ function toast(props: Toast) {
       toast: { ...props, id },
     });
   const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id });
-
+  
+  // Still dispatch the toast to the internal state management
   dispatch({
     type: actionTypes.ADD_TOAST,
     toast: {
@@ -143,12 +144,15 @@ function toast(props: Toast) {
       action: props.action,
     },
   });
-
-  // Use sonner toast
+  
+  // But don't actually show the toast notification
+  // Commented out sonner toast to stop showing toast messages
+  /* 
   sonnerToast[props.variant === "destructive" ? "error" : "success"](props.title as string, {
     description: props.description,
     action: props.action,
   });
+  */
 
   return {
     id,

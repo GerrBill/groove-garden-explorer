@@ -38,9 +38,9 @@ export const isYouTubeUrl = (url: string): boolean => {
 };
 
 /**
- * Generate a React-compatible YouTube embed placeholder
+ * Generate a YouTube embed HTML for the editor
  * @param videoId YouTube video ID
- * @returns HTML string for embedded YouTube player placeholder
+ * @returns HTML string for embedded YouTube player that will be replaced with actual iframe
  */
 export const createYouTubeEmbed = (videoId: string): string => {
   return `<div class="youtube-embed" data-youtube-id="${videoId}"></div>`;
@@ -49,14 +49,10 @@ export const createYouTubeEmbed = (videoId: string): string => {
 /**
  * Generate an embeddable YouTube iframe HTML
  * @param videoId YouTube video ID
- * @param width Width of the iframe
- * @param height Height of the iframe
- * @returns HTML string with YouTube iframe
+ * @returns HTML string with YouTube iframe placeholder
  */
 export const generateYouTubeEmbed = (
   videoId: string,
-  width: number = 560,
-  height: number = 315
 ): string => {
   return createYouTubeEmbed(videoId);
 };

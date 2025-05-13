@@ -14,8 +14,7 @@ import {
   List,
   Image as ImageIcon,
   Link as LinkIcon,
-  Youtube,
-  Video
+  Youtube
 } from 'lucide-react';
 import { useRef, useCallback } from 'react';
 import { extractYouTubeVideoId, generateYouTubeEmbed, isYouTubeUrl } from '@/utils/youtubeUtils';
@@ -191,7 +190,6 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           onClick={() => {
             const url = window.prompt('Enter link URL');
             if (url) {
-              // Check if there's selected text to turn into a link
               if (editor.isActive('link')) {
                 editor.chain().focus().unsetLink().run();
               } else {

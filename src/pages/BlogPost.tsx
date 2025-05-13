@@ -149,7 +149,7 @@ const BlogPost = () => {
     window.open(shareUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Simplify the renderFormattedContent function to properly display HTML content
+  // Improved function to properly render HTML content with YouTube embeds
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
     
@@ -157,7 +157,18 @@ const BlogPost = () => {
     const processedContent = content.replace(
       /<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g,
       (_, videoId) => {
-        return `<div class="youtube-embed-placeholder" data-video-id="${videoId}"></div>`;
+        return `
+          <div class="aspect-video my-4">
+            <iframe
+              src="https://www.youtube.com/embed/${videoId}"
+              title="YouTube video player"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="w-full h-full rounded-md"
+            ></iframe>
+          </div>
+        `;
       }
     );
     
@@ -517,7 +528,7 @@ const BlogPost = () => {
                 )}
               </div>
               
-              {/* Fix the article-content styling and rendering with proper style tag */}
+              {/* Add styling for YouTube embeds */}
               <style>
                 {`
                   .article-content iframe {
