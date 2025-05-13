@@ -8,6 +8,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import TrackList from '@/components/shared/TrackList';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import AlbumHeader from '@/components/album/AlbumHeader';
 
 const Album = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,34 +96,19 @@ const Album = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/3 lg:w-1/4 h-fit">
-          <AspectRatio ratio={1 / 1} className="bg-zinc-900 rounded-lg overflow-hidden">
-            {album.image_url ? (
-              <img
-                src={album.image_url}
-                alt={album.title}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-                <span className="text-zinc-500">No Image</span>
-              </div>
-            )}
-          </AspectRatio>
-        </div>
-        <div className="w-full md:w-2/3 lg:w-3/4">
-          <h1 className="text-3xl font-bold">{album.title}</h1>
-          <p className="text-xl text-zinc-400 mt-2">{album.artist}</p>
-          <div className="flex gap-2 text-sm text-zinc-500 mt-1">
-            <span>{album.year}</span>
-            {album.track_count && <span>• {album.track_count} songs</span>}
-            {album.duration && <span>• {album.duration}</span>}
-          </div>
+    <div className="flex-1 overflow-hidden w-full pb-24">
+      {album && (
+        <div className="container mx-auto px-4 md:px-0 md:max-w-none">
+          <AlbumHeader 
+            image={album.image_url}
+            title={album.title}
+            artist={album.artist}
+            year={album.year || ''}
+            trackCount={album.track_count || ''}
+            duration={album.duration || ''}
+          />
           
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Tracks</h2>
+          <div className="md:pl-0 pl-4 mt-6">
             {album.tracks && album.tracks.length > 0 ? (
               <TrackList tracks={album.tracks} albumId={album.id} />
             ) : (
@@ -130,7 +116,7 @@ const Album = () => {
             )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

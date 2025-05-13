@@ -40,13 +40,16 @@ const TrackList: React.FC<TrackListProps> = ({
     
     console.log("Play track:", track.title, "with URL:", fullAudioUrl);
     
-    // Include all required Track properties when dispatching the event
+    // Create a complete track object with all required properties
+    const trackToPlay = {
+      ...track,
+      audio_path: fullAudioUrl
+    };
+    
+    // Dispatch the event with the complete track object
     window.dispatchEvent(
       new CustomEvent('trackSelected', {
-        detail: {
-          ...track,
-          audio_path: fullAudioUrl
-        }
+        detail: trackToPlay
       })
     );
     
