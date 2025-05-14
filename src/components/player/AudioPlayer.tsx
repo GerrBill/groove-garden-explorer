@@ -81,7 +81,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   };
 
   return (
-    <div className="flex flex-col w-full max-w-[800px] gap-1">
+    <div className="flex flex-col w-full max-w-[900px] gap-1">
       {/* Controls, time, and volume in the first row */}
       <div className="flex items-center justify-between w-full mb-1">
         <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
             step={0.01}
             value={[displayVolume]}
             onValueChange={handleVolumeChange}
-            className="w-16 md:w-24 h-1"
+            className="w-20 md:w-28 h-1"
           />
         </div>
       </div>

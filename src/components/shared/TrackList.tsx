@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -49,23 +50,23 @@ const TrackList: React.FC<TrackListProps> = ({
       // Set directly to global window object for more reliable event handling
       window.currentTrackToPlay = trackToPlay;
       
-      // Dispatch custom event with the track data
-      const trackEvent = new CustomEvent('trackSelected', {
-        detail: trackToPlay
-      });
-      window.dispatchEvent(trackEvent);
-      
-      // Wait a moment then dispatch play command
-      setTimeout(() => {
-        const playEvent = new CustomEvent('playTrack', {
-          detail: { immediate: true }
+      // DIRECT APPROACH: Use the global play function
+      if (window.playTrack) {
+        console.log("Using global playTrack function");
+        window.playTrack(trackToPlay);
+      } else {
+        // FALLBACK: Legacy event dispatching approach
+        console.log("Fallback to event approach");
+        
+        const trackEvent = new CustomEvent('trackSelected', {
+          detail: trackToPlay
         });
-        window.dispatchEvent(playEvent);
-      }, 50);
+        window.dispatchEvent(trackEvent);
+      }
       
-      console.log("Track play events dispatched successfully");
+      console.log("Track playback initiated");
     } catch (err) {
-      console.error("Error dispatching track events:", err);
+      console.error("Error playing track:", err);
       toast({
         title: "Playback Error",
         description: "Failed to start playback. Please try again.",
@@ -216,3 +217,4 @@ const TrackList: React.FC<TrackListProps> = ({
 };
 
 export default TrackList;
+
