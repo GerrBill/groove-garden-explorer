@@ -81,7 +81,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   };
 
   return (
-    <div className="flex flex-col w-full max-w-4xl gap-1">
+    <div className="flex flex-col w-full max-w-[800px] gap-1">
       {/* Controls, time, and volume in the first row */}
       <div className="flex items-center justify-between w-full mb-1">
         <div className="flex items-center gap-2">

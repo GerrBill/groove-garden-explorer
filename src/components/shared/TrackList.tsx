@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -38,27 +37,41 @@ const TrackList: React.FC<TrackListProps> = ({
       ? track.audio_path 
       : `https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`;
     
-    console.log("Play track:", track.title, "with URL:", fullAudioUrl);
+    console.log("Play track with URL:", fullAudioUrl);
     
-    // Create a complete track object with all required properties
+    // Create a complete track object with guaranteed full URL
     const trackToPlay = {
       ...track,
       audio_path: fullAudioUrl
     };
     
-    // Dispatch the event with the complete track object
-    window.dispatchEvent(
-      new CustomEvent('trackSelected', {
+    try {
+      // Set directly to global window object for more reliable event handling
+      window.currentTrackToPlay = trackToPlay;
+      
+      // Dispatch custom event with the track data
+      const trackEvent = new CustomEvent('trackSelected', {
         detail: trackToPlay
-      })
-    );
-    
-    // Trigger immediate play
-    window.dispatchEvent(
-      new CustomEvent('playTrack', {
-        detail: { immediate: true }
-      })
-    );
+      });
+      window.dispatchEvent(trackEvent);
+      
+      // Wait a moment then dispatch play command
+      setTimeout(() => {
+        const playEvent = new CustomEvent('playTrack', {
+          detail: { immediate: true }
+        });
+        window.dispatchEvent(playEvent);
+      }, 50);
+      
+      console.log("Track play events dispatched successfully");
+    } catch (err) {
+      console.error("Error dispatching track events:", err);
+      toast({
+        title: "Playback Error",
+        description: "Failed to start playback. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const toggleLike = async (track: Track) => {
@@ -142,6 +155,7 @@ const TrackList: React.FC<TrackListProps> = ({
                   onClick={() => handlePlay(track)}
                   className="text-zinc-400 hover:text-white"
                   aria-label={`Play ${track.title}`}
+                  data-track-id={track.id}
                 >
                   <Play size={20} />
                 </button>

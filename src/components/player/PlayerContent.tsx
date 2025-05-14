@@ -19,10 +19,17 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-center h-full w-full">
-      <AudioPlayer 
-        audioSrc={currentTrack.audio_path || ''} 
-      />
+    <div className="flex items-center justify-between h-full w-full">
+      <div className="hidden md:block md:w-1/4 truncate pr-2">
+        <p className="text-sm text-white font-semibold truncate">{currentTrack.title}</p>
+        <p className="text-xs text-zinc-400 truncate">{currentTrack.artist}</p>
+      </div>
+      <div className="flex-grow flex justify-center">
+        <AudioPlayer 
+          audioSrc={currentTrack.audio_path || ''} 
+        />
+      </div>
+      <div className="hidden md:block md:w-1/4"></div>
     </div>
   );
 };
