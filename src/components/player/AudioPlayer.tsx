@@ -81,9 +81,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   };
 
   return (
-    <div className="flex flex-col w-full gap-1">
-      {/* Top row: Controls and time */}
-      <div className="flex items-center justify-between w-full">
+    <div className="flex flex-col w-full max-w-4xl gap-1">
+      {/* Controls, time, and volume in the first row */}
+      <div className="flex items-center justify-between w-full mb-1">
         <div className="flex items-center gap-2">
           <button onClick={skipBack} className="text-zinc-400 hover:text-white transition-colors">
             <SkipBack size={isMobile ? 18 : 20} />
@@ -107,13 +107,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
             step={0.01}
             value={[displayVolume]}
             onValueChange={handleVolumeChange}
-            className="w-16 md:w-20 h-1"
+            className="w-16 md:w-24 h-1"
           />
         </div>
       </div>
       
-      {/* Bottom row: Seek slider */}
-      <div className="flex items-center w-full px-2">
+      {/* Seek slider in the second row */}
+      <div className="w-full">
         <Slider
           defaultValue={[0]}
           max={duration || 100}
