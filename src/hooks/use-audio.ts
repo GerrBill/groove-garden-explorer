@@ -21,6 +21,7 @@ export function useAudio(audioSrc: string | undefined) {
     console.log("Creating audio element with source:", audioSrc);
     const audioElement = new Audio(audioSrc);
     audioElement.volume = volume;
+    audioElement.muted = isMuted;
     
     // Handle any loading errors
     const handleError = (e: ErrorEvent) => {
@@ -38,6 +39,12 @@ export function useAudio(audioSrc: string | undefined) {
     };
     
     audioElement.addEventListener('canplay', handleCanPlay);
+    
+    // Clean up previous audio element
+    if (audio) {
+      audio.pause();
+      audio.src = '';
+    }
     
     setAudio(audioElement);
     
@@ -63,6 +70,11 @@ export function useAudio(audioSrc: string | undefined) {
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('durationchange', updateDuration);
     audio.addEventListener('ended', handleEnded);
+    
+    // Update duration immediately if available
+    if (audio.duration) {
+      setDuration(audio.duration);
+    }
     
     return () => {
       audio.removeEventListener('timeupdate', updateTime);

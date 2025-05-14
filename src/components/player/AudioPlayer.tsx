@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, AlertCircle } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX } from 'lucide-react';
 import { Slider } from "@/components/ui/slider";
 import { useAudio } from '@/hooks/use-audio';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -95,6 +95,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
         <button onClick={skipForward} className="text-zinc-400 hover:text-white transition-colors">
           <SkipForward size={isMobile ? 20 : 24} />
         </button>
+      </div>
+
+      {/* Track Info */}
+      <div className="hidden md:block">
+        <p className="text-sm text-white truncate">{trackTitle}</p>
+        <p className="text-xs text-zinc-400 truncate">{trackArtist}</p>
       </div>
 
       {/* Seek Slider */}

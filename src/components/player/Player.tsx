@@ -27,39 +27,31 @@ const Player = () => {
         return;
       }
       
-      // Create full audio URL if it's just a path
-      const fullAudioUrl = track.audio_path.startsWith('http') 
-        ? track.audio_path 
-        : `https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`;
-      
-      // Update track with full audio URL
-      setCurrentTrack({
-        ...track,
-        audio_path: fullAudioUrl
-      });
+      // Set the current track - audio_path should already be complete
+      setCurrentTrack(track);
     };
     
     const handlePlayTrack = (event: CustomEvent) => {
       const detail = event.detail;
       if (detail && detail.immediate) {
         console.log("Received immediate play command");
-        // Trigger play in AudioPlayer component via the audio element
-        if (audioRef.current) {
-          audioRef.current.play()
-            .catch(err => {
-              console.error("Error playing audio:", err);
-              toast({
-                title: "Playback Error",
-                description: "Could not play the track. Please try again.",
-                variant: "destructive"
+        // Find audio element and play it
+        setTimeout(() => {
+          audioRef.current = document.querySelector('audio');
+          if (audioRef.current) {
+            audioRef.current.play()
+              .catch(err => {
+                console.error("Error playing audio:", err);
+                toast({
+                  title: "Playback Error",
+                  description: "Could not play the track. Please try again.",
+                  variant: "destructive"
+                });
               });
-            });
-        }
+          }
+        }, 100); // Small delay to ensure audio element is ready
       }
     };
-    
-    // Create an audio element reference for direct control
-    audioRef.current = document.querySelector('audio');
     
     window.addEventListener('trackSelected', handleTrackSelected as EventListener);
     window.addEventListener('playTrack', handlePlayTrack as EventListener);
