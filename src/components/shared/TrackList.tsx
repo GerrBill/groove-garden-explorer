@@ -124,8 +124,8 @@ const TrackList: React.FC<TrackListProps> = ({
       <table className="w-full text-sm text-left text-zinc-400">
         <thead className="text-xs text-zinc-700 uppercase bg-zinc-900">
           <tr>
-            <th scope="col" className="px-2 py-3 w-10">#</th>
             <th scope="col" className="px-2 py-3 w-10"></th>
+            <th scope="col" className="px-2 py-3 w-10">#</th>
             <th scope="col" className="px-6 py-3">Title</th>
             <th scope="col" className="px-6 py-3">Artist</th>
             {tracks.some(track => track.album_name) && (
@@ -137,8 +137,7 @@ const TrackList: React.FC<TrackListProps> = ({
         <tbody>
           {tracks.map((track, index) => (
             <tr key={track.id} className="bg-zinc-800 border-b border-zinc-700 hover:bg-zinc-700">
-              <td className="px-2 py-4 text-center">{track.track_number || index + 1}</td>
-              <td className="px-2 py-4">
+              <td className="px-2 py-4 text-center">
                 <button
                   onClick={() => handlePlay(track)}
                   className="text-zinc-400 hover:text-white"
@@ -147,6 +146,7 @@ const TrackList: React.FC<TrackListProps> = ({
                   <Play size={20} />
                 </button>
               </td>
+              <td className="px-2 py-4 text-center">{track.track_number || index + 1}</td>
               <td className="px-6 py-4 font-medium text-white whitespace-nowrap">{track.title}</td>
               <td className="px-6 py-4">{track.artist}</td>
               {tracks.some(t => t.album_name) && (

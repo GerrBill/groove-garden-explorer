@@ -22,8 +22,6 @@ const PlayerContent: React.FC<PlayerContentProps> = ({
     <div className="flex items-center justify-center h-full w-full">
       <AudioPlayer 
         audioSrc={currentTrack.audio_path || ''} 
-        trackTitle={currentTrack.title || 'Unknown Track'} 
-        trackArtist={currentTrack.artist || 'Unknown Artist'} 
       />
     </div>
   );

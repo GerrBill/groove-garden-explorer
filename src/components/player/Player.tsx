@@ -67,7 +67,7 @@ const Player = () => {
   }
 
   return (
-    <div className="fixed bottom-0 w-full h-20 bg-black border-t border-zinc-800 shadow-lg z-50 py-[8px] px-[3px]">
+    <div className="fixed bottom-0 w-full h-16 bg-black border-t border-zinc-800 shadow-lg z-50 py-[6px] px-[10px]">
       <PlayerContent currentTrack={currentTrack} />
     </div>
   );

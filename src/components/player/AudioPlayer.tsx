@@ -8,11 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 
 interface AudioPlayerProps {
   audioSrc: string;
-  trackTitle: string;
-  trackArtist: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackArtist }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   const {
     isPlaying,
     currentTime,
@@ -40,11 +38,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
       console.error("Audio error:", loadError);
       toast({
         title: "Playback Error",
-        description: `Could not play "${trackTitle}". ${loadError}`,
+        description: `Could not play track. ${loadError}`,
         variant: "destructive"
       });
     }
-  }, [loadError, toast, trackTitle]);
+  }, [loadError, toast]);
 
   useEffect(() => {
     setDisplayVolume(volume);
@@ -83,29 +81,39 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
   };
 
   return (
-    <div className="flex items-center justify-center w-full gap-4">
-      {/* Controls */}
-      <div className="flex items-center gap-4">
-        <button onClick={skipBack} className="text-zinc-400 hover:text-white transition-colors">
-          <SkipBack size={isMobile ? 20 : 24} />
-        </button>
-        <button onClick={togglePlayPause} className="text-white hover:text-theme-color transition-colors">
-          {isPlaying ? <Pause size={isMobile ? 28 : 32} /> : <Play size={isMobile ? 28 : 32} />}
-        </button>
-        <button onClick={skipForward} className="text-zinc-400 hover:text-white transition-colors">
-          <SkipForward size={isMobile ? 20 : 24} />
-        </button>
+    <div className="flex flex-col w-full gap-1">
+      {/* Top row: Controls and time */}
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center gap-2">
+          <button onClick={skipBack} className="text-zinc-400 hover:text-white transition-colors">
+            <SkipBack size={isMobile ? 18 : 20} />
+          </button>
+          <button onClick={togglePlayPause} className="text-white hover:text-theme-color transition-colors">
+            {isPlaying ? <Pause size={isMobile ? 22 : 24} /> : <Play size={isMobile ? 22 : 24} />}
+          </button>
+          <button onClick={skipForward} className="text-zinc-400 hover:text-white transition-colors">
+            <SkipForward size={isMobile ? 18 : 20} />
+          </button>
+          <span className="text-xs text-zinc-400 ml-1">{formatTime(currentTime)} / {formatTime(duration)}</span>
+        </div>
+        
+        <div className="flex items-center gap-2" ref={volumeRef}>
+          <button onClick={toggleMuteHandler} className="text-zinc-400 hover:text-white transition-colors">
+            {isMuted ? <VolumeX size={isMobile ? 16 : 18} /> : <Volume2 size={isMobile ? 16 : 18} />}
+          </button>
+          <Slider
+            defaultValue={[displayVolume]}
+            max={1}
+            step={0.01}
+            value={[displayVolume]}
+            onValueChange={handleVolumeChange}
+            className="w-16 md:w-20 h-1"
+          />
+        </div>
       </div>
-
-      {/* Track Info */}
-      <div className="hidden md:block">
-        <p className="text-sm text-white truncate">{trackTitle}</p>
-        <p className="text-xs text-zinc-400 truncate">{trackArtist}</p>
-      </div>
-
-      {/* Seek Slider */}
-      <div className="flex items-center gap-2 w-40 md:w-64 lg:w-80">
-        <span className="text-xs text-zinc-400">{formatTime(currentTime)}</span>
+      
+      {/* Bottom row: Seek slider */}
+      <div className="flex items-center w-full px-2">
         <Slider
           defaultValue={[0]}
           max={duration || 100}
@@ -114,23 +122,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, trackTitle, trackAr
           onValueChange={handleSeekChange}
           onPointerDown={handleSeekStart}
           onPointerUp={handleSeekEnd}
-          className="flex-grow h-1"
-        />
-        <span className="text-xs text-zinc-400">{formatTime(duration)}</span>
-      </div>
-
-      {/* Volume Controls */}
-      <div className="flex items-center gap-2" ref={volumeRef}>
-        <button onClick={toggleMuteHandler} className="text-zinc-400 hover:text-white transition-colors">
-          {isMuted ? <VolumeX size={isMobile ? 18 : 20} /> : <Volume2 size={isMobile ? 18 : 20} />}
-        </button>
-        <Slider
-          defaultValue={[displayVolume]}
-          max={1}
-          step={0.01}
-          value={[displayVolume]}
-          onValueChange={handleVolumeChange}
-          className="w-16 md:w-24 h-1"
+          className="w-full h-1"
         />
       </div>
     </div>
