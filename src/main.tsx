@@ -1,6 +1,6 @@
 
 import { createRoot } from 'react-dom/client'
-import { StrictMode, ErrorBoundary, Suspense } from 'react';
+import { StrictMode, Component, Suspense } from 'react';
 import App from './App.tsx'
 import './index.css'
 import { useHideAddressBar } from './hooks/use-hide-address-bar'
@@ -23,8 +23,8 @@ const ErrorFallback = ({ error }: { error: Error }) => {
 };
 
 // Custom error boundary component
-class AppErrorBoundary extends ErrorBoundary {
-  constructor(props: any) {
+class AppErrorBoundary extends Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
+  constructor(props: {children: React.ReactNode}) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -33,13 +33,13 @@ class AppErrorBoundary extends ErrorBoundary {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Caught error:', error, errorInfo);
   }
 
   render() {
-    if ((this.state as any).hasError) {
-      return <ErrorFallback error={(this.state as any).error} />;
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error as Error} />;
     }
     return this.props.children;
   }
