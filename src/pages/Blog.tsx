@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import TopNav from '@/components/navigation/TopNav';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CreateArticleDialog from '@/components/blog/CreateArticleDialog';
@@ -20,7 +20,7 @@ const Blog = () => {
   const isAdmin = user && ADMIN_EMAILS.includes(user.email || "");
   
   // Fetch blog posts
-  const { data: posts, isLoading } = useQuery({
+  const { data: posts, isLoading, error } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
       console.log('Fetching blog posts...');
@@ -41,6 +41,23 @@ const Blog = () => {
 
   const featuredPost = posts && posts.length > 0 ? posts[0] : null;
   const regularPosts = posts && posts.length > 1 ? posts.slice(1) : [];
+
+  // Handle error states
+  if (error) {
+    console.error("Error loading blog posts:", error);
+    return (
+      <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
+        <TopNav />
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center p-8">
+            <h2 className="text-xl font-medium mb-4">Failed to load blog posts</h2>
+            <p className="text-muted-foreground mb-4">There was an error loading the content.</p>
+            <Button onClick={() => window.location.reload()}>Refresh page</Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
@@ -81,7 +98,7 @@ const Blog = () => {
             </>
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              No blog posts found. Click "New Post" to create your first blog post.
+              No blog posts found. {isAdmin && "Click \"New Post\" to create your first blog post."}
             </div>
           )}
         </div>

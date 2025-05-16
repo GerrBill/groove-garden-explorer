@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { BlogCardProps } from './types';
 
 const BlogCard = ({ article }: BlogCardProps) => {
@@ -15,6 +16,10 @@ const BlogCard = ({ article }: BlogCardProps) => {
             alt={title}
             className="aspect-video w-full object-cover rounded-md"
             style={{ height: '140px' }}
+            onError={(e) => {
+              // Fallback image if loading fails
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
           />
           <CardContent className="p-4">
             <h3 className="text-lg font-semibold line-clamp-1">{title}</h3>

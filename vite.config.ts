@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Add aliases for ProseMirror packages to help resolve imports
+      // Add specific aliases for ProseMirror packages
       "@tiptap/pm/state": path.resolve(__dirname, "./node_modules/@tiptap/pm/state"),
       "@tiptap/pm/view": path.resolve(__dirname, "./node_modules/@tiptap/pm/view"),
       "@tiptap/pm/model": path.resolve(__dirname, "./node_modules/@tiptap/pm/model"),
@@ -56,5 +56,10 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     exclude: ['@tiptap/pm'], // Exclude ProseMirror dependencies from optimization
     include: ['@tiptap/extension-link'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
   }
 }));

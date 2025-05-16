@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FeaturedBlogPostProps } from './types';
@@ -12,6 +13,10 @@ const FeaturedBlogPost = ({ article }: FeaturedBlogPostProps) => {
           src={image_url || '/placeholder.svg'}
           alt={title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            // Fallback image if loading fails
+            (e.target as HTMLImageElement).src = '/placeholder.svg';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
         <div className="absolute bottom-0 left-0 p-6">
