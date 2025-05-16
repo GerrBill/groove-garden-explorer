@@ -30,7 +30,9 @@ export default defineConfig(({ mode }) => ({
           }
         },
       },
-      external: [/@tiptap\/pm\/.*/], // Externalize problematic TipTap dependencies
+      external: [
+        /@tiptap\/pm\/.*/,  // Externalize all ProseMirror dependencies
+      ],
     },
   },
   plugins: [
@@ -44,6 +46,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
+    exclude: ['@tiptap/pm'], // Exclude ProseMirror dependencies from optimization
     include: ['@tiptap/extension-link'],
   }
 }));
