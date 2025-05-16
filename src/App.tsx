@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -40,8 +41,9 @@ const queryClient = new QueryClient({
 
 // Add global error handler for query errors
 queryClient.getQueryCache().subscribe((event) => {
-  if (event.type === 'error' && event.error) {
-    console.error('Query error:', event.error);
+  // Check for query errors in updated events, since 'error' is not a direct event type
+  if (event.type === 'updated' && event.query.state.error) {
+    console.error('Query error:', event.query.state.error);
   }
 });
 
