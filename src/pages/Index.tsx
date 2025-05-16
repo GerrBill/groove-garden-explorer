@@ -16,7 +16,6 @@ import { useQuery } from '@tanstack/react-query';
 const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
 
 const Index = () => {
-  const [selectedTab, setSelectedTab] = useState('Albums');
   const { toast } = useToast();
   const isMobileView = useIsMobile(700); 
   const auth = useAuth();
@@ -77,7 +76,7 @@ const Index = () => {
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
-      <TopNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+      <TopNav />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full bg-black">
         <div className="px-4 py-4 max-w-full mx-auto">

@@ -62,11 +62,11 @@ const App = () => {
                       <div className="flex flex-col flex-grow w-full">
                         <div className="flex-grow overflow-y-auto bg-black">
                           <Routes>
-                            <Route path="/" element={<Index selectedTab={selectedTab} setSelectedTab={setSelectedTab} />} />
+                            <Route path="/" element={<Index />} />
                             <Route path="/album/:id" element={<Album />} />
-                            <Route path="/playlists" element={<Playlists selectedTab={selectedTab} setSelectedTab={setSelectedTab} />} />
+                            <Route path="/playlists" element={<Playlists />} />
                             <Route path="/playlist/:id" element={<Playlist />} />
-                            <Route path="/blog" element={<Blog selectedTab={selectedTab} setSelectedTab={setSelectedTab} />} />
+                            <Route path="/blog" element={<Blog />} />
                             <Route path="/blog/:id" element={<BlogPost />} />
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/reset-password" element={<ResetPassword />} />

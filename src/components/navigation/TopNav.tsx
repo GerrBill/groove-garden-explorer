@@ -1,14 +1,10 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from "@/components/ui/sidebar";
 
-interface TopNavProps {
-  selectedTab: string;
-  setSelectedTab: (tab: string) => void;
-}
-
-const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
+const TopNav: React.FC = () => {
+  const [selectedTab, setSelectedTab] = useState('Albums');
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
   const { open: sidebarOpen, isMobile } = useSidebar();
@@ -27,7 +23,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
     } else if (currentPath === '/playlists' || currentPath.startsWith('/playlist/')) {
       setSelectedTab('Playlists');
     }
-  }, [location.pathname, setSelectedTab]);
+  }, [location.pathname]);
 
   return (
     <div className="sticky top-0 z-10 backdrop-blur-md bg-black pt-3 pb-1">

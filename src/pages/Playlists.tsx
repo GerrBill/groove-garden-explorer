@@ -1,147 +1,20 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React from 'react';
 import TopNav from '@/components/navigation/TopNav';
-import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
-import { Plus } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import AlbumCard from '@/components/home/AlbumCard';
-import AddPlaylistDialog from '@/components/playlist/AddPlaylistDialog';
-import { useTheme } from '@/context/ThemeContext';
-import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from '@/components/ui/skeleton';
-
-interface Playlist {
-  id: string;
-  title: string;
-  description: string | null;
-  image_url: string | null;
-  owner: string;
-  created_at: string;
-}
-
-const ADMIN_EMAILS = ["wjparker@outlook.com", "ghodgett59@gmail.com"];
 
 const Playlists = () => {
-  const [selectedTab, setSelectedTab] = useState('Playlists');
-  const { toast } = useToast();
-  const isMobileView = useIsMobile(700);
-  const { user } = useAuth();
-  const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? "");
-  const { colorTheme } = useTheme();
-
-  console.log("Playlists page rendered, user:", user);
-
-  const {
-    data: playlists,
-    isLoading,
-    error,
-    refetch: fetchPlaylists
-  } = useQuery({
-    queryKey: ['playlists-page'],
-    queryFn: async () => {
-      console.log("Fetching playlists for Playlists page...");
-      try {
-        const { data, error } = await supabase
-          .from('playlists')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (error) {
-          console.error('Error fetching playlists:', error);
-          throw error;
-        }
-        
-        console.log("Playlists fetched successfully:", data);
-        return data || [];
-      } catch (err) {
-        console.error('Exception fetching playlists:', err);
-        throw err;
-      }
-    }
-  });
-
-  // Show error toast if fetch fails
-  useEffect(() => {
-    if (error) {
-      console.error('Error fetching playlists:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load playlists. Please try again later.",
-        variant: "destructive"
-      });
-    }
-  }, [error, toast]);
-
-  const handlePlaylistAdded = () => {
-    console.log("Playlist added, refreshing list...");
-    fetchPlaylists();
-    toast({
-      title: "Success",
-      description: "Playlist added successfully!",
-      variant: "default"
-    });
-  };
-
-  const gridClass = isMobileView ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
-
-  console.log("Rendering Playlists page with data:", playlists);
-
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
-      <TopNav 
-        selectedTab={selectedTab} 
-        setSelectedTab={setSelectedTab}
-      />
+      <TopNav />
       
       <ScrollArea className="h-[calc(100vh-140px)] w-full bg-black">
         <div className="px-4 py-4 max-w-full mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <h2 className="text-2xl font-bold">Your Playlists</h2>
-            </div>
-            
-            {user && (
-              <div className="ml-6">
-                <AddPlaylistDialog onPlaylistAdded={handlePlaylistAdded}>
-                  <Button size="sm" className="flex items-center gap-1 rounded-full">
-                    <Plus size={16} />
-                    Add Playlist
-                  </Button>
-                </AddPlaylistDialog>
-              </div>
-            )}
-          </div>
+          <h2 className="text-2xl font-bold mb-4">Your Playlists</h2>
           
-          <div className={`grid ${gridClass} gap-4 py-4`}>
-            {isLoading ? (
-              [...Array(10)].map((_, i) => (
-                <div key={i} className="w-full p-1 rounded-md">
-                  <Skeleton className="aspect-square bg-zinc-800 rounded mb-2" />
-                  <Skeleton className="h-4 bg-zinc-800 rounded mb-2 w-3/4 mx-auto" />
-                  <Skeleton className="h-3 bg-zinc-800 rounded w-1/2 mx-auto" />
-                </div>
-              ))
-            ) : playlists && playlists.length > 0 ? (
-              playlists.map(playlist => (
-                <AlbumCard 
-                  key={playlist.id} 
-                  id={playlist.id} 
-                  image={playlist.image_url || '/placeholder.svg'} 
-                  title={playlist.title} 
-                  artist={playlist.owner} 
-                  size="md" 
-                  type="playlist" 
-                />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8 text-zinc-400">
-                No playlists found. Click "Add Playlist" to create one.
-              </div>
-            )}
+          {/* Playlists content goes here */}
+          <div className="text-center text-zinc-400 py-8">
+            Playlist content coming soon...
           </div>
         </div>
       </ScrollArea>

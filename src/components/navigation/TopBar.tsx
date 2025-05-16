@@ -15,7 +15,7 @@ const TopBar: React.FC<TopBarProps> = () => {
   const auth = useAuth();
   const user = auth?.user;
   const { colorTheme } = useTheme();
-  const { toggle } = useSidebar();
+  const sidebar = useSidebar();
 
   return (
     <div className="h-[45px] w-full bg-black border-b border-zinc-800 flex items-center justify-between px-4">
@@ -24,7 +24,7 @@ const TopBar: React.FC<TopBarProps> = () => {
           className="mr-3 text-white hover:text-theme-color"
           onClick={() => {
             console.log("Toggle sidebar clicked");
-            toggle();
+            sidebar.setOpen(!sidebar.open);
           }}
           aria-label="Toggle sidebar"
         >

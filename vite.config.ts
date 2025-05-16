@@ -23,10 +23,14 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('@radix-ui')) {
               return 'vendor-radix';
             }
+            if (id.includes('@tiptap')) {
+              return 'vendor-tiptap';
+            }
             return 'vendor';
           }
         },
       },
+      external: [/@tiptap\/pm\/.*/], // Externalize problematic TipTap dependencies
     },
   },
   plugins: [
@@ -39,4 +43,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['@tiptap/extension-link'],
+  }
 }));
