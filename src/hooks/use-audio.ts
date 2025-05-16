@@ -23,7 +23,7 @@ export function useAudio(audioSrc: string | undefined) {
     audioElement.volume = volume;
     audioElement.muted = isMuted;
     
-    // Handle any loading errors - log but don't show to user
+    // Handle any loading errors
     const handleError = (e: ErrorEvent) => {
       console.error("Audio loading error:", e);
       setLoadError(`Failed to load audio: ${e.message}`);

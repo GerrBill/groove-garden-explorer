@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GerrBill Notify</title>
     <meta name="description" content="Music Streaming Platform with Album-Focused Navigation" />
     <meta name="author" content="Lovable" />
@@ -16,103 +16,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
-    <style>
-      /* Fallback styles in case CSS doesn't load */
-      body {
-        background-color: #000;
-        color: #fff;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-      #root {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      #loading-fallback {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        text-align: center;
-        padding: 20px;
-      }
-      .hidden {
-        display: none !important;
-      }
-    </style>
   </head>
 
   <body>
-    <!-- Loading fallback that will be hidden when app loads -->
-    <div id="loading-fallback">
-      <h2>Loading GerrBill Notify...</h2>
-      <p>If this message persists, there might be an issue loading the application.</p>
-      <div id="loading-error" style="color: #ff5555; margin-top: 20px; display: none;"></div>
-      <button 
-        onclick="window.location.reload()" 
-        style="margin-top: 20px; padding: 8px 16px; background: #ff5500; color: white; border: none; border-radius: 4px; cursor: pointer;">
-        Reload page
-      </button>
-    </div>
-    
     <div id="root"></div>
-    
-    <!-- Monitor for load timeout -->
-    <script>
-      // Hide loading screen when app starts rendering
-      window.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM content loaded');
-      });
-      
-      // Hide loading screen after app mounts
-      window.addEventListener('load', function() {
-        console.log('Window loaded');
-        // Give React a little time to render
-        setTimeout(function() {
-          const root = document.getElementById('root');
-          const loading = document.getElementById('loading-fallback');
-          
-          // Check if React has rendered anything
-          if (root && root.children.length > 0) {
-            loading.classList.add('hidden');
-            console.log('App successfully rendered content');
-          } else {
-            // Don't show error immediately, give the app a bit more time
-            setTimeout(function() {
-              if (root && root.children.length > 0) {
-                loading.classList.add('hidden');
-                console.log('App successfully rendered content (delayed)');
-              } else {
-                console.error('App failed to render content within timeout');
-                const errorEl = document.getElementById('loading-error');
-                if (errorEl) {
-                  errorEl.textContent = 'Application failed to initialize. Try reloading the page.';
-                  errorEl.style.display = 'block';
-                }
-              }
-            }, 2000); // Add extra 2 seconds
-          }
-        }, 1500); // Reduced from 3 to 1.5 seconds for initial check
-      });
-      
-      // Log any errors
-      window.addEventListener('error', function(event) {
-        console.error('Global error:', event.error || event.message);
-        const errorEl = document.getElementById('loading-error');
-        if (errorEl) {
-          errorEl.textContent = 'Error: ' + (event.error?.message || event.message || 'Unknown error occurred');
-          errorEl.style.display = 'block';
-        }
-      });
-    </script>
-    
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>

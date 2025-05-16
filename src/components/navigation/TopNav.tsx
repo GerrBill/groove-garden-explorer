@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from "@/components/ui/sidebar";
 
@@ -11,23 +11,10 @@ interface TopNavProps {
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
-  const { open: sidebarOpen } = useSidebar();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
-
-  // Listen for window resize events to update mobile state
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 700);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const { open: sidebarOpen, isMobile } = useSidebar();
 
   useEffect(() => {
     const currentPath = location.pathname;
-    console.log("TopNav: current path is", currentPath);
-    
     if (currentPath === '/' || currentPath.startsWith('/album')) {
       setSelectedTab('Albums');
     } else if (currentPath === '/blog' || currentPath.startsWith('/blog/')) {
@@ -38,11 +25,7 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   }, [location.pathname, setSelectedTab]);
 
   // Show nav when sidebar is closed OR on mobile
-  const showNav = !sidebarOpen || isMobile;
-  
-  console.log("TopNav: sidebarOpen=", sidebarOpen, "isMobile=", isMobile, "showNav=", showNav);
-
-  if (!showNav) {
+  if (sidebarOpen && !isMobile) {
     return null;
   }
 

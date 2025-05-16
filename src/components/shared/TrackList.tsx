@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -22,9 +23,13 @@ const TrackList: React.FC<TrackListProps> = ({
   const [loadingRemove, setLoadingRemove] = useState<string | null>(null);
 
   const handlePlay = (track: Track) => {
-    // Check if track has audio path - silently handle errors
+    // Check if track has audio path
     if (!track.audio_path) {
-      console.error("This track doesn't have an audio file associated with it.");
+      toast({
+        title: "Playback Error",
+        description: "This track doesn't have an audio file associated with it.",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -62,7 +67,11 @@ const TrackList: React.FC<TrackListProps> = ({
       console.log("Track playback initiated");
     } catch (err) {
       console.error("Error playing track:", err);
-      // Suppress error notification
+      toast({
+        title: "Playback Error",
+        description: "Failed to start playback. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -208,3 +217,4 @@ const TrackList: React.FC<TrackListProps> = ({
 };
 
 export default TrackList;
+
