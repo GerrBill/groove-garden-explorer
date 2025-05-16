@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       external: [
+        // Externalize all ProseMirror modules used by TipTap
         "@tiptap/pm/state",
         "@tiptap/pm/view",
         "@tiptap/pm/model",
@@ -31,7 +32,13 @@ export default defineConfig(({ mode }) => ({
         "@tiptap/pm/keymap",
         "@tiptap/pm/dropcursor",
         "@tiptap/pm/gapcursor",
-        "@tiptap/pm/history" // Added the missing history module
+        "@tiptap/pm/history",
+        "@tiptap/pm/inputrules",
+        "@tiptap/pm/schema-list",
+        "@tiptap/pm/schema-basic",
+        "@tiptap/pm/tables",
+        "@tiptap/pm/collab",
+        "@tiptap/pm/menu"
       ]
     }
   }
