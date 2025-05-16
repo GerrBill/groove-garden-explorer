@@ -60,6 +60,9 @@ class AppErrorBoundary extends Component<{children: React.ReactNode}, {hasError:
 const AppWithHiddenAddressBar = () => {
   useHideAddressBar();
   useHideLoadingScreen(); // Add this hook to hide loading screen
+  
+  console.log("AppWithHiddenAddressBar rendering");
+  
   return (
     <StrictMode>
       <AppErrorBoundary>

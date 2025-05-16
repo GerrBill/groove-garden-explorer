@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Index from "./pages/Index";
 import Album from "./pages/Album";
@@ -54,7 +54,7 @@ const App = () => {
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
   const [appLoaded, setAppLoaded] = useState(false);
 
-  console.log("App component rendering...");
+  console.log("App component rendering, sidebarOpen:", sidebarOpen, "isMobileView:", isMobileView);
 
   // Load sidebar state from localStorage on mount
   useEffect(() => {
@@ -84,6 +84,7 @@ const App = () => {
   useEffect(() => {
     try {
       if (isMobileView) {
+        console.log("Mobile view detected, hiding sidebar");
         setSidebarOpen(false);
       } else {
         // On desktop, restore from localStorage or default to open
@@ -93,6 +94,7 @@ const App = () => {
         } else {
           setSidebarOpen(true);
         }
+        console.log("Desktop view, sidebar state:", sidebarOpen);
       }
     } catch (e) {
       console.error("Error adjusting sidebar for mobile:", e);
@@ -131,11 +133,18 @@ const App = () => {
   // Save sidebar state when it changes
   useEffect(() => {
     try {
+      console.log("Saving sidebar state:", sidebarOpen);
       localStorage.setItem('sidebar_visible', String(sidebarOpen));
     } catch (e) {
       console.error("Error saving sidebar state:", e);
     }
   }, [sidebarOpen]);
+
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    console.log("Toggling sidebar");
+    setSidebarOpen(prev => !prev);
+  };
 
   console.log("App rendered, routes should be active, appLoaded:", appLoaded, "sidebarOpen:", sidebarOpen);
 
@@ -154,10 +163,10 @@ const App = () => {
               <TooltipProvider>
                 <SidebarProvider defaultOpen={sidebarOpen}>
                   <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
-                    <TopBar />
+                    <TopBar onToggleSidebar={toggleSidebar} />
                     <div className="flex flex-grow relative">
-                      {/* Using the direct sidebar component instead of relying on the SidebarProvider */}
-                      <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block transition-all duration-300`}>
+                      {/* Fixed sidebar rendering with proper visibility */}
+                      <div className={`${sidebarOpen ? 'block' : 'hidden md:block'} transition-all duration-300 h-full`}>
                         <Sidebar />
                       </div>
                       <div className="flex flex-col flex-grow w-full">

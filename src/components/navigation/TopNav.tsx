@@ -15,6 +15,8 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
 
   useEffect(() => {
     const currentPath = location.pathname;
+    console.log("TopNav: current path is", currentPath);
+    
     if (currentPath === '/' || currentPath.startsWith('/album')) {
       setSelectedTab('Albums');
     } else if (currentPath === '/blog' || currentPath.startsWith('/blog/')) {
@@ -25,7 +27,11 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   }, [location.pathname, setSelectedTab]);
 
   // Show nav when sidebar is closed OR on mobile
-  if (sidebarOpen && !isMobile) {
+  const showNav = !sidebarOpen || isMobile;
+  
+  console.log("TopNav: sidebarOpen=", sidebarOpen, "isMobile=", isMobile, "showNav=", showNav);
+
+  if (!showNav) {
     return null;
   }
 
