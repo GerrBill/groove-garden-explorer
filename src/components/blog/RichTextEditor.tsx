@@ -1,4 +1,5 @@
 
+import React, { useRef, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -16,7 +17,6 @@ import {
   Link as LinkIcon,
   Youtube
 } from 'lucide-react';
-import { useRef, useCallback } from 'react';
 import { extractYouTubeVideoId, generateYouTubeEmbed, isYouTubeUrl } from '@/utils/youtubeUtils';
 
 interface RichTextEditorProps {

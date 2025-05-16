@@ -30,9 +30,6 @@ export default defineConfig(({ mode }) => ({
           }
         },
       },
-      external: [
-        /@tiptap\/pm\/.*/,  // Externalize all ProseMirror dependencies
-      ],
     },
   },
   plugins: [
@@ -43,19 +40,16 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Add specific aliases for ProseMirror packages
-      "@tiptap/pm/state": path.resolve(__dirname, "./node_modules/@tiptap/pm/state"),
-      "@tiptap/pm/view": path.resolve(__dirname, "./node_modules/@tiptap/pm/view"),
-      "@tiptap/pm/model": path.resolve(__dirname, "./node_modules/@tiptap/pm/model"),
-      "@tiptap/pm/transform": path.resolve(__dirname, "./node_modules/@tiptap/pm/transform"),
-      "@tiptap/pm/commands": path.resolve(__dirname, "./node_modules/@tiptap/pm/commands"),
-      "@tiptap/pm/schema-list": path.resolve(__dirname, "./node_modules/@tiptap/pm/schema-list"),
-      "@tiptap/pm/keymap": path.resolve(__dirname, "./node_modules/@tiptap/pm/keymap"),
     },
   },
   optimizeDeps: {
-    exclude: ['@tiptap/pm'], // Exclude ProseMirror dependencies from optimization
-    include: ['@tiptap/extension-link'],
+    include: [
+      '@tiptap/extension-image',
+      '@tiptap/extension-link',
+      '@tiptap/extension-text-align',
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+    ],
     esbuildOptions: {
       define: {
         global: 'globalThis'
