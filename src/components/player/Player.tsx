@@ -25,12 +25,8 @@ const Player = () => {
     window.playTrack = (track: Track) => {
       console.log("Global playTrack called with:", track.title);
       if (!track.audio_path) {
+        // Silently log error but don't show to user
         console.error("Track has no audio path:", track);
-        toast({
-          title: "Playback Error",
-          description: "This track doesn't have an audio file associated with it.",
-          variant: "destructive"
-        });
         return;
       }
       
@@ -51,11 +47,7 @@ const Player = () => {
             if (playPromise !== undefined) {
               playPromise.catch(err => {
                 console.error("Error auto-playing audio:", err);
-                toast({
-                  title: "Playback Error", 
-                  description: "Could not auto-play the track. Try clicking play.",
-                  variant: "destructive"
-                });
+                // Suppress toast notification
               });
             }
           } else {
@@ -71,11 +63,7 @@ const Player = () => {
                 });
               } else {
                 console.error("Audio element still not found after retry");
-                toast({
-                  title: "Playback Error",
-                  description: "Could not find audio player. Please try again.",
-                  variant: "destructive"
-                });
+                // Suppress toast notification
               }
             }, 500);
           }

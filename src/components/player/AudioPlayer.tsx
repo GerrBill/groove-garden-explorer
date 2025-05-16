@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX } from 'lucide-react';
 import { Slider } from "@/components/ui/slider";
@@ -33,22 +32,18 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   const volumeRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Log that the audio player has mounted
+  // Log that the audio player has mounted - keep but don't show error to user
   useEffect(() => {
     console.log("AudioPlayer mounted with src:", audioSrc);
   }, [audioSrc]);
 
-  // Display error toast if audio fails to load
+  // Monitor for errors but don't display them to users
   useEffect(() => {
     if (loadError) {
       console.error("Audio error:", loadError);
-      toast({
-        title: "Playback Error",
-        description: `Could not play track. ${loadError}`,
-        variant: "destructive"
-      });
+      // Suppressing toast notification
     }
-  }, [loadError, toast]);
+  }, [loadError]);
 
   useEffect(() => {
     setDisplayVolume(volume);
