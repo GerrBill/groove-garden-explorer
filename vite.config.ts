@@ -43,6 +43,14 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Add aliases for ProseMirror packages to help resolve imports
+      "@tiptap/pm/state": path.resolve(__dirname, "./node_modules/@tiptap/pm/state"),
+      "@tiptap/pm/view": path.resolve(__dirname, "./node_modules/@tiptap/pm/view"),
+      "@tiptap/pm/model": path.resolve(__dirname, "./node_modules/@tiptap/pm/model"),
+      "@tiptap/pm/transform": path.resolve(__dirname, "./node_modules/@tiptap/pm/transform"),
+      "@tiptap/pm/commands": path.resolve(__dirname, "./node_modules/@tiptap/pm/commands"),
+      "@tiptap/pm/schema-list": path.resolve(__dirname, "./node_modules/@tiptap/pm/schema-list"),
+      "@tiptap/pm/keymap": path.resolve(__dirname, "./node_modules/@tiptap/pm/keymap"),
     },
   },
   optimizeDeps: {
