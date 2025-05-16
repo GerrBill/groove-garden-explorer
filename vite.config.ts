@@ -30,7 +30,8 @@ export default defineConfig(({ mode }) => ({
         "@tiptap/pm/commands",
         "@tiptap/pm/keymap",
         "@tiptap/pm/dropcursor",
-        "@tiptap/pm/gapcursor" // Added the missing gapcursor module
+        "@tiptap/pm/gapcursor",
+        "@tiptap/pm/history" // Added the missing history module
       ]
     }
   }
