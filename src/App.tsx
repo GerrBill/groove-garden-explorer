@@ -31,13 +31,18 @@ const queryClient = new QueryClient({
       retry: 1,
       refetchOnWindowFocus: false,
     },
-  },
-  logger: {
-    log: console.log,
-    warn: console.warn,
-    error: (error) => {
-      console.error('Query error:', error);
+    mutations: {
+      onError: (error) => {
+        console.error('Mutation error:', error);
+      }
     }
+  }
+});
+
+// Add global error handler for query errors
+queryClient.getQueryCache().subscribe({
+  onError: (error) => {
+    console.error('Query error:', error);
   }
 });
 
