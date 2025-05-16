@@ -21,7 +21,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "@/components/ui/spinner";
 import { isYouTubeUrl, extractYouTubeVideoId, isContentOnlyUrl } from '@/utils/youtubeUtils';
 import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
-import { processYouTubeEmbeds, hideYouTubeUrls } from '@/utils/embedUtils';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -153,6 +152,7 @@ const BlogPost = () => {
   };
 
   // Improved function to properly render HTML content with YouTube embeds
+  // and hide YouTube URLs
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
     
@@ -161,25 +161,26 @@ const BlogPost = () => {
       return '';
     }
     
-    // First, hide any URLs in the text
-    const contentWithoutYoutubeLinks = hideYouTubeUrls(content);
+    // Hide YouTube URLs in the content
+    let processedContent = content.replace(
+      /(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}/g, 
+      ''
+    );
     
     // Process the content to identify and replace YouTube embeds
-    const processedContent = contentWithoutYoutubeLinks.replace(
+    processedContent = processedContent.replace(
       /<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g,
       (_, videoId) => {
         return `
-          <div class="youtube-embed-placeholder" data-video-id="${videoId}">
-            <div class="aspect-video my-4">
-              <iframe
-                src="https://www.youtube.com/embed/${videoId}"
-                title="YouTube video player"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                class="w-full h-full rounded-md"
-              ></iframe>
-            </div>
+          <div class="aspect-video my-4">
+            <iframe
+              src="https://www.youtube.com/embed/${videoId}"
+              title="YouTube video player"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="w-full h-full rounded-md"
+            ></iframe>
           </div>
         `;
       }
@@ -576,7 +577,7 @@ const BlogPost = () => {
                 )}
               </div>
               
-              {/* CSS for YouTube embeds */}
+              {/* Add styling for YouTube embeds and to hide YouTube URLs */}
               <style>
                 {`
                   .article-content iframe {
@@ -602,27 +603,21 @@ const BlogPost = () => {
                     border: 0;
                     border-radius: 0.375rem;
                   }
+                  /* Hide YouTube URLs that might be visible as text */
+                  .article-content a[href*="youtube.com"],
+                  .article-content a[href*="youtu.be"] {
+                    display: none;
+                  }
                   @media (max-width: 640px) {
                     .article-content iframe {
                       height: auto;
                     }
                   }
-                  /* Hide any URLs in the text */
-                  .article-content a[href*="youtube.com"],
-                  .article-content a[href*="youtu.be"] {
-                    display: none;
-                  }
                 `}
               </style>
-              
-              {/* Content rendering with improved YouTube handling */}
               <div className="article-content prose dark:prose-invert max-w-none mb-8">
-                {!isContentOnlyUrl(blogPost.content) && (
-                  <>
-                    {processYouTubeEmbeds(blogPost.content).map((node, index) => (
-                      <React.Fragment key={index}>{node}</React.Fragment>
-                    ))}
-                  </>
+                {!isContentOnlyUrl(blogPost?.content || '') && (
+                  <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost?.content || '') }} />
                 )}
               </div>
               
