@@ -84,14 +84,22 @@
             loading.classList.add('hidden');
             console.log('App successfully rendered content');
           } else {
-            console.error('App failed to render content within timeout');
-            const errorEl = document.getElementById('loading-error');
-            if (errorEl) {
-              errorEl.textContent = 'Application failed to initialize. Try reloading the page.';
-              errorEl.style.display = 'block';
-            }
+            // Don't show error immediately, give the app a bit more time
+            setTimeout(function() {
+              if (root && root.children.length > 0) {
+                loading.classList.add('hidden');
+                console.log('App successfully rendered content (delayed)');
+              } else {
+                console.error('App failed to render content within timeout');
+                const errorEl = document.getElementById('loading-error');
+                if (errorEl) {
+                  errorEl.textContent = 'Application failed to initialize. Try reloading the page.';
+                  errorEl.style.display = 'block';
+                }
+              }
+            }, 2000); // Add extra 2 seconds
           }
-        }, 5000); // 5-second timeout
+        }, 3000); // Reduce from 5 to 3 seconds for initial check
       });
       
       // Log any errors

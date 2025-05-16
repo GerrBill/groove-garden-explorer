@@ -14,7 +14,7 @@ const Sidebar = () => {
   const [activeSection, setActiveSection] = useState<'albums' | 'blogs' | 'playlists'>('albums');
   const queryClient = useQueryClient();
 
-  console.log("Sidebar: current location path:", location.pathname);
+  console.log("Sidebar component rendering with location:", location.pathname);
 
   // Set active section based on location
   useEffect(() => {
@@ -154,7 +154,8 @@ const Sidebar = () => {
     href: '/playlists'
   }], [activeSection]);
   
-  return <div className="flex h-full">
+  return (
+    <div className="flex h-full">
       <div className="hidden md:flex flex-col gap-y-2 bg-black h-full w-[300px] p-2 px-0">
         <div className="flex gap-2 px-5 py-[3px]">
           {routes.map(item => <SidebarItem key={item.label} {...item} />)}
@@ -234,7 +235,8 @@ const Sidebar = () => {
           )}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Sidebar;

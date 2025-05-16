@@ -1,6 +1,6 @@
 
 import { createRoot } from 'react-dom/client'
-import { StrictMode, Component, Suspense } from 'react';
+import { StrictMode, Component, Suspense, useEffect } from 'react';
 import App from './App.tsx'
 import './index.css'
 import { useHideAddressBar } from './hooks/use-hide-address-bar'
@@ -20,6 +20,17 @@ const ErrorFallback = ({ error }: { error: Error }) => {
       </button>
     </div>
   );
+};
+
+// Use this hook to hide loading screen as soon as React starts rendering
+const useHideLoadingScreen = () => {
+  useEffect(() => {
+    const loadingElement = document.getElementById('loading-fallback');
+    if (loadingElement) {
+      console.log('Hiding loading screen from React hook');
+      loadingElement.classList.add('hidden');
+    }
+  }, []);
 };
 
 // Custom error boundary component
@@ -45,9 +56,10 @@ class AppErrorBoundary extends Component<{children: React.ReactNode}, {hasError:
   }
 }
 
-// Wrapper component to apply the hook
+// Wrapper component to apply the hooks
 const AppWithHiddenAddressBar = () => {
   useHideAddressBar();
+  useHideLoadingScreen(); // Add this hook to hide loading screen
   return (
     <StrictMode>
       <AppErrorBoundary>

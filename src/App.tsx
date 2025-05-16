@@ -67,6 +67,12 @@ const App = () => {
       
       // Mark app as loaded
       setAppLoaded(true);
+      
+      // Hide loading message
+      const loadingElement = document.getElementById('loading-fallback');
+      if (loadingElement) {
+        loadingElement.classList.add('hidden');
+      }
     } catch (e) {
       console.error("Error loading sidebar state:", e);
       // Continue with default values
@@ -150,11 +156,10 @@ const App = () => {
                   <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
                     <TopBar />
                     <div className="flex flex-grow relative">
-                      {sidebarOpen && (
-                        <div className="transition-all duration-300">
-                          <Sidebar />
-                        </div>
-                      )}
+                      {/* Using the direct sidebar component instead of relying on the SidebarProvider */}
+                      <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block transition-all duration-300`}>
+                        <Sidebar />
+                      </div>
                       <div className="flex flex-col flex-grow w-full">
                         <div className="flex-grow overflow-y-auto bg-black">
                           <Routes>
