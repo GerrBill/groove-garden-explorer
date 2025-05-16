@@ -12,9 +12,14 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
   const { open: sidebarOpen, isMobile } = useSidebar();
+  
+  console.log("TopNav rendering with path:", location.pathname);
+  console.log("TopNav - sidebar state:", sidebarOpen, "isMobile:", isMobile);
 
   useEffect(() => {
     const currentPath = location.pathname;
+    console.log("TopNav path changed to:", currentPath);
+    
     if (currentPath === '/' || currentPath.startsWith('/album')) {
       setSelectedTab('Albums');
     } else if (currentPath === '/blog' || currentPath.startsWith('/blog/')) {
@@ -23,11 +28,6 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
       setSelectedTab('Playlists');
     }
   }, [location.pathname, setSelectedTab]);
-
-  // Show nav when sidebar is closed OR on mobile
-  if (sidebarOpen && !isMobile) {
-    return null;
-  }
 
   return (
     <div className="sticky top-0 z-10 backdrop-blur-md bg-black pt-3 pb-1">
@@ -43,7 +43,10 @@ const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
                 : 'bg-black text-white hover:bg-zinc-900'}
               min-w-[72px] sm:min-w-[90px]
             `}
-            onClick={() => setSelectedTab(tab)}
+            onClick={() => {
+              console.log(`TopNav - Clicked on ${tab} tab`);
+              setSelectedTab(tab);
+            }}
           >
             {tab}
           </Link>

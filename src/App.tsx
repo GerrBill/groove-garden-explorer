@@ -22,8 +22,9 @@ import { useIsMobile } from "./hooks/use-mobile";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { ToastProvider } from "@/hooks/use-toast.tsx"; // Import directly from tsx file
+import { ToastProvider } from "@/hooks/use-toast.tsx";
 
+// Create a new query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -34,115 +35,17 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
-
-  // Load sidebar state from localStorage on mount
-  useEffect(() => {
-    const storedSidebarState = localStorage.getItem('sidebar_visible');
-    if (storedSidebarState !== null) {
-      setSidebarOpen(storedSidebarState === 'true');
-    }
-  }, []);
-
-  // Hide sidebar on mobile automatically
-  useEffect(() => {
-    if (isMobileView) {
-      setSidebarOpen(false);
-    } else {
-      // On desktop, restore from localStorage or default to open
-      const storedSidebarState = localStorage.getItem('sidebar_visible');
-      if (storedSidebarState !== null) {
-        setSidebarOpen(storedSidebarState === 'true');
-      } else {
-        setSidebarOpen(true);
-      }
-    }
-  }, [isMobileView]);
-
-  // Set up anonymous user ID
-  useEffect(() => {
-    const existingUserId = localStorage.getItem('anonymous_user_id');
-    if (existingUserId) {
-      setUserId(existingUserId);
-    } else {
-      const newUserId = `anon_${Math.random().toString(36).substring(2, 15)}`;
-      localStorage.setItem('anonymous_user_id', newUserId);
-      setUserId(newUserId);
-    }
-  }, []);
-
-  // Load user preferences from Supabase
-  useEffect(() => {
-    const loadUserPreferences = async () => {
-      if (!userId) return;
-
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('sidebar_visible')
-        .eq('user_id', userId)
-        .single();
-
-      if (error) {
-        if (error.code !== 'PGRST116') {
-          console.error('Error loading preferences:', error);
-        }
-        return;
-      }
-
-      if (data && !isMobileView) {
-        setSidebarOpen(data.sidebar_visible);
-        localStorage.setItem('sidebar_visible', data.sidebar_visible.toString());
-      }
-    };
-
-    loadUserPreferences();
-  }, [userId, isMobileView]);
-
-  // Toggle sidebar and save preferences
-  const toggleSidebar = async () => {
-    const newState = !sidebarOpen;
-    setSidebarOpen(newState);
-    
-    localStorage.setItem('sidebar_visible', newState.toString());
-    
-    if (userId) {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking for existing preferences:', error);
-        return;
-      }
-      
-      if (data) {
-        await supabase
-          .from('user_preferences')
-          .update({ sidebar_visible: newState, updated_at: new Date().toISOString() })
-          .eq('user_id', userId);
-      } else {
-        await supabase
-          .from('user_preferences')
-          .insert({
-            user_id: userId,
-            sidebar_visible: newState
-          });
-      }
-    }
-  };
-
-  // Always force dark mode - this will be applied immediately and doesn't rely on ThemeProvider
+  const [selectedTab, setSelectedTab] = useState('Albums');
+  const isMobileView = useIsMobile(700);
+  
+  // Always force dark mode
   useEffect(() => {
     document.documentElement.classList.add('dark');
     document.documentElement.classList.remove('light');
-    document.documentElement.setAttribute('data-color-theme', 'orange'); // Default color theme
+    document.documentElement.setAttribute('data-color-theme', 'orange');
   }, []);
 
-  console.log("App rendered, routes should be active");
+  console.log("App rendered, routes should be active. Mobile view:", isMobileView);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -151,23 +54,19 @@ const App = () => {
           <ThemeProvider>
             <ToastProvider>
               <TooltipProvider>
-                <SidebarProvider defaultOpen={sidebarOpen}>
+                <SidebarProvider defaultOpen={!isMobileView}>
                   <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
                     <TopBar />
                     <div className="flex flex-grow relative">
-                      {sidebarOpen && (
-                        <div className="transition-all duration-300">
-                          <Sidebar />
-                        </div>
-                      )}
+                      <Sidebar />
                       <div className="flex flex-col flex-grow w-full">
                         <div className="flex-grow overflow-y-auto bg-black">
                           <Routes>
-                            <Route path="/" element={<Index />} />
+                            <Route path="/" element={<Index selectedTab={selectedTab} setSelectedTab={setSelectedTab} />} />
                             <Route path="/album/:id" element={<Album />} />
-                            <Route path="/playlists" element={<Playlists />} />
+                            <Route path="/playlists" element={<Playlists selectedTab={selectedTab} setSelectedTab={setSelectedTab} />} />
                             <Route path="/playlist/:id" element={<Playlist />} />
-                            <Route path="/blog" element={<Blog />} />
+                            <Route path="/blog" element={<Blog selectedTab={selectedTab} setSelectedTab={setSelectedTab} />} />
                             <Route path="/blog/:id" element={<BlogPost />} />
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/reset-password" element={<ResetPassword />} />

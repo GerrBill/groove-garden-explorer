@@ -4,10 +4,19 @@ import App from './App.tsx'
 import './index.css'
 import { useHideAddressBar } from './hooks/use-hide-address-bar'
 
-// Wrapper component to apply the hook
-const AppWithHiddenAddressBar = () => {
+// Wrapper component to apply the hooks
+const AppWithHooks = () => {
+  // Apply address bar hiding hook
   useHideAddressBar();
+  
   return <App />;
 };
 
-createRoot(document.getElementById("root")!).render(<AppWithHiddenAddressBar />);
+// Root element to render into
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error("Root element not found!");
+} else {
+  console.log("Root element found, rendering app");
+  createRoot(rootElement).render(<AppWithHooks />);
+}
