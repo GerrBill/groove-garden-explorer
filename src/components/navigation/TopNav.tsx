@@ -3,8 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from "@/components/ui/sidebar";
 
-const TopNav: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState('Albums');
+interface TopNavProps {
+  selectedTab?: string;
+  setSelectedTab?: (tab: string) => void;
+}
+
+const TopNav: React.FC<TopNavProps> = ({ selectedTab: externalSelectedTab, setSelectedTab: externalSetSelectedTab }) => {
+  const [selectedTab, setSelectedTab] = useState(externalSelectedTab || 'Albums');
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
   const { open: sidebarOpen, isMobile } = useSidebar();
@@ -18,12 +23,22 @@ const TopNav: React.FC = () => {
     
     if (currentPath === '/' || currentPath.startsWith('/album')) {
       setSelectedTab('Albums');
+      if (externalSetSelectedTab) externalSetSelectedTab('Albums');
     } else if (currentPath === '/blog' || currentPath.startsWith('/blog/')) {
       setSelectedTab('Blogs');
+      if (externalSetSelectedTab) externalSetSelectedTab('Blogs');
     } else if (currentPath === '/playlists' || currentPath.startsWith('/playlist/')) {
       setSelectedTab('Playlists');
+      if (externalSetSelectedTab) externalSetSelectedTab('Playlists');
     }
-  }, [location.pathname]);
+  }, [location.pathname, externalSetSelectedTab]);
+
+  // If external selectedTab changes, update internal state
+  useEffect(() => {
+    if (externalSelectedTab && externalSelectedTab !== selectedTab) {
+      setSelectedTab(externalSelectedTab);
+    }
+  }, [externalSelectedTab]);
 
   return (
     <div className="sticky top-0 z-10 backdrop-blur-md bg-black pt-3 pb-1">
@@ -42,6 +57,7 @@ const TopNav: React.FC = () => {
             onClick={() => {
               console.log(`TopNav - Clicked on ${tab} tab`);
               setSelectedTab(tab);
+              if (externalSetSelectedTab) externalSetSelectedTab(tab);
             }}
           >
             {tab}
