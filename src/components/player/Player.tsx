@@ -17,11 +17,11 @@ const Player = () => {
   const location = useLocation();
   const shouldHidePlayer = location.pathname.includes('/blog');
   
-  // Direct DOM access for audio element reference
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Create a ref for the audio element that gets created
+  const audioPlayerMounted = useRef<boolean>(false);
 
   useEffect(() => {
-    // ALTERNATIVE APPROACH: Create a global function to play tracks
+    // IMPROVED APPROACH: Create a global function to play tracks
     window.playTrack = (track: Track) => {
       console.log("Global playTrack called with:", track.title);
       if (!track.audio_path) {
@@ -39,25 +39,45 @@ const Player = () => {
       // Give time for the audio element to be created
       setTimeout(() => {
         try {
-          // Find and play the audio element
+          // Find and play the audio element - more reliable selector
           const audioElement = document.querySelector('audio');
           if (audioElement) {
-            audioRef.current = audioElement;
             console.log("Found audio element, attempting to play");
+            audioPlayerMounted.current = true;
+            // Set autoplay and try playing
+            audioElement.autoplay = true;
             const playPromise = audioElement.play();
             
             if (playPromise !== undefined) {
               playPromise.catch(err => {
                 console.error("Error auto-playing audio:", err);
                 toast({
-                  title: "Playback Error",
+                  title: "Playback Error", 
                   description: "Could not auto-play the track. Try clicking play.",
                   variant: "destructive"
                 });
               });
             }
           } else {
-            console.error("Audio element not found");
+            console.error("Audio element not found - will retry");
+            // Try again after a longer delay
+            setTimeout(() => {
+              const retryAudioElement = document.querySelector('audio');
+              if (retryAudioElement) {
+                console.log("Found audio element on retry, attempting to play");
+                retryAudioElement.autoplay = true;
+                retryAudioElement.play().catch(err => {
+                  console.error("Error on retry play:", err);
+                });
+              } else {
+                console.error("Audio element still not found after retry");
+                toast({
+                  title: "Playback Error",
+                  description: "Could not find audio player. Please try again.",
+                  variant: "destructive"
+                });
+              }
+            }, 500);
           }
         } catch (err) {
           console.error("Error in play timeout:", err);

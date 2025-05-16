@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import AudioPlayer from './AudioPlayer';
 import { Track } from '@/types/supabase';
 

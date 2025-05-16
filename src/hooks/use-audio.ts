@@ -36,6 +36,14 @@ export function useAudio(audioSrc: string | undefined) {
     const handleCanPlay = () => {
       console.log("Audio can play now");
       setLoadError(null); // Clear any previous errors
+      
+      // Try to play immediately if the player was just created
+      if (audioElement && !audio) {
+        console.log("First load - attempting autoplay");
+        audioElement.play().catch(err => {
+          console.log("Could not autoplay on first load:", err);
+        });
+      }
     };
     
     audioElement.addEventListener('canplay', handleCanPlay);
@@ -150,6 +158,7 @@ export function useAudio(audioSrc: string | undefined) {
   };
 
   return {
+    audio,
     isPlaying,
     currentTime,
     duration,

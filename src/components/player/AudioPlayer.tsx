@@ -23,7 +23,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
     skipBack,
     isMuted,
     toggleMute,
-    loadError
+    loadError,
+    audio
   } = useAudio(audioSrc);
 
   const [isSeeking, setIsSeeking] = useState(false);
@@ -31,6 +32,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
   const isMobile = useIsMobile();
   const volumeRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Log that the audio player has mounted
+  useEffect(() => {
+    console.log("AudioPlayer mounted with src:", audioSrc);
+  }, [audioSrc]);
 
   // Display error toast if audio fails to load
   useEffect(() => {
