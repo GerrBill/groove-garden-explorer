@@ -23,6 +23,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ToastProvider } from "@/hooks/use-toast";
+import { useHideAddressBar } from "./hooks/use-hide-address-bar";
 
 // Initialize QueryClient with error logging
 const queryClient = new QueryClient({
@@ -121,7 +122,16 @@ const App = () => {
     }
   }, []);
 
-  console.log("App rendered, routes should be active, appLoaded:", appLoaded);
+  // Save sidebar state when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('sidebar_visible', String(sidebarOpen));
+    } catch (e) {
+      console.error("Error saving sidebar state:", e);
+    }
+  }, [sidebarOpen]);
+
+  console.log("App rendered, routes should be active, appLoaded:", appLoaded, "sidebarOpen:", sidebarOpen);
 
   if (!appLoaded) {
     return <div className="h-screen w-full flex items-center justify-center bg-black text-white">
