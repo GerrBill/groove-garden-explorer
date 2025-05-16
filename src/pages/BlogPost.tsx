@@ -152,6 +152,7 @@ const BlogPost = () => {
   };
 
   // Improved function to properly render HTML content with YouTube embeds
+  // and hide YouTube URLs
   const renderFormattedContent = (content: string) => {
     if (!content) return '';
     
@@ -160,8 +161,14 @@ const BlogPost = () => {
       return '';
     }
     
+    // Hide YouTube URLs in the content
+    let processedContent = content.replace(
+      /(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}/g, 
+      ''
+    );
+    
     // Process the content to identify and replace YouTube embeds
-    const processedContent = content.replace(
+    processedContent = processedContent.replace(
       /<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g,
       (_, videoId) => {
         return `
@@ -570,7 +577,7 @@ const BlogPost = () => {
                 )}
               </div>
               
-              {/* Add styling for YouTube embeds */}
+              {/* Add styling for YouTube embeds and to hide YouTube URLs */}
               <style>
                 {`
                   .article-content iframe {
@@ -596,6 +603,11 @@ const BlogPost = () => {
                     border: 0;
                     border-radius: 0.375rem;
                   }
+                  /* Hide YouTube URLs that might be visible as text */
+                  .article-content a[href*="youtube.com"],
+                  .article-content a[href*="youtu.be"] {
+                    display: none;
+                  }
                   @media (max-width: 640px) {
                     .article-content iframe {
                       height: auto;
@@ -604,8 +616,8 @@ const BlogPost = () => {
                 `}
               </style>
               <div className="article-content prose dark:prose-invert max-w-none mb-8">
-                {!isContentOnlyUrl(blogPost.content) && (
-                  <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
+                {!isContentOnlyUrl(blogPost?.content || '') && (
+                  <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost?.content || '') }} />
                 )}
               </div>
               
