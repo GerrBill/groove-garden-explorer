@@ -21,9 +21,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "./hooks/use-mobile";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { ToastProvider } from "@/hooks/use-toast";
-import { useHideAddressBar } from "./hooks/use-hide-address-bar";
 
 // Initialize QueryClient with error logging
 const queryClient = new QueryClient({
@@ -48,14 +47,12 @@ queryClient.getQueryCache().subscribe((event) => {
   }
 });
 
-const App = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+const AppContent = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const isMobileView = useIsMobile(700); // Custom breakpoint at 700px
   const [appLoaded, setAppLoaded] = useState(false);
-
-  console.log("App component rendering, sidebarOpen:", sidebarOpen, "isMobileView:", isMobileView);
-
+  
   // Load sidebar state from localStorage on mount
   useEffect(() => {
     try {
@@ -63,6 +60,9 @@ const App = () => {
       const storedSidebarState = localStorage.getItem('sidebar_visible');
       if (storedSidebarState !== null) {
         setSidebarOpen(storedSidebarState === 'true');
+      } else {
+        // Default to true if not set
+        setSidebarOpen(!isMobileView);
       }
       
       // Mark app as loaded
@@ -78,7 +78,7 @@ const App = () => {
       // Continue with default values
       setAppLoaded(true);
     }
-  }, []);
+  }, [isMobileView]);
 
   // Hide sidebar on mobile automatically
   useEffect(() => {
@@ -155,38 +155,44 @@ const App = () => {
   }
 
   return (
+    <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
+      <TopBar onToggleSidebar={toggleSidebar} />
+      <div className="flex flex-grow relative">
+        {/* Fixed sidebar rendering with proper visibility */}
+        <div className={`${sidebarOpen ? 'md:block' : 'hidden'} h-full`}>
+          <Sidebar />
+        </div>
+        <div className="flex flex-col flex-grow w-full">
+          <div className="flex-grow overflow-y-auto bg-black">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/album/:id" element={<Album />} />
+              <Route path="/playlists" element={<Playlists />} />
+              <Route path="/playlist/:id" element={<Playlist />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+          <Player />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
           <ThemeProvider>
             <ToastProvider>
               <TooltipProvider>
-                <SidebarProvider defaultOpen={sidebarOpen}>
-                  <div className="flex flex-col h-screen overflow-hidden bg-black text-foreground w-full">
-                    <TopBar onToggleSidebar={toggleSidebar} />
-                    <div className="flex flex-grow relative">
-                      {/* Fixed sidebar rendering with proper visibility */}
-                      <div className={`${sidebarOpen ? 'block' : 'hidden md:block'} transition-all duration-300 h-full`}>
-                        <Sidebar />
-                      </div>
-                      <div className="flex flex-col flex-grow w-full">
-                        <div className="flex-grow overflow-y-auto bg-black">
-                          <Routes>
-                            <Route path="/" element={<Index />} />
-                            <Route path="/album/:id" element={<Album />} />
-                            <Route path="/playlists" element={<Playlists />} />
-                            <Route path="/playlist/:id" element={<Playlist />} />
-                            <Route path="/blog" element={<Blog />} />
-                            <Route path="/blog/:id" element={<BlogPost />} />
-                            <Route path="/settings" element={<Settings />} />
-                            <Route path="/reset-password" element={<ResetPassword />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </div>
-                        <Player />
-                      </div>
-                    </div>
-                  </div>
+                <SidebarProvider defaultOpen={true}>
+                  <AppContent />
                   <Toaster />
                   <Sonner />
                 </SidebarProvider>

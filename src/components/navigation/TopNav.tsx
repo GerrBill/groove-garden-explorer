@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from "@/components/ui/sidebar";
 
@@ -11,7 +11,18 @@ interface TopNavProps {
 const TopNav: React.FC<TopNavProps> = ({ selectedTab, setSelectedTab }) => {
   const tabs = ['Albums', 'Blogs', 'Playlists'];
   const location = useLocation();
-  const { open: sidebarOpen, isMobile } = useSidebar();
+  const { open: sidebarOpen } = useSidebar();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
+
+  // Listen for window resize events to update mobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 700);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const currentPath = location.pathname;

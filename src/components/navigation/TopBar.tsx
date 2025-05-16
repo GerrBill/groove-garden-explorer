@@ -1,28 +1,27 @@
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import AccountButton from '../auth/AccountButton';
 import { Link } from 'react-router-dom';
 import { useSidebar } from "@/components/ui/sidebar";
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TopBarProps {
   onToggleSidebar?: () => void;
 }
 
 const TopBar = ({ onToggleSidebar }: TopBarProps) => {
-  const [selectedTab, setSelectedTab] = useState('Albums');
-  const isMobile = useIsMobile(700);
-  const { open: sidebarOpen } = useSidebar();
+  const { open: sidebarOpen, toggleSidebar } = useSidebar();
   
-  console.log("TopBar rendering, sidebarOpen:", sidebarOpen, "isMobile:", isMobile);
+  console.log("TopBar rendering, sidebarOpen:", sidebarOpen);
   
   const handleToggleSidebar = useCallback(() => {
     console.log("Toggle sidebar clicked");
     if (onToggleSidebar) {
       onToggleSidebar();
+    } else {
+      toggleSidebar();
     }
-  }, [onToggleSidebar]);
+  }, [onToggleSidebar, toggleSidebar]);
 
   return (
     <div className="sticky top-0 z-30 w-full flex bg-black items-center justify-between px-4 py-1 border-b border-zinc-800">
