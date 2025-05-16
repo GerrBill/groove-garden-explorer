@@ -21,6 +21,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from "@/components/ui/spinner";
 import { isYouTubeUrl, extractYouTubeVideoId, isContentOnlyUrl } from '@/utils/youtubeUtils';
 import YouTubeEmbed from '@/components/blog/YouTubeEmbed';
+import { processYouTubeEmbeds, hideYouTubeUrls } from '@/utils/embedUtils';
 
 const ADMIN_EMAILS = [
   "wjparker@outlook.com",
@@ -160,20 +161,25 @@ const BlogPost = () => {
       return '';
     }
     
+    // First, hide any URLs in the text
+    const contentWithoutYoutubeLinks = hideYouTubeUrls(content);
+    
     // Process the content to identify and replace YouTube embeds
-    const processedContent = content.replace(
+    const processedContent = contentWithoutYoutubeLinks.replace(
       /<div class="youtube-embed" data-youtube-id="([^"]+)"><\/div>/g,
       (_, videoId) => {
         return `
-          <div class="aspect-video my-4">
-            <iframe
-              src="https://www.youtube.com/embed/${videoId}"
-              title="YouTube video player"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-              class="w-full h-full rounded-md"
-            ></iframe>
+          <div class="youtube-embed-placeholder" data-video-id="${videoId}">
+            <div class="aspect-video my-4">
+              <iframe
+                src="https://www.youtube.com/embed/${videoId}"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="w-full h-full rounded-md"
+              ></iframe>
+            </div>
           </div>
         `;
       }
@@ -570,7 +576,7 @@ const BlogPost = () => {
                 )}
               </div>
               
-              {/* Add styling for YouTube embeds */}
+              {/* CSS for YouTube embeds */}
               <style>
                 {`
                   .article-content iframe {
@@ -601,11 +607,22 @@ const BlogPost = () => {
                       height: auto;
                     }
                   }
+                  /* Hide any URLs in the text */
+                  .article-content a[href*="youtube.com"],
+                  .article-content a[href*="youtu.be"] {
+                    display: none;
+                  }
                 `}
               </style>
+              
+              {/* Content rendering with improved YouTube handling */}
               <div className="article-content prose dark:prose-invert max-w-none mb-8">
                 {!isContentOnlyUrl(blogPost.content) && (
-                  <div dangerouslySetInnerHTML={{ __html: renderFormattedContent(blogPost.content) }} />
+                  <>
+                    {processYouTubeEmbeds(blogPost.content).map((node, index) => (
+                      <React.Fragment key={index}>{node}</React.Fragment>
+                    ))}
+                  </>
                 )}
               </div>
               
