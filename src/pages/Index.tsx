@@ -30,23 +30,25 @@ const Index = () => {
     error,
     refetch: fetchAlbums
   } = useQuery({
-    queryKey: ['albums-page'],
+    queryKey: ['albums'],
     queryFn: async () => {
-      console.log("Fetching albums for Index page...");
-      const {
-        data,
-        error
-      } = await supabase.from('albums').select('*').order('created_at', {
-        ascending: false
-      });
+      console.log("Fetching albums...");
+      const { data, error } = await supabase
+        .from('albums')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
       if (error) {
         console.error('Error fetching albums:', error);
         throw error;
       }
+      
       console.log("Albums fetched successfully:", data);
       return data || [];
     }
   });
+
+  console.log("Current albums state:", albums, "Loading:", isLoading, "Error:", error);
 
   // Show error toast if fetch fails
   if (error) {
@@ -71,8 +73,6 @@ const Index = () => {
   const gridClass = isMobileView 
     ? "grid-cols-1" 
     : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; 
-
-  console.log("Rendering Index page with albums:", albums, "isLoading:", isLoading, "error:", error);
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
@@ -120,7 +120,7 @@ const Index = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-8 text-zinc-400">
-                No albums found. Click "Add Album" to create one.
+                No albums found. {isAdmin ? 'Click "Add Album" to create one.' : ''}
               </div>
             )}
           </div>
