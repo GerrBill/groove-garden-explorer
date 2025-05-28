@@ -43,7 +43,7 @@ const Index = () => {
         console.error('Error fetching albums:', error);
         throw error;
       }
-      console.log("Albums fetched:", data);
+      console.log("Albums fetched successfully:", data);
       return data || [];
     }
   });
@@ -72,7 +72,7 @@ const Index = () => {
     ? "grid-cols-1" 
     : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"; 
 
-  console.log("Rendering Index page with data:", albums);
+  console.log("Rendering Index page with albums:", albums, "isLoading:", isLoading, "error:", error);
 
   return (
     <div className="flex-1 overflow-hidden w-full pb-24 bg-black">
@@ -103,23 +103,25 @@ const Index = () => {
                   <div className="h-3 bg-zinc-800 rounded animate-pulse w-1/2"></div>
                 </div>
               ))
+            ) : error ? (
+              <div className="col-span-full text-center py-8 text-red-400">
+                Error loading albums: {error.message}
+              </div>
+            ) : albums && albums.length > 0 ? (
+              albums.map(album => (
+                <AlbumCard 
+                  key={album.id}
+                  id={album.id}
+                  image={album.image_url}
+                  title={album.title}
+                  artist={album.artist}
+                  size="md"
+                />
+              ))
             ) : (
-              albums && albums.length > 0 ? (
-                albums.map(album => (
-                  <AlbumCard 
-                    key={album.id}
-                    id={album.id}
-                    image={album.image_url}
-                    title={album.title}
-                    artist={album.artist}
-                    size="md"
-                  />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-8 text-zinc-400">
-                  No albums found. Click "Add Album" to create one.
-                </div>
-              )
+              <div className="col-span-full text-center py-8 text-zinc-400">
+                No albums found. Click "Add Album" to create one.
+              </div>
             )}
           </div>
         </div>
