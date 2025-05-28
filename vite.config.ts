@@ -44,11 +44,12 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: [
+      '@tiptap/core',
+      '@tiptap/react',
+      '@tiptap/starter-kit',
       '@tiptap/extension-image',
       '@tiptap/extension-link',
       '@tiptap/extension-text-align',
-      '@tiptap/react',
-      '@tiptap/starter-kit',
     ],
     esbuildOptions: {
       define: {
