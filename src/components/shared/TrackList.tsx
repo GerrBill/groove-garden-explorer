@@ -183,6 +183,7 @@ const TrackList: React.FC<TrackListProps> = ({
                   {track.audio_path && (
                     <a 
                       href={`https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`} 
+                      download={`${track.artist} - ${track.title}.mp3`}
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-zinc-400 hover:text-white"
@@ -217,4 +218,3 @@ const TrackList: React.FC<TrackListProps> = ({
 };
 
 export default TrackList;
-
