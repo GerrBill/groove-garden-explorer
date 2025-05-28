@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('@radix-ui')) {
               return 'vendor-radix';
             }
-            if (id.includes('@tiptap')) {
+            if (id.includes('@tiptap') || id.includes('prosemirror')) {
               return 'vendor-tiptap';
             }
             return 'vendor';
@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => ({
       '@tiptap/extension-image',
       '@tiptap/extension-link',
       '@tiptap/extension-text-align',
+      '@tiptap/pm',
     ],
     esbuildOptions: {
       define: {
