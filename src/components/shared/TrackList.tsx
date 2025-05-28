@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -21,6 +20,7 @@ const TrackList: React.FC<TrackListProps> = ({
   const { user } = useAuth();
   const [loadingLike, setLoadingLike] = useState<string | null>(null);
   const [loadingRemove, setLoadingRemove] = useState<string | null>(null);
+  const [downloadingTrack, setDownloadingTrack] = useState<string | null>(null);
 
   const handlePlay = (track: Track) => {
     // Check if track has audio path
@@ -133,6 +133,59 @@ const TrackList: React.FC<TrackListProps> = ({
     }
   };
 
+  const handleDownload = async (track: Track) => {
+    if (!track.audio_path) {
+      toast({
+        title: "Download Error",
+        description: "This track doesn't have an audio file available for download.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setDownloadingTrack(track.id);
+
+    try {
+      const audioUrl = `https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`;
+      
+      // Fetch the file as a blob
+      const response = await fetch(audioUrl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch the audio file');
+      }
+      
+      const blob = await response.blob();
+      
+      // Create a temporary URL for the blob
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // Create a temporary anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${track.artist} - ${track.title}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      
+      toast({
+        title: "Download Started",
+        description: `"${track.title}" is being downloaded.`,
+      });
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download the track. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setDownloadingTrack(null);
+    }
+  };
+
   return (
     <div className="relative overflow-x-auto">
       <table className="w-full text-sm text-left text-zinc-400">
@@ -181,15 +234,18 @@ const TrackList: React.FC<TrackListProps> = ({
                     )}
                   </button>
                   {track.audio_path && (
-                    <a 
-                      href={`https://wiisixdctrokfmhnrxnw.supabase.co/storage/v1/object/public/audio/${track.audio_path}`} 
-                      download={`${track.artist} - ${track.title}.mp3`}
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-zinc-400 hover:text-white"
+                    <button
+                      onClick={() => handleDownload(track)}
+                      className={`text-zinc-400 hover:text-white ${downloadingTrack === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={downloadingTrack === track.id}
+                      aria-label={`Download ${track.title}`}
                     >
-                      <Download size={20} />
-                    </a>
+                      {downloadingTrack === track.id ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Download size={20} />
+                      )}
+                    </button>
                   )}
                   {canEdit && onRemoveTrack && (
                     <button
