@@ -3,6 +3,7 @@ import { Heart, Play, Download, MoreHorizontal, X, Loader2 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Track } from '@/types/supabase';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TrackListProps {
   tracks: Track[];
@@ -187,89 +188,91 @@ const TrackList: React.FC<TrackListProps> = ({
   };
 
   return (
-    <div className="relative overflow-x-auto">
-      <table className="w-full text-sm text-left text-zinc-400">
-        <thead className="text-xs text-zinc-700 uppercase bg-zinc-900">
-          <tr>
-            <th scope="col" className="px-2 py-3 w-10"></th>
-            <th scope="col" className="px-2 py-3 w-10">#</th>
-            <th scope="col" className="px-6 py-3">Title</th>
-            <th scope="col" className="px-6 py-3">Artist</th>
-            {tracks.some(track => track.album_name) && (
-              <th scope="col" className="px-6 py-3">Album</th>
-            )}
-            <th scope="col" className="px-6 py-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tracks.map((track, index) => (
-            <tr key={track.id} className="bg-zinc-800 border-b border-zinc-700 hover:bg-zinc-700">
-              <td className="px-2 py-4 text-center">
-                <button
-                  onClick={() => handlePlay(track)}
-                  className="text-zinc-400 hover:text-white"
-                  aria-label={`Play ${track.title}`}
-                  data-track-id={track.id}
-                >
-                  <Play size={20} />
-                </button>
-              </td>
-              <td className="px-2 py-4 text-center">{track.track_number || index + 1}</td>
-              <td className="px-6 py-4 font-medium text-white whitespace-nowrap">{track.title}</td>
-              <td className="px-6 py-4">{track.artist}</td>
-              {tracks.some(t => t.album_name) && (
-                <td className="px-6 py-4">{track.album_name}</td>
+    <ScrollArea className="h-[400px] w-full">
+      <div className="relative">
+        <table className="w-full text-sm text-left text-zinc-400">
+          <thead className="text-xs text-zinc-700 uppercase bg-zinc-900 sticky top-0 z-10">
+            <tr>
+              <th scope="col" className="px-2 py-3 w-10"></th>
+              <th scope="col" className="px-2 py-3 w-10">#</th>
+              <th scope="col" className="px-6 py-3">Title</th>
+              <th scope="col" className="px-6 py-3">Artist</th>
+              {tracks.some(track => track.album_name) && (
+                <th scope="col" className="px-6 py-3">Album</th>
               )}
-              <td className="px-6 py-4">
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => toggleLike(track)}
-                    className={`text-zinc-400 hover:text-white ${loadingLike === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={loadingLike === track.id}
-                  >
-                    {loadingLike === track.id ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <Heart size={20} fill={track.is_liked ? 'currentColor' : 'none'} color={track.is_liked ? '#1DB954' : 'currentColor'} />
-                    )}
-                  </button>
-                  {track.audio_path && (
-                    <button
-                      onClick={() => handleDownload(track)}
-                      className={`text-zinc-400 hover:text-white ${downloadingTrack === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={downloadingTrack === track.id}
-                      aria-label={`Download ${track.title}`}
-                    >
-                      {downloadingTrack === track.id ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Download size={20} />
-                      )}
-                    </button>
-                  )}
-                  {canEdit && onRemoveTrack && (
-                    <button
-                      onClick={() => handleRemoveFromPlaylist(track.id)}
-                      className={`text-zinc-400 hover:text-rose-500 ${loadingRemove === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={loadingRemove === track.id}
-                    >
-                      {loadingRemove === track.id ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <X size={20} />
-                      )}
-                    </button>
-                  )}
-                  <button className="text-zinc-400 hover:text-white">
-                    <MoreHorizontal size={20} />
-                  </button>
-                </div>
-              </td>
+              <th scope="col" className="px-6 py-3">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {tracks.map((track, index) => (
+              <tr key={track.id} className="bg-zinc-800 border-b border-zinc-700 hover:bg-zinc-700">
+                <td className="px-2 py-4 text-center">
+                  <button
+                    onClick={() => handlePlay(track)}
+                    className="text-zinc-400 hover:text-white"
+                    aria-label={`Play ${track.title}`}
+                    data-track-id={track.id}
+                  >
+                    <Play size={20} />
+                  </button>
+                </td>
+                <td className="px-2 py-4 text-center">{track.track_number || index + 1}</td>
+                <td className="px-6 py-4 font-medium text-white whitespace-nowrap">{track.title}</td>
+                <td className="px-6 py-4">{track.artist}</td>
+                {tracks.some(t => t.album_name) && (
+                  <td className="px-6 py-4">{track.album_name}</td>
+                )}
+                <td className="px-6 py-4">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => toggleLike(track)}
+                      className={`text-zinc-400 hover:text-white ${loadingLike === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={loadingLike === track.id}
+                    >
+                      {loadingLike === track.id ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Heart size={20} fill={track.is_liked ? 'currentColor' : 'none'} color={track.is_liked ? '#1DB954' : 'currentColor'} />
+                      )}
+                    </button>
+                    {track.audio_path && (
+                      <button
+                        onClick={() => handleDownload(track)}
+                        className={`text-zinc-400 hover:text-white ${downloadingTrack === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={downloadingTrack === track.id}
+                        aria-label={`Download ${track.title}`}
+                      >
+                        {downloadingTrack === track.id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Download size={20} />
+                        )}
+                      </button>
+                    )}
+                    {canEdit && onRemoveTrack && (
+                      <button
+                        onClick={() => handleRemoveFromPlaylist(track.id)}
+                        className={`text-zinc-400 hover:text-rose-500 ${loadingRemove === track.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={loadingRemove === track.id}
+                      >
+                        {loadingRemove === track.id ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <X size={20} />
+                        )}
+                      </button>
+                    )}
+                    <button className="text-zinc-400 hover:text-white">
+                      <MoreHorizontal size={20} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ScrollArea>
   );
 };
 
