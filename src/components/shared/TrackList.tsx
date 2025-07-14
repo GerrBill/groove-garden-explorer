@@ -4,6 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Track } from '@/types/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import AddToPlaylistButton from '@/components/playlist/AddToPlaylistButton';
 
 interface TrackListProps {
   tracks: Track[];
@@ -248,6 +249,12 @@ const TrackList: React.FC<TrackListProps> = ({
                           <Download size={20} />
                         )}
                       </button>
+                    )}
+                    {albumId && !canEdit && (
+                      <AddToPlaylistButton 
+                        trackId={track.id} 
+                        albumName={track.album_name}
+                      />
                     )}
                     {canEdit && onRemoveTrack && (
                       <button

@@ -142,14 +142,13 @@ const AddToPlaylistButton: React.FC<AddToPlaylistButtonProps> = ({ trackId, albu
 
   return (
     <>
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className="opacity-0 group-hover:opacity-100 w-8 h-8"
+      <button
         onClick={() => setOpen(true)}
+        className="text-zinc-400 hover:text-white"
+        aria-label="Add to playlist"
       >
-        <PlusCircle size={18} />
-      </Button>
+        <PlusCircle size={20} />
+      </button>
       
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-zinc-900 text-white border-zinc-700">
