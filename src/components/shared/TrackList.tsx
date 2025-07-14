@@ -194,7 +194,7 @@ const TrackList: React.FC<TrackListProps> = ({
                 <td className="px-6 font-medium text-white truncate max-w-0 py-[6px]">{track.title}</td>
                 <td className="px-6 py-4 truncate max-w-0">{track.artist}</td>
                 {tracks.some(t => t.album_name) && <td className="px-6 py-4 truncate max-w-0">{track.album_name}</td>}
-                <td className="px-6 py-4">
+                <td className="px-6 py-[5px] my-[5px]">
                   <div className="flex items-center space-x-4">
                     <button onClick={() => toggleLike(track)} className={`text-zinc-400 hover:text-white ${loadingLike === track.id ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loadingLike === track.id}>
                       {loadingLike === track.id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Heart size={15} fill={track.is_liked ? 'currentColor' : 'none'} color={track.is_liked ? '#1DB954' : 'currentColor'} />}
