@@ -189,7 +189,7 @@ const TrackList: React.FC<TrackListProps> = ({
   };
 
   return (
-    <ScrollArea className="h-[400px] w-full">
+    <ScrollArea className="h-[500px] w-full">
       <div className="w-full">
         <table className="w-full text-sm text-left text-zinc-400">
           <thead className="text-xs text-zinc-700 uppercase bg-zinc-900 sticky top-0 z-10">
