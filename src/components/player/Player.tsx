@@ -107,7 +107,8 @@ const Player = () => {
     };
   }, []);
 
-  if (shouldHidePlayer) {
+  // Don't render if no current track or should hide player
+  if (shouldHidePlayer || !currentTrack) {
     return null;
   }
 
