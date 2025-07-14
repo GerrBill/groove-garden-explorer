@@ -271,7 +271,7 @@ const TrackList: React.FC<TrackListProps> = ({
             ))}
           </tbody>
         </table>
-        <div className="h-8" />
+        <div className="h-16" />
       </div>
     </ScrollArea>
   );
