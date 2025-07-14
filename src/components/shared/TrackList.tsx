@@ -196,7 +196,7 @@ const TrackList: React.FC<TrackListProps> = ({
             <tr>
               <th scope="col" className="px-2 py-3 w-10"></th>
               <th scope="col" className="px-2 py-3 w-10">#</th>
-              <th scope="col" className="px-6 py-3">Title</th>
+              <th scope="col" className="px-6 py-3 w-1/2">Title</th>
               <th scope="col" className="px-6 py-3">Artist</th>
               {tracks.some(track => track.album_name) && (
                 <th scope="col" className="px-6 py-3">Album</th>
@@ -214,7 +214,7 @@ const TrackList: React.FC<TrackListProps> = ({
                     aria-label={`Play ${track.title}`}
                     data-track-id={track.id}
                   >
-                    <Play size={20} />
+                    <Play size={15} />
                   </button>
                 </td>
                 <td className="px-2 py-4 text-center">{track.track_number || index + 1}</td>
@@ -233,7 +233,7 @@ const TrackList: React.FC<TrackListProps> = ({
                       {loadingLike === track.id ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <Heart size={20} fill={track.is_liked ? 'currentColor' : 'none'} color={track.is_liked ? '#1DB954' : 'currentColor'} />
+                        <Heart size={15} fill={track.is_liked ? 'currentColor' : 'none'} color={track.is_liked ? '#1DB954' : 'currentColor'} />
                       )}
                     </button>
                     {track.audio_path && (
@@ -246,7 +246,7 @@ const TrackList: React.FC<TrackListProps> = ({
                         {downloadingTrack === track.id ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
                         ) : (
-                          <Download size={20} />
+                          <Download size={15} />
                         )}
                       </button>
                     )}
@@ -265,13 +265,10 @@ const TrackList: React.FC<TrackListProps> = ({
                         {loadingRemove === track.id ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
                         ) : (
-                          <X size={20} />
+                          <X size={15} />
                         )}
                       </button>
                     )}
-                    <button className="text-zinc-400 hover:text-white">
-                      <MoreHorizontal size={20} />
-                    </button>
                   </div>
                 </td>
               </tr>
