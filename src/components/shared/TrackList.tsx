@@ -206,7 +206,7 @@ const TrackList: React.FC<TrackListProps> = ({
           </thead>
           <tbody>
             {tracks.map((track, index) => (
-              <tr key={track.id} className="bg-zinc-800 border-b border-zinc-700 hover:bg-zinc-700 h-16">
+              <tr key={track.id} className="bg-zinc-800 border-b border-zinc-700 hover:bg-zinc-700 h-14">
                 <td className="px-2 py-4 text-center">
                   <button
                     onClick={() => handlePlay(track)}
