@@ -218,10 +218,10 @@ const TrackList: React.FC<TrackListProps> = ({
                   </button>
                 </td>
                 <td className="px-2 py-4 text-center">{track.track_number || index + 1}</td>
-                <td className="px-6 py-4 font-medium text-white whitespace-nowrap">{track.title}</td>
-                <td className="px-6 py-4">{track.artist}</td>
+                <td className="px-6 py-4 font-medium text-white truncate max-w-0">{track.title}</td>
+                <td className="px-6 py-4 truncate max-w-0">{track.artist}</td>
                 {tracks.some(t => t.album_name) && (
-                  <td className="px-6 py-4">{track.album_name}</td>
+                  <td className="px-6 py-4 truncate max-w-0">{track.album_name}</td>
                 )}
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-4">
